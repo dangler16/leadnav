@@ -26,7 +26,7 @@ const navItems = [
   { label: 'Reports', href: '/reports', icon: BarChart2 },
 ]
 
-export function Sidebar({ disputeCount = 0 }: { disputeCount?: number }) {
+export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: number; isAdmin?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
