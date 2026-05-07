@@ -15,6 +15,8 @@ import {
   User,
   Settings,
   Bell,
+  Store,
+  ShieldCheck,
 } from 'lucide-react'
 
 const navItems = [
@@ -24,6 +26,11 @@ const navItems = [
   { label: 'Disputes', href: '/disputes', icon: AlertCircle, badge: true },
   { label: 'Calls', href: '/calls', icon: Phone },
   { label: 'Reports', href: '/reports', icon: BarChart2 },
+]
+
+const adminNavItems = [
+  { label: 'Vendors', href: '/vendors', icon: Store },
+  { label: 'Admin', href: '/admin', icon: ShieldCheck },
 ]
 
 export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: number; isAdmin?: boolean }) {
@@ -87,6 +94,31 @@ export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: 
             </Link>
           )
         })}
+        {isAdmin && (
+          <>
+            <p className="px-[12px] pt-[16px] pb-[4px] text-[11px] font-bold uppercase tracking-[10%] text-white/35">
+              Admin
+            </p>
+            {adminNavItems.map(({ label, href, icon: Icon }) => {
+              const isActive = pathname === href || pathname.startsWith(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-semibold transition-colors',
+                    isActive
+                      ? 'bg-[#EA121240] text-[#F9B7B7] border-l-2 border-[#EA1212] px-[10px]'
+                      : 'text-white/35 hover:text-white hover:bg-white/5 font-medium'
+                  )}
+                >
+                  <Icon size={16} className="flex-shrink-0" strokeWidth={2.5}/>
+                  <span className="flex-1">{label}</span>
+                </Link>
+              )
+            })}
+          </>
+        )}
       </nav>
 
       {/* Sign out */}
