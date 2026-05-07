@@ -22,15 +22,14 @@ export default async function ProfilePage() {
   const profile = profileData as Profile
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div>
         <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
         <p className="text-sm text-gray-500 mt-0.5">View and update your account information.</p>
       </div>
 
-      <div className="max-w-lg space-y-4">
-        {/* Identity card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="max-w-lg flex flex-col gap-6">
+        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
           <div className="flex items-center gap-4 mb-5">
             <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xl font-bold flex-shrink-0">
               {(profile?.first_name?.[0] ?? '?').toUpperCase()}
@@ -41,7 +40,7 @@ export default async function ProfilePage() {
               </p>
               <p className="text-sm text-gray-400 truncate">{user.email}</p>
             </div>
-            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium flex-shrink-0 ${
+            <span className={`inline-flex items-center gap-1 rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none flex-shrink-0 ${
               profile?.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
             }`}>
               {profile?.role === 'admin' && <ShieldCheck size={11} />}
@@ -67,13 +66,12 @@ export default async function ProfilePage() {
           </p>
         </div>
 
-        {/* Edit form */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-              <User size={15} />
+            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+              <User size={20} />
             </div>
-            <p className="text-sm font-semibold text-gray-900">Edit Name</p>
+            <p className="font-semibold text-base text-gray-800">Edit Name</p>
           </div>
           <ProfileForm profile={profile} />
         </div>

@@ -37,8 +37,8 @@ export default async function NotificationsPage() {
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -49,7 +49,7 @@ export default async function NotificationsPage() {
       </div>
 
       <div className="max-w-2xl">
-        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-50">
+        <div className="bg-white rounded-[5px] border border-gray-200 divide-y divide-gray-50">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center py-16 gap-3 text-gray-400">
               <Bell size={32} strokeWidth={1.5} />

@@ -25,8 +25,8 @@ export default async function VendorsPage() {
   const allKeys = (keysData ?? []) as VendorApiKey[]
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage lead vendors and sources.</p>
@@ -34,12 +34,12 @@ export default async function VendorsPage() {
         <NewVendorDialog />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-            <Store size={15} />
+          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+            <Store size={20} />
           </div>
-          <p className="text-sm font-semibold text-gray-900">All Vendors</p>
+          <p className="font-semibold text-base text-gray-800">All Vendors</p>
           <span className="text-xs text-gray-400 ml-1">({vendors.length})</span>
         </div>
         <table className="w-full text-sm">
@@ -73,7 +73,7 @@ export default async function VendorsPage() {
                     </div>
                   </td>
                   <td className="px-3 py-3">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    <span className={`inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${
                       v.type === 'inbound' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {v.type === 'inbound' ? 'Inbound' : 'Manual'}
@@ -103,7 +103,6 @@ export default async function VendorsPage() {
           </tbody>
         </table>
       </div>
-
     </div>
   )
 }

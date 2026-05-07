@@ -36,8 +36,8 @@ export default async function TeamsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
           <p className="text-sm text-gray-500 mt-0.5">Organize agents into teams.</p>
@@ -45,12 +45,12 @@ export default async function TeamsPage() {
         <NewTeamDialog />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-            <UsersRound size={15} />
+          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+            <UsersRound size={20} />
           </div>
-          <p className="text-sm font-semibold text-gray-900">All Teams</p>
+          <p className="font-semibold text-base text-gray-800">All Teams</p>
           <span className="text-xs text-gray-400 ml-1">({teams.length})</span>
         </div>
 
@@ -65,18 +65,16 @@ export default async function TeamsPage() {
 
             return (
               <div key={team.id} className="px-5 py-4 flex items-start gap-4">
-                {/* Logo or initial */}
                 <div className="flex-shrink-0">
                   {team.logo_url ? (
-                    <img src={team.logo_url} alt={team.name} className="w-10 h-10 rounded-lg object-cover border border-gray-100" />
+                    <img src={team.logo_url} alt={team.name} className="w-10 h-10 rounded-[5px] object-cover border border-gray-100" />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-sm font-bold">
+                    <div className="w-10 h-10 rounded-[5px] bg-red-100 flex items-center justify-center text-red-600 text-sm font-bold">
                       {team.name[0].toUpperCase()}
                     </div>
                   )}
                 </div>
 
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-900">{team.name}</p>
                   <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-0.5">
@@ -93,7 +91,6 @@ export default async function TeamsPage() {
                     )}
                   </div>
 
-                  {/* Member avatars */}
                   {members.length > 0 && (
                     <div className="flex items-center gap-1 mt-2">
                       {members.slice(0, 6).map(m => (
@@ -112,7 +109,6 @@ export default async function TeamsPage() {
                   )}
                 </div>
 
-                {/* Actions */}
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <ManageMembersDialog team={team} members={members} allProfiles={allProfiles} />
                   <EditTeamDialog team={team} />

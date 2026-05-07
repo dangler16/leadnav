@@ -40,8 +40,8 @@ export default async function OrdersPage() {
   const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage your lead orders.</p>
@@ -49,12 +49,12 @@ export default async function OrdersPage() {
         <NewOrderDialog vendors={vendors} userId={user.id} />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-            <Package size={15} />
+          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+            <Package size={20} />
           </div>
-          <p className="text-sm font-semibold text-gray-900">All Orders</p>
+          <p className="font-semibold text-base text-gray-800">All Orders</p>
           <span className="text-xs text-gray-400 ml-1">({orders.length})</span>
         </div>
         <div className="overflow-x-auto">
@@ -86,7 +86,7 @@ export default async function OrdersPage() {
                     <td className="px-3 py-3 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
                     <td className="px-3 py-3 text-gray-700">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
                     <td className="px-3 py-3">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[order.status]}`}>
+                      <span className={`inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${statusColors[order.status]}`}>
                         {statusLabels[order.status]}
                       </span>
                     </td>

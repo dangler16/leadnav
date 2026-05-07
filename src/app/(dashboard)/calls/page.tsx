@@ -58,32 +58,31 @@ export default async function CallsPage() {
   const sales = calls.filter(c => c.outcome === 'sale').length
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div>
         <h1 className="text-2xl font-bold text-gray-900">Calls</h1>
         <p className="text-sm text-gray-500 mt-0.5">Your complete call history.</p>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="flex gap-6">
         {[
           { label: 'Total Calls', value: totalCalls },
           { label: 'Contacted', value: contacted },
           { label: 'Sales', value: sales },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
+          <div key={s.label} className="flex-1 bg-white rounded-[5px] border border-gray-200 p-5">
             <p className="text-xs text-gray-400">{s.label}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-            <Phone size={15} />
+          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+            <Phone size={20} />
           </div>
-          <p className="text-sm font-semibold text-gray-900">Call Log</p>
+          <p className="font-semibold text-base text-gray-800">Call Log</p>
           <span className="text-xs text-gray-400 ml-1">({calls.length})</span>
         </div>
         <table className="w-full text-sm">
@@ -112,7 +111,7 @@ export default async function CallsPage() {
                   ) : <span className="text-gray-400">—</span>}
                 </td>
                 <td className="px-3 py-3">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${outcomeColors[call.outcome]}`}>
+                  <span className={`inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${outcomeColors[call.outcome]}`}>
                     {outcomeLabels[call.outcome]}
                   </span>
                 </td>

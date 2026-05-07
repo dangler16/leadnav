@@ -16,20 +16,19 @@ export default async function SettingsPage() {
   const profile = profileData as Profile
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div>
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage your account and security settings.</p>
       </div>
 
-      <div className="max-w-lg space-y-4">
-        {/* Account info */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="max-w-lg flex flex-col gap-6">
+        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-              <Settings size={15} />
+            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+              <Settings size={20} />
             </div>
-            <p className="text-sm font-semibold text-gray-900">Account</p>
+            <p className="font-semibold text-base text-gray-800">Account</p>
           </div>
           <div className="space-y-3">
             <div>
@@ -38,7 +37,7 @@ export default async function SettingsPage() {
             </div>
             <div>
               <p className="text-xs text-gray-400 font-medium mb-0.5">Role</p>
-              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              <span className={`inline-flex items-center gap-1 rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${
                 profile?.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
               }`}>
                 {profile?.role === 'admin' && <ShieldCheck size={11} />}
@@ -52,13 +51,12 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        {/* Security */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-              <Lock size={15} />
+            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+              <Lock size={20} />
             </div>
-            <p className="text-sm font-semibold text-gray-900">Security</p>
+            <p className="font-semibold text-base text-gray-800">Security</p>
           </div>
           <div className="flex items-center justify-between">
             <div>

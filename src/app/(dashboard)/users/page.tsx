@@ -46,20 +46,18 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage agents and user roles.</p>
-        </div>
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Manage agents and user roles.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-            <Users size={15} />
+          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+            <Users size={20} />
           </div>
-          <p className="text-sm font-semibold text-gray-900">All Users</p>
+          <p className="font-semibold text-base text-gray-800">All Users</p>
           <span className="text-xs text-gray-400 ml-1">({profiles.length})</span>
         </div>
         <table className="w-full text-sm">
@@ -94,14 +92,14 @@ export default async function AdminPage() {
                       {userTeams.length === 0 ? (
                         <span className="text-xs text-gray-300">—</span>
                       ) : userTeams.map(t => (
-                        <span key={t.id} className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700">
+                        <span key={t.id} className="inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none bg-blue-50 text-blue-700">
                           {t.name}
                         </span>
                       ))}
                     </div>
                   </td>
                   <td className="px-3 py-3">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    <span className={`inline-flex items-center gap-1 rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${
                       p.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {p.role === 'admin' && <ShieldCheck size={11} />}

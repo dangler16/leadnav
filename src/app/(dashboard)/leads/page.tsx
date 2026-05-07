@@ -60,28 +60,28 @@ export default async function LeadsPage({
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage and track your lead pipeline.</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-              <Users size={15} />
+            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+              <Users size={20} />
             </div>
-            <p className="text-sm font-semibold text-gray-900">All Leads</p>
+            <p className="font-semibold text-base text-gray-800">All Leads</p>
           </div>
           <form method="GET" className="flex items-center gap-2">
             <input
               name="search"
               defaultValue={search}
               placeholder="Search by name, email, phone…"
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 w-64 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
+              className="text-sm border border-gray-200 rounded-[5px] px-3 py-1.5 w-64 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
             />
             <input type="hidden" name="filter" value={filter} />
             <Button type="submit" size="sm" variant="outline">Search</Button>

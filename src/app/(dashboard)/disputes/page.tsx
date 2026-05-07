@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
-import { Dispute, Lead, DisputeStatus, formatDisputeReason } from '@/lib/types'
+import { Dispute, Lead, formatDisputeReason } from '@/lib/types'
 import { DisputeStatusBadge } from '@/components/status-badge'
 import { AlertCircle } from 'lucide-react'
 import { NewDisputeDialog } from './new-dispute-dialog'
+import Link from 'next/link'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -47,8 +48,8 @@ export default async function DisputesPage({
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
           <p className="text-sm text-gray-500 mt-0.5">File and track lead quality disputes.</p>
@@ -56,18 +57,17 @@ export default async function DisputesPage({
         <NewDisputeDialog leads={leads} userId={user.id} />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-[5px] border border-gray-200">
         <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-            <AlertCircle size={15} />
+          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+            <AlertCircle size={20} />
           </div>
-          <p className="text-sm font-semibold text-gray-900">All Disputes</p>
+          <p className="font-semibold text-base text-gray-800">All Disputes</p>
         </div>
 
-        {/* Filter tabs */}
         <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
           {(['All', 'Active', 'Closed', 'Lost'] as FilterTab[]).map(f => (
-            <a
+            <Link
               key={f}
               href={`/disputes?filter=${f}`}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
@@ -77,7 +77,7 @@ export default async function DisputesPage({
               }`}
             >
               {f} <span className="opacity-70">({counts[f]})</span>
-            </a>
+            </Link>
           ))}
         </div>
 

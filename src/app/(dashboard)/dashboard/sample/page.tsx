@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Lead, Dispute, getLeadDisplayStatus, formatDisputeReason } from '@/lib/types'
-import { LeadStatusBadge, DisputeStatusBadge } from '@/components/status-badge'
 import { Users, Package, AlertCircle, Phone, TrendingUp, ArrowRight } from 'lucide-react'
 
 function formatDate(dateStr: string) {
@@ -45,7 +44,51 @@ function StatCard({ icon, label, sublabel, value, href, linkLabel }: StatCardPro
   )
 }
 
-export default async function DashboardPage() {
+function LeadBadge({ status }: { status: string }) {
+  const variants: Record<string, string> = {
+    Active: 'bg-[rgba(18,234,25,0.2)] text-[#06960a]',
+    Closed: 'bg-[rgba(234,18,18,0.1)] text-[#ea1212]',
+    Lost: 'bg-[rgba(234,18,18,0.1)] text-[#ea1212]',
+  }
+  return (
+    <span className={`inline-flex items-center px-2 py-[6px] rounded-[3px] font-medium text-xs leading-none ${variants[status] ?? variants.Active}`}>
+      {status}
+    </span>
+  )
+}
+
+function DisputeBadge({ status }: { status: string }) {
+  const variants: Record<string, string> = {
+    pending: 'bg-[rgba(18,234,25,0.2)] text-[#06960a]',
+    active: 'bg-[rgba(18,234,25,0.2)] text-[#06960a]',
+    closed: 'bg-[rgba(234,18,18,0.1)] text-[#ea1212]',
+    lost: 'bg-[rgba(234,18,18,0.1)] text-[#ea1212]',
+  }
+  const labels: Record<string, string> = {
+    pending: 'Pending',
+    active: 'Active',
+    closed: 'Closed',
+    lost: 'Lost',
+  }
+  return (
+    <span className={`inline-flex items-center px-2 py-[6px] rounded-[3px] font-medium text-xs leading-none ${variants[status] ?? ''}`}>
+      {labels[status] ?? status}
+    </span>
+  )
+}
+
+type LeadFilter = 'All' | 'Active' | 'Closed' | 'Lost'
+type DisputeFilter = 'All' | 'Active' | 'Closed' | 'Lost'
+
+export default async function DashboardSamplePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ leadFilter?: string; disputeFilter?: string }>
+}) {
+  const params = await searchParams
+  const leadFilter = (params.leadFilter as LeadFilter) ?? 'All'
+  const disputeFilter = (params.disputeFilter as DisputeFilter) ?? 'All'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -70,6 +113,21 @@ export default async function DashboardPage() {
 
   const leads = (recentLeads ?? []) as Lead[]
   const disputes = (openDisputes ?? []) as (Dispute & { leads: { firstname: string | null; lastname: string | null } | null })[]
+
+  const filteredLeads = leads.filter(l => {
+    if (leadFilter === 'All') return true
+    return getLeadDisplayStatus(l.status) === leadFilter
+  })
+
+  const filteredDisputes = disputes.filter(d => {
+    if (disputeFilter === 'All') return true
+    const map: Record<string, string[]> = {
+      Active: ['active', 'pending'],
+      Closed: ['closed'],
+      Lost: ['lost'],
+    }
+    return map[disputeFilter]?.includes(d.status)
+  })
 
   const divider = <div className="w-full h-px bg-gray-100" />
 
@@ -128,22 +186,23 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
+          {/* Table */}
           <div className="flex flex-col gap-[5px] w-full">
             <div className="flex flex-col gap-[10px] w-full">
               <div className="flex items-start justify-between w-full">
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Order</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Lead</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Status</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Date</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Order</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Lead</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Status</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Date</span>
               </div>
               {divider}
             </div>
 
-            {leads.length === 0 && (
+            {filteredLeads.length === 0 && (
               <p className="py-6 text-center text-xs text-gray-400">No leads found</p>
             )}
 
-            {leads.map((lead, i) => (
+            {filteredLeads.map((lead, i) => (
               <div key={lead.id}>
                 <div className="flex items-center justify-between w-full py-[5px]">
                   <span className="flex-1 min-w-0 font-mono text-xs text-gray-500 leading-none">
@@ -155,13 +214,13 @@ export default async function DashboardPage() {
                     </Link>
                   </span>
                   <span className="flex-1 min-w-0">
-                    <LeadStatusBadge status={lead.status} />
+                    <LeadBadge status={getLeadDisplayStatus(lead.status)} />
                   </span>
                   <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">
                     {formatDate(lead.created_at)}
                   </span>
                 </div>
-                {i < leads.length - 1 && divider}
+                {i < filteredLeads.length - 1 && divider}
               </div>
             ))}
           </div>
@@ -184,22 +243,23 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
+          {/* Table */}
           <div className="flex flex-col gap-[5px] w-full">
             <div className="flex flex-col gap-[10px] w-full">
               <div className="flex items-start justify-between w-full">
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Lead</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Reason</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Status</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Date</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Lead</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Reason</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Status</span>
+                <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">Date</span>
               </div>
               {divider}
             </div>
 
-            {disputes.length === 0 && (
+            {filteredDisputes.length === 0 && (
               <p className="py-6 text-center text-xs text-gray-400">No disputes found</p>
             )}
 
-            {disputes.map((d, i) => (
+            {filteredDisputes.map((d, i) => (
               <div key={d.id}>
                 <div className="flex items-center justify-between w-full py-[5px]">
                   <span className="flex-1 min-w-0 font-medium text-xs text-gray-800 leading-none">
@@ -209,13 +269,13 @@ export default async function DashboardPage() {
                     {formatDisputeReason(d.reason)}
                   </span>
                   <span className="flex-1 min-w-0">
-                    <DisputeStatusBadge status={d.status} />
+                    <DisputeBadge status={d.status} />
                   </span>
                   <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">
                     {formatDate(d.created_at)}
                   </span>
                 </div>
-                {i < disputes.length - 1 && divider}
+                {i < filteredDisputes.length - 1 && divider}
               </div>
             ))}
           </div>

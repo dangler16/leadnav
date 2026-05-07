@@ -79,8 +79,8 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   ]
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
+    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+      <div>
         <Link href="/leads" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-3">
           <ChevronLeft size={15} /> Back to Leads
         </Link>
@@ -99,14 +99,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-1 space-y-4">
-          {/* Contact info */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="col-span-1 flex flex-col gap-6">
+          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                <User size={14} />
+              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+                <User size={15} />
               </div>
-              <p className="text-sm font-semibold text-gray-900">Contact Info</p>
+              <p className="font-semibold text-base text-gray-800">Contact Info</p>
             </div>
             <div className="space-y-3">
               {[
@@ -126,13 +125,12 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </div>
           </div>
 
-          {/* Insurance info */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                <DollarSign size={14} />
+              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+                <DollarSign size={15} />
               </div>
-              <p className="text-sm font-semibold text-gray-900">Insurance Details</p>
+              <p className="font-semibold text-base text-gray-800">Insurance Details</p>
             </div>
             <div className="space-y-3">
               {[
@@ -150,13 +148,12 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </div>
           </div>
 
-          {/* Source & assignment */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                <Store size={14} />
+              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+                <Store size={15} />
               </div>
-              <p className="text-sm font-semibold text-gray-900">Source</p>
+              <p className="font-semibold text-base text-gray-800">Source</p>
             </div>
             <div className="space-y-3">
               <div>
@@ -174,14 +171,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </div>
           </div>
 
-          {/* Disputes */}
           {disputes.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="bg-white rounded-[5px] border border-gray-200 p-5">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                  <AlertCircle size={14} />
+                <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+                  <AlertCircle size={15} />
                 </div>
-                <p className="text-sm font-semibold text-gray-900">Disputes</p>
+                <p className="font-semibold text-base text-gray-800">Disputes</p>
               </div>
               <div className="space-y-2">
                 {disputes.map(d => (
@@ -198,15 +194,15 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
 
-        <div className="col-span-2 space-y-4">
+        <div className="col-span-2 flex flex-col gap-6">
           <LeadActions lead={lead} statusOptions={statusOptions} userId={user.id} showCallForm />
 
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                <Phone size={14} />
+              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
+                <Phone size={15} />
               </div>
-              <p className="text-sm font-semibold text-gray-900">Call History</p>
+              <p className="font-semibold text-base text-gray-800">Call History</p>
               <span className="ml-auto text-xs text-gray-400">{calls.length} call{calls.length !== 1 ? 's' : ''}</span>
             </div>
             {calls.length === 0 ? (
@@ -214,7 +210,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             ) : (
               <div className="space-y-3">
                 {calls.map(call => (
-                  <div key={call.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <div key={call.id} className="flex items-start gap-3 p-3 rounded-[5px] bg-gray-50">
                     <div className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Phone size={12} className="text-gray-500" />
                     </div>
