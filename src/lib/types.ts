@@ -45,13 +45,8 @@ export type Order = {
   id: string
   account_id: string | null
   vendor_id: string | null
-  line_of_business: string | null
   lead_type: string | null
-  availability_start: string | null
-  availability_end: string | null
-  location: string | null
   daily_budget: number | null
-  cost_per_lead: number | null
   status: 'placed' | 'active' | 'paused' | 'completed' | 'cancelled' | 'expired'
   created_at: string
 }
@@ -60,6 +55,9 @@ export type Vendor = {
   id: string
   name: string
   type: 'inbound' | 'manual'
+  lead_types: string[]
+  locations: string[]
+  cost_per_lead: number | null
   created_at: string
 }
 

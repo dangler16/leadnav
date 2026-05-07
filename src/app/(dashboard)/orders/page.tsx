@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Order, Vendor } from '@/lib/types'
-import { Package, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Package } from 'lucide-react'
 import { NewOrderDialog } from './new-order-dialog'
 
 function formatDate(dateStr: string) {
@@ -38,6 +37,7 @@ export default async function OrdersPage() {
 
   const orders = (ordersData ?? []) as Order[]
   const vendors = (vendorsData ?? []) as Vendor[]
+  const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
 
   return (
     <div className="p-8">
@@ -62,9 +62,8 @@ export default async function OrdersPage() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Order ID</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Line of Business</th>
+                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Vendor</th>
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Lead Type</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Location</th>
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Daily Budget</th>
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Cost/Lead</th>
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Status</th>
@@ -74,25 +73,27 @@ export default async function OrdersPage() {
             <tbody className="divide-y divide-gray-50">
               {orders.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-sm text-gray-400">No orders found. Place your first order to get started.</td>
+                  <td colSpan={7} className="py-12 text-center text-sm text-gray-400">No orders yet. Place your first order to get started.</td>
                 </tr>
               )}
-              {orders.map(order => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-mono text-xs text-gray-600">#{order.id.slice(0, 8).toUpperCase()}</td>
-                  <td className="px-3 py-3 text-gray-700">{order.line_of_business ?? '—'}</td>
-                  <td className="px-3 py-3 text-gray-700">{order.lead_type ?? '—'}</td>
-                  <td className="px-3 py-3 text-gray-700">{order.location ?? '—'}</td>
-                  <td className="px-3 py-3 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
-                  <td className="px-3 py-3 text-gray-700">{order.cost_per_lead ? `$${order.cost_per_lead}` : '—'}</td>
-                  <td className="px-3 py-3">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[order.status]}`}>
-                      {statusLabels[order.status]}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-xs text-gray-400">{formatDate(order.created_at)}</td>
-                </tr>
-              ))}
+              {orders.map(order => {
+                const vendor = order.vendor_id ? vendorMap[order.vendor_id] : null
+                return (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-5 py-3 font-mono text-xs text-gray-600">#{order.id.slice(0, 8).toUpperCase()}</td>
+                    <td className="px-3 py-3 text-gray-700">{vendor?.name ?? '—'}</td>
+                    <td className="px-3 py-3 text-gray-700">{order.lead_type ?? '—'}</td>
+                    <td className="px-3 py-3 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
+                    <td className="px-3 py-3 text-gray-700">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
+                    <td className="px-3 py-3">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[order.status]}`}>
+                        {statusLabels[order.status]}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-xs text-gray-400">{formatDate(order.created_at)}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

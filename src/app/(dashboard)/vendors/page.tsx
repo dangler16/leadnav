@@ -46,6 +46,9 @@ export default async function VendorsPage() {
             <tr className="border-b border-gray-100">
               <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Name</th>
               <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Type</th>
+              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Lead Types</th>
+              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Locations</th>
+              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Cost/Lead</th>
               <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Added</th>
               <th className="px-3 py-3"></th>
             </tr>
@@ -53,7 +56,7 @@ export default async function VendorsPage() {
           <tbody className="divide-y divide-gray-50">
             {vendors.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-5 py-8 text-center text-sm text-gray-400">No vendors yet.</td>
+                <td colSpan={7} className="px-5 py-8 text-center text-sm text-gray-400">No vendors yet.</td>
               </tr>
             )}
             {vendors.map(v => {
@@ -74,6 +77,15 @@ export default async function VendorsPage() {
                     }`}>
                       {v.type === 'inbound' ? 'Inbound' : 'Manual'}
                     </span>
+                  </td>
+                  <td className="px-3 py-3 text-xs text-gray-600">
+                    {v.lead_types.length > 0 ? v.lead_types.join(', ') : <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-3 py-3 text-xs text-gray-600">
+                    {v.locations.length > 0 ? v.locations.join(', ') : <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="px-3 py-3 text-xs text-gray-600">
+                    {v.cost_per_lead != null ? `$${v.cost_per_lead}` : <span className="text-gray-300">—</span>}
                   </td>
                   <td className="px-3 py-3 text-xs text-gray-400">{formatDate(v.created_at)}</td>
                   <td className="px-3 py-3">
