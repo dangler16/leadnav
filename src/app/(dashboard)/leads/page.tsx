@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Lead, LeadStatus, getLeadDisplayStatus } from '@/lib/types'
+import { Lead, Profile, getLeadDisplayStatus } from '@/lib/types'
 import { LeadStatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
 import { Users, ArrowRight } from 'lucide-react'
@@ -12,17 +12,6 @@ function formatDate(dateStr: string) {
 }
 
 type DisplayFilter = 'All' | 'Active' | 'Closed' | 'Lost'
-const statusOptions: { value: LeadStatus; label: string }[] = [
-  { value: 'new', label: 'New' },
-  { value: 'not_contacted', label: 'Not Contacted' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'appt_set', label: 'Appt Set' },
-  { value: 'appt_no_show', label: 'No Show' },
-  { value: 'appt_no_sale', label: 'No Sale' },
-  { value: 'appt_rescheduled', label: 'Rescheduled' },
-  { value: 'sale', label: 'Sale' },
-  { value: 'lost', label: 'Lost' },
-]
 
 export default async function LeadsPage({
   searchParams,
@@ -37,14 +26,26 @@ export default async function LeadsPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  let query = supabase.from('leads').select('*').eq('assigned_to', user.id).order('created_at', { ascending: false })
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin'
 
-  if (search) {
-    query = query.or(`firstname.ilike.%${search}%,lastname.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
-  }
+  const [leadsResult, profilesResult] = await Promise.all([
+    (() => {
+      let q = supabase.from('leads').select('*').order('created_at', { ascending: false })
+      if (!isAdmin) q = q.eq('assigned_to', user.id)
+      if (search) q = q.or(`firstname.ilike.%${search}%,lastname.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
+      return q
+    })(),
+    isAdmin
+      ? supabase.from('profiles').select('id, first_name, last_name').eq('role', 'agent')
+      : Promise.resolve({ data: [] }),
+  ])
 
-  const { data: allLeads } = await query
-  const leads = (allLeads ?? []) as Lead[]
+  const leads = (leadsResult.data ?? []) as Lead[]
+  const agentMap = Object.fromEntries(
+    ((profilesResult.data ?? []) as Pick<Profile, 'id' | 'first_name' | 'last_name'>[])
+      .map(p => [p.id, [p.first_name, p.last_name].filter(Boolean).join(' ')])
+  )
 
   const filtered = leads.filter(l => {
     if (filter === 'All') return true
@@ -60,7 +61,6 @@ export default async function LeadsPage({
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
@@ -68,9 +68,7 @@ export default async function LeadsPage({
         </div>
       </div>
 
-      {/* Card */}
       <div className="bg-white rounded-xl border border-gray-200">
-        {/* Card header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
@@ -78,7 +76,6 @@ export default async function LeadsPage({
             </div>
             <p className="text-sm font-semibold text-gray-900">All Leads</p>
           </div>
-          {/* Search */}
           <form method="GET" className="flex items-center gap-2">
             <input
               name="search"
@@ -91,7 +88,6 @@ export default async function LeadsPage({
           </form>
         </div>
 
-        {/* Filter tabs */}
         <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
           {(['All', 'Active', 'Closed', 'Lost'] as DisplayFilter[]).map(f => (
             <Link
@@ -108,7 +104,6 @@ export default async function LeadsPage({
           ))}
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -118,6 +113,7 @@ export default async function LeadsPage({
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Email</th>
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">State</th>
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Status</th>
+                {isAdmin && <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Assigned To</th>}
                 <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Date Added</th>
                 <th className="px-3 py-3"></th>
               </tr>
@@ -125,7 +121,7 @@ export default async function LeadsPage({
             <tbody className="divide-y divide-gray-50">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-sm text-gray-400">
+                  <td colSpan={isAdmin ? 8 : 7} className="py-12 text-center text-sm text-gray-400">
                     No leads found
                   </td>
                 </tr>
@@ -144,6 +140,11 @@ export default async function LeadsPage({
                   <td className="px-3 py-3 text-gray-600 max-w-[180px] truncate">{lead.email ?? '—'}</td>
                   <td className="px-3 py-3 text-gray-600">{lead.state ?? '—'}</td>
                   <td className="px-3 py-3"><LeadStatusBadge status={lead.status} /></td>
+                  {isAdmin && (
+                    <td className="px-3 py-3 text-xs text-gray-600">
+                      {lead.assigned_to ? (agentMap[lead.assigned_to] ?? '—') : <span className="text-gray-300">Unassigned</span>}
+                    </td>
+                  )}
                   <td className="px-3 py-3 text-gray-400 text-xs">{formatDate(lead.created_at)}</td>
                   <td className="px-3 py-3">
                     <Link href={`/leads/${lead.id}`} className="text-red-600 hover:text-red-700">

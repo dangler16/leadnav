@@ -4,6 +4,7 @@ import { Store } from 'lucide-react'
 import { Vendor, VendorApiKey } from '@/lib/types'
 import { VendorApiKeys } from './vendor-api-keys'
 import { NewVendorDialog } from './new-vendor-dialog'
+import { EditVendorDialog } from './edit-vendor-dialog'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -89,9 +90,12 @@ export default async function VendorsPage() {
                   </td>
                   <td className="px-3 py-3 text-xs text-gray-400">{formatDate(v.created_at)}</td>
                   <td className="px-3 py-3">
-                    {v.type === 'inbound' && (
-                      <VendorApiKeys vendor={v} initialKeys={vendorKeys} />
-                    )}
+                    <div className="flex items-center gap-2">
+                      <EditVendorDialog vendor={v} />
+                      {v.type === 'inbound' && (
+                        <VendorApiKeys vendor={v} initialKeys={vendorKeys} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               )
@@ -100,15 +104,6 @@ export default async function VendorsPage() {
         </table>
       </div>
 
-      <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-5 py-4">
-        <p className="text-xs font-semibold text-gray-700 mb-1">Webhook endpoint</p>
-        <code className="text-xs font-mono text-gray-600 break-all">
-          POST {process.env.NEXT_PUBLIC_SITE_URL ?? 'https://your-domain.com'}/api/leads/inbound
-        </code>
-        <p className="text-xs text-gray-400 mt-2">
-          Send leads via POST with <code className="font-mono">X-API-Key: &lt;key&gt;</code> header and a JSON body. Fields: firstname, lastname, birthday, email, phone, state, zip, plan_for, looking_for, income, household, utm_source, utm_campaign, utm_medium.
-        </p>
-      </div>
     </div>
   )
 }

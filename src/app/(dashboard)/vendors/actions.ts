@@ -32,6 +32,7 @@ export async function generateApiKey(vendor_id: string): Promise<string> {
 
 export async function revokeApiKey(id: string): Promise<void> {
   const supabase = await requireAdmin()
-  await supabase.from('vendor_api_keys').update({ is_active: false }).eq('id', id)
+  const { error } = await supabase.from('vendor_api_keys').update({ is_active: false }).eq('id', id)
+  if (error) throw new Error('Failed to revoke key')
   revalidatePath('/vendors')
 }

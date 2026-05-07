@@ -36,6 +36,7 @@ export type Lead = {
   utm_source: string | null
   utm_campaign: string | null
   utm_medium: string | null
+  lead_type: string | null
   status: LeadStatus
   created_at: string
   updated_at: string
@@ -104,6 +105,21 @@ export type Dispute = {
   notes: string | null
   created_at: string
   updated_at: string
+}
+
+export type Team = {
+  id: string
+  name: string
+  logo_url: string | null
+  phone: string | null
+  created_at: string
+}
+
+export type TeamMember = {
+  team_id: string
+  user_id: string
+  role: 'leader' | 'member'
+  created_at: string
 }
 
 export type NotificationType = 'new_lead' | 'dispute_update' | 'order_update' | 'general'

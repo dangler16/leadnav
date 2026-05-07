@@ -14,6 +14,7 @@ import {
   User,
   Settings,
   SquareUser,
+  CircleUser,
   Cable,
   ChartColumnBig,
 } from 'lucide-react'
@@ -30,7 +31,8 @@ const navItems = [
 
 const adminNavItems = [
   { label: 'Vendors', href: '/vendors', icon: Cable },
-  { label: 'Users', href: '/users', icon: Users },
+  { label: 'Teams', href: '/teams', icon: Users },
+  { label: 'Users', href: '/users', icon: User },
 ]
 
 export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount = 0 }: { disputeCount?: number; isAdmin?: boolean; notificationCount?: number }) {
@@ -54,7 +56,7 @@ export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount =
       {/* Top icons */}
       <div className="flex items-center px-[6px] py-[4px] border-y-[2px] border-white/10">
         <Link href="/profile" className={cn('p-[6px] transition-colors cursor-pointer', pathname === '/profile' ? 'text-white' : 'text-white/35 hover:text-white')}>
-          <User size={18} strokeWidth={2.5}/>
+          <CircleUser size={18} strokeWidth={2.5}/>
         </Link>
         <Link href="/settings" className={cn('p-[6px] transition-colors cursor-pointer', pathname === '/settings' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <Settings size={18} strokeWidth={2.5}/>
