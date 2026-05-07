@@ -10,30 +10,30 @@ import {
   Package,
   AlertCircle,
   Phone,
-  BarChart2,
   LogOut,
   User,
   Settings,
-  Bell,
-  Store,
-  ShieldCheck,
+  SquareUser,
+  Cable,
+  ChartColumnBig,
 } from 'lucide-react'
+import { NotificationBell } from '@/components/notification-bell'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: House },
-  { label: 'Leads', href: '/leads', icon: Users },
+  { label: 'Leads', href: '/leads', icon: SquareUser },
   { label: 'Orders', href: '/orders', icon: Package },
   { label: 'Disputes', href: '/disputes', icon: AlertCircle, badge: true },
   { label: 'Calls', href: '/calls', icon: Phone },
-  { label: 'Reports', href: '/reports', icon: BarChart2 },
+  { label: 'Reports', href: '/reports', icon: ChartColumnBig },
 ]
 
 const adminNavItems = [
-  { label: 'Vendors', href: '/vendors', icon: Store },
-  { label: 'Admin', href: '/admin', icon: ShieldCheck },
+  { label: 'Vendors', href: '/vendors', icon: Cable },
+  { label: 'Users', href: '/users', icon: Users },
 ]
 
-export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: number; isAdmin?: boolean }) {
+export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount = 0 }: { disputeCount?: number; isAdmin?: boolean; notificationCount?: number }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -53,15 +53,13 @@ export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: 
 
       {/* Top icons */}
       <div className="flex items-center px-[6px] py-[4px] border-y-[2px] border-white/10">
-        <button className="p-[6px] text-white/35 hover:text-white transition-colors cursor-pointer">
+        <Link href="/profile" className={cn('p-[6px] transition-colors cursor-pointer', pathname === '/profile' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <User size={18} strokeWidth={2.5}/>
-        </button>
-        <button className="p-[6px] text-white/35 hover:text-white transition-colors cursor-pointer">
+        </Link>
+        <Link href="/settings" className={cn('p-[6px] transition-colors cursor-pointer', pathname === '/settings' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <Settings size={18} strokeWidth={2.5}/>
-        </button>
-        <button className="p-[6px] text-white/35 hover:text-white transition-colors cursor-pointer">
-          <Bell size={18} strokeWidth={2.5}/>
-        </button>
+        </Link>
+        <NotificationBell initialCount={notificationCount} />
       </div>
 
       {/* Menu label */}
@@ -78,14 +76,14 @@ export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: 
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-semibold transition-colors',
+                'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-regular transition-colors',
                 isActive
                   ? 'bg-[#EA121240] text-[#F9B7B7] border-l-2 border-[#EA1212] px-[10px]'
-                  : 'text-white/35 hover:text-white hover:bg-white/5 font-medium'
+                  : 'hover:bg-white/5 font-regular'
               )}
             >
-              <Icon size={16} className="flex-shrink-0" strokeWidth={2.5}/>
-              <span className="flex-1">{label}</span>
+              <Icon size={16} className={cn('flex-shrink-0', isActive ? '' : 'text-white/50')} strokeWidth={2.5}/>
+              <span className={cn('flex-1', isActive ? '' : 'text-white')}>{label}</span>
               {badge && disputeCount > 0 && (
                 <span className="flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-[10px] font-bold text-white">
                   {disputeCount > 9 ? '9+' : disputeCount}
@@ -96,7 +94,7 @@ export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: 
         })}
         {isAdmin && (
           <>
-            <p className="px-[12px] pt-[16px] pb-[4px] text-[11px] font-bold uppercase tracking-[10%] text-white/35">
+            <p className="px-[12px] pt-[12px] pb-[10px] text-[11px] font-bold uppercase tracking-[10%] text-white/35">
               Admin
             </p>
             {adminNavItems.map(({ label, href, icon: Icon }) => {
@@ -106,14 +104,14 @@ export function Sidebar({ disputeCount = 0, isAdmin = false }: { disputeCount?: 
                   key={href}
                   href={href}
                   className={cn(
-                    'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-semibold transition-colors',
+                    'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-regular transition-colors',
                     isActive
                       ? 'bg-[#EA121240] text-[#F9B7B7] border-l-2 border-[#EA1212] px-[10px]'
-                      : 'text-white/35 hover:text-white hover:bg-white/5 font-medium'
+                      : 'hover:bg-white/5 font-regular'
                   )}
                 >
-                  <Icon size={16} className="flex-shrink-0" strokeWidth={2.5}/>
-                  <span className="flex-1">{label}</span>
+                  <Icon size={16} className={cn('flex-shrink-0', isActive ? '' : 'text-white/50')} strokeWidth={2.5}/>
+                  <span className={cn('flex-1', isActive ? '' : 'text-white')}>{label}</span>
                 </Link>
               )
             })}

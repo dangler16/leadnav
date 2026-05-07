@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import { DM_Sans, DM_Mono } from 'next/font/google'
+import { Funnel_Sans, DM_Mono } from 'next/font/google'
 import './globals.css'
 
-const dmSans = DM_Sans({
+const funnelSans = Funnel_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
 })
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${dmMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${funnelSans.variable} ${dmMono.variable} h-full antialiased`}>
       <body className="h-full">{children}</body>
     </html>
   )

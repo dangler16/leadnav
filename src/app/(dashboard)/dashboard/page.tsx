@@ -108,12 +108,12 @@ export default async function DashboardPage({
         </div>
         <div className="flex items-center gap-2">
           <Link href="/calls">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 cursor-pointer">
               <Phone size={15} /> Call Lead
             </Button>
           </Link>
           <Link href="/orders">
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2 cursor-pointer">
               <Plus size={15} /> Place Order
             </Button>
           </Link>

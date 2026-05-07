@@ -23,7 +23,7 @@ export default async function AdminPage() {
     <div className="p-8">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage agents and user roles.</p>
         </div>
       </div>
@@ -40,7 +40,6 @@ export default async function AdminPage() {
           <thead>
             <tr className="border-b border-gray-100">
               <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Name</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">User ID</th>
               <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Role</th>
               <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Joined</th>
               <th className="px-3 py-3"></th>
@@ -61,7 +60,6 @@ export default async function AdminPage() {
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-3 font-mono text-xs text-gray-400">{p.id.slice(0, 8)}…</td>
                 <td className="px-3 py-3">
                   <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     p.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'

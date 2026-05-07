@@ -63,6 +63,16 @@ export type Vendor = {
   created_at: string
 }
 
+export type VendorApiKey = {
+  id: string
+  vendor_id: string
+  key_prefix: string
+  label: string | null
+  is_active: boolean
+  last_used_at: string | null
+  created_at: string
+}
+
 export type CallOutcome =
   | 'no_answer'
   | 'voicemail'
@@ -96,6 +106,19 @@ export type Dispute = {
   notes: string | null
   created_at: string
   updated_at: string
+}
+
+export type NotificationType = 'new_lead' | 'dispute_update' | 'order_update' | 'general'
+
+export type Notification = {
+  id: string
+  user_id: string
+  type: NotificationType
+  title: string
+  body: string | null
+  link: string | null
+  read: boolean
+  created_at: string
 }
 
 export type LeadDisplayStatus = 'Active' | 'Closed' | 'Lost'
