@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Pencil } from 'lucide-react'
 
 const LEAD_TYPES = ['ACA', 'Medicare']
@@ -16,6 +17,7 @@ export function EditVendorDialog({ vendor }: { vendor: Vendor }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [vendorType, setVendorType] = useState<'inbound' | 'manual'>(vendor.type)
   const router = useRouter()
   const supabase = createClient()
 
@@ -64,16 +66,13 @@ export function EditVendorDialog({ vendor }: { vendor: Vendor }) {
               <Input id={`name-${vendor.id}`} name="name" defaultValue={vendor.name} required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor={`type-${vendor.id}`}>Type</Label>
-              <select
-                id={`type-${vendor.id}`}
+              <Label>Type</Label>
+              <SelectDropdown
+                options={[{ value: 'inbound', label: 'Inbound (webhook)' }, { value: 'manual', label: 'Manual' }]}
+                value={vendorType}
+                onChange={v => setVendorType(v as 'inbound' | 'manual')}
                 name="type"
-                defaultValue={vendor.type}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 bg-white"
-              >
-                <option value="inbound">Inbound (webhook)</option>
-                <option value="manual">Manual</option>
-              </select>
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Lead Types</Label>

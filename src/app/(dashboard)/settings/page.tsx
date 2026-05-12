@@ -16,17 +16,17 @@ export default async function SettingsPage() {
   const profile = profileData as Profile
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage your account and security settings.</p>
       </div>
 
-      <div className="max-w-lg flex flex-col gap-6">
-        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
+      <div className="max-w-lg flex flex-col gap-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-              <Settings size={20} />
+            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+              <Settings size={18} />
             </div>
             <p className="font-semibold text-base text-gray-800">Account</p>
           </div>
@@ -51,10 +51,10 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-              <Lock size={20} />
+            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+              <Lock size={18} />
             </div>
             <p className="font-semibold text-base text-gray-800">Security</p>
           </div>

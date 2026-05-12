@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Profile } from '@/lib/types'
 import { Button } from '@/components/ui/button'
+import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { reassignLead } from '../actions'
 
 export function ReassignLead({ leadId, currentAgentId, agents }: {
@@ -32,23 +33,19 @@ export function ReassignLead({ leadId, currentAgentId, agents }: {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-2">
-        <select
+        <SelectDropdown
+          options={[
+            { value: '', label: 'Unassigned' },
+            ...agents.map(a => ({ value: a.id, label: [a.first_name, a.last_name].filter(Boolean).join(' ') })),
+          ]}
           value={agentId}
-          onChange={e => setAgentId(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-red-400 bg-white"
-        >
-          <option value="">Unassigned</option>
-          {agents.map(a => (
-            <option key={a.id} value={a.id}>
-              {[a.first_name, a.last_name].filter(Boolean).join(' ')}
-            </option>
-          ))}
-        </select>
+          onChange={setAgentId}
+          className="w-full"
+        />
         <Button
-          size="sm"
           onClick={handleSave}
           disabled={loading || agentId === (currentAgentId ?? '')}
-          className="text-xs"
+          className="px-2 py-1 text-sm font-medium whitespace-nowrap"
         >
           {loading ? 'Saving…' : 'Reassign'}
         </Button>

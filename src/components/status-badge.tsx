@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils'
 import { LeadStatus, DisputeStatus, getLeadDisplayStatus } from '@/lib/types'
 
-type LeadBadgeProps = { status: LeadStatus; variant?: 'display' | 'raw' }
+type LeadBadgeProps = { status: LeadStatus; variant?: 'display' | 'raw'; className?: string }
 type DisputeBadgeProps = { status: DisputeStatus }
 
-const shape = 'inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none'
+const shape = 'inline-flex items-center rounded-sm px-2 py-1.5 text-sm font-medium leading-none'
 
 const displayColors: Record<string, string> = {
   Active: 'bg-green-100 text-green-700',
@@ -12,11 +12,11 @@ const displayColors: Record<string, string> = {
   Lost: 'bg-red-100 text-red-700',
 }
 
-export function LeadStatusBadge({ status, variant = 'display' }: LeadBadgeProps) {
+export function LeadStatusBadge({ status, variant = 'display', className }: LeadBadgeProps) {
   if (variant === 'display') {
     const display = getLeadDisplayStatus(status)
     return (
-      <span className={cn(shape, displayColors[display])}>
+      <span className={cn(shape, displayColors[display], className)}>
         {display}
       </span>
     )
@@ -44,7 +44,7 @@ export function LeadStatusBadge({ status, variant = 'display' }: LeadBadgeProps)
     lost: 'Lost',
   }
   return (
-    <span className={cn(shape, rawColors[status])}>
+    <span className={cn(shape, rawColors[status], className)}>
       {rawLabels[status]}
     </span>
   )

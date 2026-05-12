@@ -40,7 +40,7 @@ export default async function OrdersPage() {
   const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
@@ -49,10 +49,10 @@ export default async function OrdersPage() {
         <NewOrderDialog vendors={vendors} userId={user.id} />
       </div>
 
-      <div className="bg-white rounded-[5px] border border-gray-200">
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-            <Package size={20} />
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
+          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+            <Package size={18} />
           </div>
           <p className="font-semibold text-base text-gray-800">All Orders</p>
           <span className="text-xs text-gray-400 ml-1">({orders.length})</span>
@@ -61,16 +61,16 @@ export default async function OrdersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Order ID</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Vendor</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Lead Type</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Daily Budget</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Cost/Lead</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Status</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Created</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Order ID</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Vendor</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead Type</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Daily Budget</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Cost/Lead</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Status</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Created</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-100">
               {orders.length === 0 && (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-sm text-gray-400">No orders yet. Place your first order to get started.</td>
@@ -79,18 +79,18 @@ export default async function OrdersPage() {
               {orders.map(order => {
                 const vendor = order.vendor_id ? vendorMap[order.vendor_id] : null
                 return (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-mono text-xs text-gray-600">#{order.id.slice(0, 8).toUpperCase()}</td>
-                    <td className="px-3 py-3 text-gray-700">{vendor?.name ?? '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{order.lead_type ?? '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
-                    <td className="px-3 py-3">
+                  <tr key={order.id} className="hover:bg-neutral-100 transition-colors">
+                    <td className="px-3 py-2 font-mono text-xs text-gray-600">#{order.id.slice(0, 8).toUpperCase()}</td>
+                    <td className="px-3 py-2 text-gray-700">{vendor?.name ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-700">{order.lead_type ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
+                    <td className="px-3 py-2 text-gray-700">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
+                    <td className="px-3 py-2">
                       <span className={`inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${statusColors[order.status]}`}>
                         {statusLabels[order.status]}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-xs text-gray-400">{formatDate(order.created_at)}</td>
+                    <td className="px-3 py-2 text-xs text-gray-400">{formatDate(order.created_at)}</td>
                   </tr>
                 )
               })}

@@ -1,17 +1,38 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Lead, Profile, getLeadDisplayStatus } from '@/lib/types'
-import { LeadStatusBadge } from '@/components/status-badge'
-import { Button } from '@/components/ui/button'
-import { Users, ArrowRight } from 'lucide-react'
+import { Lead, LeadStatus } from '@/lib/types'
+import { LeadStatusSelect } from './lead-status-select'
+import { SearchInput } from './search-input'
+
+function formatPhone(phone: string | null) {
+  if (!phone) return '—'
+  const digits = phone.replace(/\D/g, '')
+  const d = digits.length === 11 && digits[0] === '1' ? digits.slice(1) : digits
+  if (d.length !== 10) return phone
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
+}
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric',
+  return new Date(dateStr).toLocaleString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true,
   })
 }
 
-type DisplayFilter = 'All' | 'Active' | 'Closed' | 'Lost'
+type StatusFilter = 'all' | 'new' | 'contacted' | 'not_contacted' | 'appt_set' | 'appt_rescheduled' | 'appt_no_show' | 'appt_no_sale' | 'sale' | 'lost'
+
+const tabs: { value: StatusFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'new', label: 'New' },
+  { value: 'not_contacted', label: 'Not Contacted' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'appt_set', label: 'Appt Set' },
+  { value: 'appt_no_show', label: 'No-Show' },
+  { value: 'appt_no_sale', label: 'No-Sale' },
+  { value: 'appt_rescheduled', label: 'Rescheduled' },
+  { value: 'sale', label: 'Sale' },
+  { value: 'lost', label: 'Lost' },
+]
 
 export default async function LeadsPage({
   searchParams,
@@ -19,7 +40,7 @@ export default async function LeadsPage({
   searchParams: Promise<{ filter?: string; search?: string }>
 }) {
   const params = await searchParams
-  const filter = (params.filter as DisplayFilter) ?? 'All'
+  const filter = (params.filter as StatusFilter) ?? 'all'
   const search = params.search ?? ''
 
   const supabase = await createClient()
@@ -29,133 +50,121 @@ export default async function LeadsPage({
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  const [leadsResult, profilesResult] = await Promise.all([
-    (() => {
-      let q = supabase.from('leads').select('*').order('created_at', { ascending: false })
-      if (!isAdmin) q = q.eq('assigned_to', user.id)
-      if (search) q = q.or(`firstname.ilike.%${search}%,lastname.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
-      return q
-    })(),
-    isAdmin
-      ? supabase.from('profiles').select('id, first_name, last_name').eq('role', 'agent')
-      : Promise.resolve({ data: [] }),
-  ])
+  let q = supabase.from('leads').select('*, vendors(name, cost_per_lead)').order('created_at', { ascending: false })
+  if (!isAdmin) q = q.eq('assigned_to', user.id)
+  if (search) q = q.or(`firstname.ilike.%${search}%,lastname.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
 
-  const leads = (leadsResult.data ?? []) as Lead[]
-  const agentMap = Object.fromEntries(
-    ((profilesResult.data ?? []) as Pick<Profile, 'id' | 'first_name' | 'last_name'>[])
-      .map(p => [p.id, [p.first_name, p.last_name].filter(Boolean).join(' ')])
-  )
+  const { data: leadsData } = await q
+  type LeadWithVendor = Lead & { vendors: { name: string; cost_per_lead: number | null } | null }
+  const leads = (leadsData ?? []) as LeadWithVendor[]
 
-  const filtered = leads.filter(l => {
-    if (filter === 'All') return true
-    return getLeadDisplayStatus(l.status) === filter
-  })
-
-  const counts = {
-    All: leads.length,
-    Active: leads.filter(l => getLeadDisplayStatus(l.status) === 'Active').length,
-    Closed: leads.filter(l => getLeadDisplayStatus(l.status) === 'Closed').length,
-    Lost: leads.filter(l => getLeadDisplayStatus(l.status) === 'Lost').length,
+  const counts: Record<StatusFilter, number> = {
+    all: leads.length,
+    new: leads.filter(l => l.status === 'new').length,
+    contacted: leads.filter(l => l.status === 'contacted').length,
+    not_contacted: leads.filter(l => l.status === 'not_contacted').length,
+    appt_set: leads.filter(l => l.status === 'appt_set').length,
+    appt_rescheduled: leads.filter(l => l.status === 'appt_rescheduled').length,
+    appt_no_show: leads.filter(l => l.status === 'appt_no_show').length,
+    appt_no_sale: leads.filter(l => l.status === 'appt_no_sale').length,
+    sale: leads.filter(l => l.status === 'sale').length,
+    lost: leads.filter(l => l.status === 'lost').length,
   }
 
+  const filtered = leads.filter(l => {
+    if (filter === 'all') return true
+    return l.status === (filter as LeadStatus)
+  })
+
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
-      <div className="flex items-start justify-between">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
+
+      {/* Header */}
+      <div className="flex items-start justify-between w-full pb-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage and track your lead pipeline.</p>
+          <p className="text-sm text-gray-500 mt-0.5">Manage and track your pipeline.</p>
         </div>
+        <Link
+          href="/calls"
+          className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors"
+        >
+          Call Lead
+        </Link>
       </div>
 
-      <div className="bg-white rounded-[5px] border border-gray-200">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-              <Users size={20} />
-            </div>
-            <p className="font-semibold text-base text-gray-800">All Leads</p>
+      {/* Table Card */}
+      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
+
+        {/* Filter tabs */}
+        <div className="flex items-center justify-between gap-1.5 p-3 border-b border-gray-100">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {tabs.map(tab => (
+              <Link
+                key={tab.value}
+                href={`/leads?filter=${tab.value}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
+                className={`px-2 py-1 rounded-sm text-sm transition-colors whitespace-nowrap ${
+                  filter === tab.value
+                    ? 'bg-red-600 text-white font-semibold'
+                    : 'text-gray-400 hover:text-gray-700 border border-gray-200 bg-white'
+                }`}
+              >
+                {tab.label} ({counts[tab.value]})
+              </Link>
+            ))}
           </div>
-          <form method="GET" className="flex items-center gap-2">
-            <input
-              name="search"
-              defaultValue={search}
-              placeholder="Search by name, email, phone…"
-              className="text-sm border border-gray-200 rounded-[5px] px-3 py-1.5 w-64 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
-            />
-            <input type="hidden" name="filter" value={filter} />
-            <Button type="submit" size="sm" variant="outline">Search</Button>
-          </form>
+          <SearchInput defaultValue={search} />
         </div>
 
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
-          {(['All', 'Active', 'Closed', 'Lost'] as DisplayFilter[]).map(f => (
-            <Link
-              key={f}
-              href={`/leads?filter=${f}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                filter === f
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-500 hover:text-gray-700 border border-gray-200'
-              }`}
-            >
-              {f} <span className="ml-1 opacity-70">({counts[f]})</span>
-            </Link>
-          ))}
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        {/* Table */}
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="w-full text-md">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Lead</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Phone</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Email</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">State</th>
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Status</th>
-                {isAdmin && <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Assigned To</th>}
-                <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Date Added</th>
-                <th className="px-3 py-3"></th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Status</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Vendor</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Cost</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Phone</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Email</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">State</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Zip</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={isAdmin ? 8 : 7} className="py-12 text-center text-sm text-gray-400">
+                  <td colSpan={9} className="py-12 text-center text-md text-gray-400">
                     No leads found
                   </td>
                 </tr>
               )}
               {filtered.map(lead => (
-                <tr key={lead.id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3">
-                    <Link href={`/leads/${lead.id}`} className="font-medium text-gray-900 hover:text-red-600">
+                <tr key={lead.id} className="border-b border-gray-100 transition-colors hover:bg-neutral-100">
+                  <td className="px-3 py-2">
+                    <Link href={`/leads/${lead.id}`} className="text-sm text-gray-900 hover:text-red-600 transition-colors">
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </Link>
-                    {lead.birthday && (
-                      <p className="text-xs text-gray-400 mt-0.5">DOB: {lead.birthday}</p>
-                    )}
                   </td>
-                  <td className="px-3 py-3 text-gray-600">{lead.phone ?? '—'}</td>
-                  <td className="px-3 py-3 text-gray-600 max-w-[180px] truncate">{lead.email ?? '—'}</td>
-                  <td className="px-3 py-3 text-gray-600">{lead.state ?? '—'}</td>
-                  <td className="px-3 py-3"><LeadStatusBadge status={lead.status} /></td>
-                  {isAdmin && (
-                    <td className="px-3 py-3 text-xs text-gray-600">
-                      {lead.assigned_to ? (agentMap[lead.assigned_to] ?? '—') : <span className="text-gray-300">Unassigned</span>}
-                    </td>
-                  )}
-                  <td className="px-3 py-3 text-gray-400 text-xs">{formatDate(lead.created_at)}</td>
-                  <td className="px-3 py-3">
-                    <Link href={`/leads/${lead.id}`} className="text-red-600 hover:text-red-700">
-                      <ArrowRight size={15} />
-                    </Link>
+                  <td className="px-3 py-2 max-w-30 pr-10">
+                    <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
                   </td>
+                  <td className="px-3 text-sm text-gray-900 whitespace-nowrap">{lead.vendors?.name ?? '—'}</td>
+                  <td className="px-3 text-sm text-gray-900 whitespace-nowrap">
+                    {lead.vendors?.cost_per_lead != null ? `$${lead.vendors.cost_per_lead.toLocaleString('en-US')}` : '—'}
+                  </td>
+                  <td className="px-3 text-sm text-gray-900">{formatPhone(lead.phone)}</td>
+                  <td className="px-3 text-sm text-gray-900 max-w-[200px] truncate">{lead.email ?? '—'}</td>
+                  <td className="px-3 text-sm text-gray-900">{lead.state ?? '—'}</td>
+                  <td className="px-3 text-sm text-gray-900">{lead.zip ?? '—'}</td>
+                  <td className="px-3 text-sm text-gray-400 whitespace-nowrap">{formatDate(lead.created_at)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
       </div>
     </div>
   )

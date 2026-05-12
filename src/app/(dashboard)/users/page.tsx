@@ -46,16 +46,16 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Users</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage agents and user roles.</p>
       </div>
 
-      <div className="bg-white rounded-[5px] border border-gray-200">
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-            <Users size={20} />
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
+          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+            <Users size={18} />
           </div>
           <p className="font-semibold text-base text-gray-800">All Users</p>
           <span className="text-xs text-gray-400 ml-1">({profiles.length})</span>
@@ -63,20 +63,20 @@ export default async function AdminPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
-              <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Name</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Email</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Teams</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Role</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Joined</th>
-              <th className="px-3 py-3"></th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Name</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Email</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Teams</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Role</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Joined</th>
+              <th className="px-3 py-2"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-100">
             {profiles.map(p => {
               const userTeams = teamsByUserId[p.id] ?? []
               return (
-                <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3">
+                <tr key={p.id} className="hover:bg-neutral-100 transition-colors">
+                  <td className="px-3 py-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold">
                         {(p.first_name?.[0] ?? '?').toUpperCase()}
@@ -86,8 +86,8 @@ export default async function AdminPage() {
                       </p>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-xs text-gray-500">{emailById[p.id] ?? '—'}</td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-2 text-xs text-gray-500">{emailById[p.id] ?? '—'}</td>
+                  <td className="px-3 py-2">
                     <div className="flex flex-wrap gap-1">
                       {userTeams.length === 0 ? (
                         <span className="text-xs text-gray-300">—</span>
@@ -98,7 +98,7 @@ export default async function AdminPage() {
                       ))}
                     </div>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-2">
                     <span className={`inline-flex items-center gap-1 rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${
                       p.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
                     }`}>
@@ -106,8 +106,8 @@ export default async function AdminPage() {
                       {p.role === 'admin' ? 'Admin' : 'Agent'}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-xs text-gray-400">{formatDate(p.created_at)}</td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-2 text-xs text-gray-400">{formatDate(p.created_at)}</td>
+                  <td className="px-3 py-2">
                     <EditUserDialog
                       profile={p}
                       email={emailById[p.id] ?? ''}

@@ -37,6 +37,7 @@ export type Lead = {
   utm_campaign: string | null
   utm_medium: string | null
   lead_type: string | null
+  notes: string | null
   status: LeadStatus
   created_at: string
   updated_at: string
@@ -75,8 +76,8 @@ export type VendorApiKey = {
 export type CallOutcome =
   | 'no_answer'
   | 'voicemail'
-  | 'left_message'
   | 'callback_requested'
+  | 'appointment_set'
   | 'contacted'
   | 'not_interested'
   | 'wrong_number'

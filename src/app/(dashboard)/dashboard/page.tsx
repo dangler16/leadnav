@@ -17,7 +17,7 @@ function formatDayHeader() {
 
 type StatCardProps = {
   icon: React.ReactNode
-  label: string
+  label: string 
   sublabel: string
   value: number
   href: string
@@ -26,18 +26,18 @@ type StatCardProps = {
 
 function StatCard({ icon, label, sublabel, value, href, linkLabel }: StatCardProps) {
   return (
-    <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-[5px] p-5 flex flex-col gap-5 overflow-hidden">
-      <div className="w-[30px] h-[30px] bg-red-50 rounded-[5px] flex items-center justify-center text-red-600 shrink-0">
+    <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-3 overflow-hidden hover:bg-neutral-100 transition-colors">
+      <div className="w-8 h-8 bg-red-50 rounded-sm flex items-center justify-center text-red-600 shrink-0">
         {icon}
       </div>
-      <div className="flex flex-col gap-[10px]">
+      <div className="flex flex-col gap-3">
         <p className="font-semibold text-base text-gray-800 leading-none">{label}</p>
-        <p className="text-xs text-gray-400 leading-none whitespace-nowrap">{sublabel}</p>
+        <p className="text-sm text-gray-400 leading-none whitespace-nowrap">{sublabel}</p>
       </div>
-      <p className="font-bold text-[28px] text-gray-900 leading-none whitespace-nowrap">{value}</p>
-      <Link href={href} className="flex gap-0.5 items-center">
-        <span className="font-medium text-sm text-red-600 leading-none whitespace-nowrap">{linkLabel}</span>
-        <span className="w-4 h-4 flex items-center justify-center text-red-600">
+      <p className="font-bold text-3xl text-gray-900 leading-none whitespace-nowrap">{value}</p>
+      <Link href={href} className="group flex gap-0.5 items-center transition-colors">
+        <span className="font-medium text-sm text-red-600 leading-none whitespace-nowrap group-hover:text-red-800 transition-colors">{linkLabel}</span>
+        <span className="w-4 h-4 flex items-center justify-center text-red-600 group-hover:text-red-800 transition-colors">
           <ArrowRight size={14} />
         </span>
       </Link>
@@ -74,25 +74,25 @@ export default async function DashboardPage() {
   const divider = <div className="w-full h-px bg-gray-100" />
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
 
       {/* Header */}
-      <div className="flex items-start justify-between w-full">
+      <div className="flex items-start justify-between w-full pb-2">
         <div>
           <p className="text-sm font-medium text-red-600 mb-1">{formatDayHeader()}</p>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-sm text-gray-500 mt-0.5">View your leads, orders, and disputes from the dashboard.</p>
         </div>
-        <div className="flex gap-[10px] items-center shrink-0">
+        <div className="flex gap-2 items-center shrink-0">
           <Link
             href="/calls"
-            className="flex items-center px-2 py-1.5 rounded-[3px] border border-gray-200 bg-white text-gray-600 text-xs whitespace-nowrap overflow-hidden"
+            className="flex items-center px-2 py-1 rounded-sm border border-gray-200 bg-white text-gray-800 text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-neutral-100 transition-colors"
           >
             Call Lead
           </Link>
           <Link
             href="/orders"
-            className="flex items-center px-2 py-1.5 rounded-[3px] bg-red-600 text-white text-xs whitespace-nowrap overflow-hidden"
+            className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors"
           >
             Place Order
           </Link>
@@ -100,122 +100,122 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="flex gap-6 w-full overflow-hidden">
-        <StatCard icon={<Users size={20} />} label="Leads" sublabel="Active Leads in Your Pipeline" value={activeLeadCount ?? 0} href="/leads" linkLabel="View Leads" />
-        <StatCard icon={<Package size={20} />} label="Orders" sublabel="Active Lead Orders" value={activeOrderCount ?? 0} href="/orders" linkLabel="View Orders" />
-        <StatCard icon={<AlertCircle size={20} />} label="Disputes" sublabel="Total Leads Disputed" value={openDisputeCount ?? 0} href="/disputes" linkLabel="View Disputes" />
-        <StatCard icon={<Phone size={20} />} label="Calls" sublabel="Calls for Active Leads" value={callCount ?? 0} href="/calls" linkLabel="View Calls" />
-        <StatCard icon={<TrendingUp size={20} />} label="Conversions" sublabel="Total Lead Conversions" value={conversionCount ?? 0} href="/reports" linkLabel="View Report" />
+      <div className="flex gap-4 w-fulloverflow-hidden">
+        <StatCard icon={<Users size={18} />} label="Leads" sublabel="Active Leads in Your Pipeline" value={activeLeadCount ?? 0} href="/leads" linkLabel="View Leads" />
+        <StatCard icon={<Package size={18} />} label="Orders" sublabel="Active Lead Orders" value={activeOrderCount ?? 0} href="/orders" linkLabel="View Orders" />
+        <StatCard icon={<AlertCircle size={18} />} label="Disputes" sublabel="Total Leads Disputed" value={openDisputeCount ?? 0} href="/disputes" linkLabel="View Disputes" />
+        <StatCard icon={<Phone size={18} />} label="Calls" sublabel="Calls for Active Leads" value={callCount ?? 0} href="/calls" linkLabel="View Calls" />
+        <StatCard icon={<TrendingUp size={18} />} label="Sales" sublabel="Total Lead Sales" value={conversionCount ?? 0} href="/reports" linkLabel="View Report" />
       </div>
 
       {/* Tables Row */}
-      <div className="flex gap-6 w-full">
+      <div className="flex gap-4 w-full h-full">
 
         {/* Recent Leads */}
-        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-[5px] p-5 flex flex-col gap-5 overflow-hidden">
+        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center justify-between w-full">
-            <div className="flex gap-[10px] items-center">
-              <div className="w-[30px] h-[30px] bg-red-50 rounded-[5px] flex items-center justify-center text-red-600 shrink-0">
-                <Users size={20} />
+            <div className="flex gap-3 items-center">
+              <div className="w-8 h-8 bg-red-50 rounded-sm flex items-center justify-center text-red-600 shrink-0">
+                <Users size={18} />
               </div>
               <span className="font-semibold text-base text-gray-800 leading-none whitespace-nowrap">Recent Leads</span>
             </div>
             <Link
               href="/leads"
-              className="flex items-center px-2 py-1.5 rounded-[3px] border border-gray-200 bg-white text-gray-600 text-xs whitespace-nowrap overflow-hidden"
+              className="flex items-center px-2 py-1 rounded-sm border border-gray-200 bg-white text-gray-800 text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-neutral-100 transition-colors"
             >
               View All
             </Link>
           </div>
 
-          <div className="flex flex-col gap-[5px] w-full">
-            <div className="flex flex-col gap-[10px] w-full">
+          <div className="flex flex-col w-full">
+            <div className="flex flex-col gap-3 w-full">
               <div className="flex items-start justify-between w-full">
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Order</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Lead</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Status</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Date</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Order</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Lead</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Status</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Date</span>
               </div>
               {divider}
             </div>
 
             {leads.length === 0 && (
-              <p className="py-6 text-center text-xs text-gray-400">No leads found</p>
+              <p className="py-6 text-center text-sm text-gray-400">No leads found</p>
             )}
 
             {leads.map((lead, i) => (
               <div key={lead.id}>
-                <div className="flex items-center justify-between w-full py-[5px]">
-                  <span className="flex-1 min-w-0 font-mono text-xs text-gray-500 leading-none">
+                <Link href={`/leads/${lead.id}`} className="flex items-center justify-between w-full py-2 bg-white-100 hover:bg-neutral-100 transition-colors cursor-pointer">
+                  <span className="flex-1 min-w-0 font-mono text-sm text-gray-500 leading-none">
                     {lead.order_id ? `#${lead.order_id.slice(0, 4).toUpperCase()}` : '—'}
                   </span>
-                  <span className="flex-1 min-w-0 font-medium text-xs text-gray-800 leading-none">
-                    <Link href={`/leads/${lead.id}`} className="hover:text-red-600">
+                  <span className="flex-1 min-w-0 font-medium text-sm text-gray-800 leading-none">
+                    <span>
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
-                    </Link>
+                    </span>
                   </span>
                   <span className="flex-1 min-w-0">
-                    <LeadStatusBadge status={lead.status} />
+                    <LeadStatusBadge status={lead.status} variant="raw" />
                   </span>
-                  <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">
+                  <span className="flex-1 min-w-0 text-sm text-gray-400 leading-none">
                     {formatDate(lead.created_at)}
                   </span>
-                </div>
-                {i < leads.length - 1 && divider}
+                </Link>
+                {i < leads.length && divider}
               </div>
             ))}
           </div>
         </div>
 
         {/* Open Disputes */}
-        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-[5px] p-5 flex flex-col gap-5 overflow-hidden">
+        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center justify-between w-full">
-            <div className="flex gap-[10px] items-center">
-              <div className="w-[30px] h-[30px] bg-red-50 rounded-[5px] flex items-center justify-center text-red-600 shrink-0">
-                <AlertCircle size={20} />
+            <div className="flex gap-3 items-center">
+              <div className="w-8 h-8 bg-red-50 rounded-sm flex items-center justify-center text-red-600 shrink-0">
+                <AlertCircle size={18} />
               </div>
               <span className="font-semibold text-base text-gray-800 leading-none whitespace-nowrap">Open Disputes</span>
             </div>
             <Link
               href="/disputes"
-              className="flex items-center px-2 py-1.5 rounded-[3px] border border-gray-200 bg-white text-gray-600 text-xs whitespace-nowrap overflow-hidden"
+              className="flex items-center px-2 py-1 rounded-sm border border-gray-200 bg-white text-gray-800 text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-neutral-100 transition-colors"
             >
               View All
             </Link>
           </div>
 
-          <div className="flex flex-col gap-[5px] w-full">
-            <div className="flex flex-col gap-[10px] w-full">
+          <div className="flex flex-col w-full">
+            <div className="flex flex-col gap-3 w-full">
               <div className="flex items-start justify-between w-full">
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Lead</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Reason</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Status</span>
-                <span className="flex-1 min-w-0 font-medium text-xs text-gray-400 leading-none">Date</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Lead</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Reason</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Status</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Date</span>
               </div>
               {divider}
             </div>
 
             {disputes.length === 0 && (
-              <p className="py-6 text-center text-xs text-gray-400">No disputes found</p>
+              <p className="py-6 text-center text-sm text-gray-400">No disputes found</p>
             )}
 
             {disputes.map((d, i) => (
               <div key={d.id}>
-                <div className="flex items-center justify-between w-full py-[5px]">
-                  <span className="flex-1 min-w-0 font-medium text-xs text-gray-800 leading-none">
+                <div className="flex items-center justify-between w-full py-2 bg-white-100 hover:bg-neutral-100 transition-colors cursor-pointer">
+                  <span className="flex-1 min-w-0 font-medium text-sm text-gray-800 leading-none">
                     {d.leads ? [d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ') : '—'}
                   </span>
-                  <span className="flex-1 min-w-0 text-xs text-gray-500 leading-none">
+                  <span className="flex-1 min-w-0 text-sm text-gray-500 leading-none">
                     {formatDisputeReason(d.reason)}
                   </span>
                   <span className="flex-1 min-w-0">
                     <DisputeStatusBadge status={d.status} />
                   </span>
-                  <span className="flex-1 min-w-0 text-xs text-gray-400 leading-none">
+                  <span className="flex-1 min-w-0 text-sm text-gray-400 leading-none">
                     {formatDate(d.created_at)}
                   </span>
                 </div>
-                {i < disputes.length - 1 && divider}
+                {i < disputes.length && divider}
               </div>
             ))}
           </div>

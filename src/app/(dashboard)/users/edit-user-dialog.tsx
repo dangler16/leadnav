@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Pencil } from 'lucide-react'
 import { Profile, Team } from '@/lib/types'
 import { updateUser, setUserTeams } from './actions'
@@ -24,6 +25,7 @@ export function EditUserDialog({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [role, setRole] = useState(profile.role)
   const [selectedTeams, setSelectedTeams] = useState<string[]>(memberTeamIds)
   const router = useRouter()
 
@@ -82,16 +84,13 @@ export function EditUserDialog({
               <Input id={`email-${profile.id}`} name="email" type="email" defaultValue={email} required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor={`role-${profile.id}`}>Role</Label>
-              <select
-                id={`role-${profile.id}`}
+              <Label>Role</Label>
+              <SelectDropdown
+                options={[{ value: 'agent', label: 'Agent' }, { value: 'admin', label: 'Admin' }]}
+                value={role}
+                onChange={v => setRole(v as 'agent' | 'admin')}
                 name="role"
-                defaultValue={profile.role}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 bg-white"
-              >
-                <option value="agent">Agent</option>
-                <option value="admin">Admin</option>
-              </select>
+              />
             </div>
             {teams.length > 0 && (
               <div className="space-y-1.5">

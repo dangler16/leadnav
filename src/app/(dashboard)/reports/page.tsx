@@ -45,21 +45,21 @@ export default async function ReportsPage() {
   }, {} as Record<string, number>)
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Pipeline performance and conversion analytics.</p>
+        <p className="text-sm text-gray-500 mt-0.5">Pipeline performance and sales analytics.</p>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex gap-4">
         {[
-          { icon: <Users size={20} />, label: 'Total Leads', value: total },
-          { icon: <TrendingUp size={20} />, label: 'Conversion Rate', value: `${conversionRate}%` },
-          { icon: <Phone size={20} />, label: 'Contact Rate', value: `${contactRate}%` },
-          { icon: <BarChart2 size={20} />, label: 'Total Calls', value: calls.length },
+          { icon: <Users size={18} />, label: 'Total Leads', value: total },
+          { icon: <TrendingUp size={18} />, label: `Sales (${conversionRate}%)`, value: sales },
+          { icon: <Phone size={18} />, label: 'Contact Rate', value: `${contactRate}%` },
+          { icon: <BarChart2 size={18} />, label: 'Total Calls', value: calls.length },
         ].map(s => (
-          <div key={s.label} className="flex-1 bg-white rounded-[5px] border border-gray-200 p-5">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600 mb-3">
+          <div key={s.label} className="flex-1 bg-white rounded-lg border border-gray-200 p-4">
+            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600 mb-3">
               {s.icon}
             </div>
             <p className="text-xs text-gray-400">{s.label}</p>
@@ -68,11 +68,11 @@ export default async function ReportsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-              <Users size={20} />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+              <Users size={18} />
             </div>
             <p className="font-semibold text-base text-gray-800">Lead Status Breakdown</p>
           </div>
@@ -98,10 +98,10 @@ export default async function ReportsPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-[5px] border border-gray-200 p-5">
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-              <Phone size={20} />
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+              <Phone size={18} />
             </div>
             <p className="font-semibold text-base text-gray-800">Call Outcomes</p>
           </div>
@@ -129,10 +129,10 @@ export default async function ReportsPage() {
           )}
         </div>
 
-        <div className="col-span-2 bg-white rounded-[5px] border border-gray-200 p-5">
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-              <BarChart2 size={20} />
+        <div className="col-span-2 bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+              <BarChart2 size={18} />
             </div>
             <p className="font-semibold text-base text-gray-800">Pipeline Summary</p>
           </div>

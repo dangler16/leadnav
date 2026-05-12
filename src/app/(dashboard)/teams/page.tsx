@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { UsersRound, Phone } from 'lucide-react'
 import { Team, TeamMember, Profile } from '@/lib/types'
+import { formatPhone } from '@/lib/utils'
 import { NewTeamDialog } from './new-team-dialog'
 import { EditTeamDialog } from './edit-team-dialog'
 import { ManageMembersDialog } from './manage-members-dialog'
@@ -36,7 +37,7 @@ export default async function TeamsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
@@ -45,31 +46,31 @@ export default async function TeamsPage() {
         <NewTeamDialog />
       </div>
 
-      <div className="bg-white rounded-[5px] border border-gray-200">
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-            <UsersRound size={20} />
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
+          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+            <UsersRound size={18} />
           </div>
           <p className="font-semibold text-base text-gray-800">All Teams</p>
           <span className="text-xs text-gray-400 ml-1">({teams.length})</span>
         </div>
 
         {teams.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-gray-400">No teams yet. Create one to get started.</p>
+          <p className="px-4 py-8 text-center text-sm text-gray-400">No teams yet. Create one to get started.</p>
         )}
 
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-gray-100">
           {teams.map(team => {
             const members = getMembersForTeam(team.id)
             const leader = members.find(m => m.role === 'leader')
 
             return (
-              <div key={team.id} className="px-5 py-4 flex items-start gap-4">
+              <div key={team.id} className="p-4 flex items-start gap-4">
                 <div className="flex-shrink-0">
                   {team.logo_url ? (
-                    <img src={team.logo_url} alt={team.name} className="w-10 h-10 rounded-[5px] object-cover border border-gray-100" />
+                    <img src={team.logo_url} alt={team.name} className="w-8 h-8 rounded-sm object-cover border border-gray-100" />
                   ) : (
-                    <div className="w-10 h-10 rounded-[5px] bg-red-100 flex items-center justify-center text-red-600 text-sm font-bold">
+                    <div className="w-8 h-8 rounded-sm bg-red-100 flex items-center justify-center text-red-600 text-sm font-bold">
                       {team.name[0].toUpperCase()}
                     </div>
                   )}
@@ -81,7 +82,7 @@ export default async function TeamsPage() {
                     {team.phone && (
                       <span className="flex items-center gap-1 text-xs text-gray-400">
                         <Phone size={11} />
-                        {team.phone}
+                        {formatPhone(team.phone)}
                       </span>
                     )}
                     {leader && (

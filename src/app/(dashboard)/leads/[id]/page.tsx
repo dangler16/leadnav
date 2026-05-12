@@ -1,11 +1,14 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Lead, Profile, CallLog, Dispute, LeadStatus, CallOutcome, formatDisputeReason } from '@/lib/types'
-import { LeadStatusBadge, DisputeStatusBadge } from '@/components/status-badge'
+import { Lead, Profile, CallLog, Dispute, CallOutcome, formatDisputeReason } from '@/lib/types'
 import { LeadActions } from './lead-actions'
-import { ReassignLead } from './reassign-lead'
-import { ChevronLeft, Phone, AlertCircle, User, Mail, PhoneCall, MapPin, Calendar, DollarSign, Store } from 'lucide-react'
+import { ContactInfoCard } from './contact-info-card'
+import { HouseholdCard } from './household-card'
+import { NotesCard } from './notes-card'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { ChevronLeft, AlertCircle } from 'lucide-react'
+import { DisputeStatusBadge } from '@/components/status-badge'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('en-US', {
@@ -14,26 +17,15 @@ function formatDate(dateStr: string) {
   })
 }
 
-const outcomeLabels: Record<CallOutcome, string> = {
-  no_answer: 'No Answer',
-  voicemail: 'Voicemail',
-  left_message: 'Left Message',
-  callback_requested: 'Callback Requested',
-  contacted: 'Contacted',
-  not_interested: 'Not Interested',
-  wrong_number: 'Wrong Number',
-  sale: 'Sale',
-}
-
-const outcomeColors: Record<CallOutcome, string> = {
-  no_answer: 'text-gray-500',
-  voicemail: 'text-gray-500',
-  left_message: 'text-blue-600',
-  callback_requested: 'text-indigo-600',
-  contacted: 'text-green-600',
-  not_interested: 'text-orange-600',
-  wrong_number: 'text-red-600',
-  sale: 'text-green-700',
+const outcomeConfig: Record<CallOutcome, { label: string; bg: string; color: string; borderColor: string; dotColor: string }> = {
+  no_answer:        { label: 'No Answer',         bg: '#f3f4f6', color: '#4b5563', borderColor: '#e5e7eb', dotColor: '#9ca3af' },
+  voicemail:        { label: 'Voicemail',          bg: '#f3f4f6', color: '#4b5563', borderColor: '#e5e7eb', dotColor: '#9ca3af' },
+  callback_requested: { label: 'Callback Requested', bg: '#cffafe', color: '#0e7490', borderColor: '#a5f3fc', dotColor: '#06b6d4' },
+  appointment_set:  { label: 'Appointment Set',   bg: '#e0e7ff', color: '#4338ca', borderColor: '#c7d2fe', dotColor: '#6366f1' },
+  contacted:        { label: 'Contacted',          bg: '#cffafe', color: '#0e7490', borderColor: '#a5f3fc', dotColor: '#06b6d4' },
+  not_interested:   { label: 'Not Interested',     bg: '#fee2e2', color: '#b91c1c', borderColor: '#fecaca', dotColor: '#ef4444' },
+  wrong_number:     { label: 'Wrong Number',       bg: '#fee2e2', color: '#b91c1c', borderColor: '#fecaca', dotColor: '#ef4444' },
+  sale:             { label: 'Sale',               bg: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0', dotColor: '#22c55e' },
 }
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -60,7 +52,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       ? supabase.from('vendors').select('name').eq('id', lead.vendor_id).single()
       : Promise.resolve({ data: null }),
     isAdmin
-      ? supabase.from('profiles').select('*').eq('role', 'agent').order('first_name')
+      ? supabase.from('profiles').select('*').order('first_name')
       : Promise.resolve({ data: [] }),
     lead.assigned_to
       ? supabase.from('profiles').select('first_name, last_name').eq('id', lead.assigned_to).single()
@@ -73,15 +65,10 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     ? [assignedResult.data.first_name, assignedResult.data.last_name].filter(Boolean).join(' ')
     : null
 
-  const statusOptions: LeadStatus[] = [
-    'new', 'not_contacted', 'contacted', 'appt_set',
-    'appt_no_show', 'appt_no_sale', 'appt_rescheduled', 'sale', 'lost',
-  ]
-
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div>
-        <Link href="/leads" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-3">
+        <Link href="/leads" className="flex items-center gap-0 text-sm text-gray-500 hover:text-gray-700 mb-1 -mt-1 -ml-1">
           <ChevronLeft size={15} /> Back to Leads
         </Link>
         <div className="flex items-start justify-between">
@@ -90,151 +77,100 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || 'Unknown Lead'}
             </h1>
             <div className="flex items-center gap-2 mt-1.5">
-              <LeadStatusBadge status={lead.status} />
-              <span className="text-xs text-gray-400">Added {formatDate(lead.created_at)}</span>
+              <span className="text-xs text-gray-400">{formatDate(lead.created_at)}</span>
             </div>
           </div>
-          <LeadActions lead={lead} statusOptions={statusOptions} userId={user.id} />
+          <LeadActions lead={lead} userId={user.id} />
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-1 flex flex-col gap-6">
-          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-                <User size={15} />
-              </div>
-              <p className="font-semibold text-base text-gray-800">Contact Info</p>
-            </div>
-            <div className="space-y-3">
-              {[
-                { icon: <PhoneCall size={13} />, label: 'Phone', value: lead.phone },
-                { icon: <Mail size={13} />, label: 'Email', value: lead.email },
-                { icon: <Calendar size={13} />, label: 'Birthday', value: lead.birthday },
-                { icon: <MapPin size={13} />, label: 'Location', value: [lead.state, lead.zip].filter(Boolean).join(', ') || null },
-              ].map(({ icon, label, value }) => (
-                <div key={label} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 text-gray-400">{icon}</span>
-                  <div>
-                    <p className="text-xs text-gray-400">{label}</p>
-                    <p className="text-sm text-gray-800 font-medium">{value ?? '—'}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+      <Tabs defaultValue="details">
+        <TabsList>
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="calls">Call History ({calls.length})</TabsTrigger>
+        </TabsList>
 
-          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-                <DollarSign size={15} />
-              </div>
-              <p className="font-semibold text-base text-gray-800">Insurance Details</p>
-            </div>
-            <div className="space-y-3">
-              {[
-                { label: 'Lead Type', value: lead.lead_type },
-                { label: 'Plan For', value: lead.plan_for },
-                { label: 'Looking For', value: lead.looking_for },
-                { label: 'Household Size', value: lead.household?.toString() },
-                { label: 'Income', value: lead.income ? `$${lead.income.toLocaleString()}` : null },
-              ].map(({ label, value }) => (
-                <div key={label}>
-                  <p className="text-xs text-gray-400">{label}</p>
-                  <p className="text-sm text-gray-800 font-medium">{value ?? '—'}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <TabsContent value="details">
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            <ContactInfoCard
+              lead={lead}
+              vendorName={vendorName}
+              isAdmin={isAdmin}
+              agents={agents}
+              assignedName={assignedName}
+            />
 
-          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-                <Store size={15} />
-              </div>
-              <p className="font-semibold text-base text-gray-800">Source</p>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs text-gray-400">Vendor</p>
-                <p className="text-sm text-gray-800 font-medium">{vendorName ?? '—'}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-1">Assigned To</p>
-                {isAdmin ? (
-                  <ReassignLead leadId={lead.id} currentAgentId={lead.assigned_to} agents={agents} />
-                ) : (
-                  <p className="text-sm text-gray-800 font-medium">{assignedName ?? 'Unassigned'}</p>
-                )}
-              </div>
-            </div>
-          </div>
+            <HouseholdCard lead={lead} />
 
-          {disputes.length > 0 && (
-            <div className="bg-white rounded-[5px] border border-gray-200 p-5">
+            <div className="flex flex-col gap-4">
+            <NotesCard lead={lead} />
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-                  <AlertCircle size={15} />
+                <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+                  <AlertCircle size={18} />
                 </div>
                 <p className="font-semibold text-base text-gray-800">Disputes</p>
               </div>
-              <div className="space-y-2">
-                {disputes.map(d => (
-                  <div key={d.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                    <div>
-                      <p className="text-sm text-gray-800">{formatDisputeReason(d.reason)}</p>
-                      <p className="text-xs text-gray-400">{formatDate(d.created_at)}</p>
-                    </div>
-                    <DisputeStatusBadge status={d.status} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="col-span-2 flex flex-col gap-6">
-          <LeadActions lead={lead} statusOptions={statusOptions} userId={user.id} showCallForm />
-
-          <div className="bg-white rounded-[5px] border border-gray-200 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-                <Phone size={15} />
-              </div>
-              <p className="font-semibold text-base text-gray-800">Call History</p>
-              <span className="ml-auto text-xs text-gray-400">{calls.length} call{calls.length !== 1 ? 's' : ''}</span>
-            </div>
-            {calls.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-6">No calls logged yet</p>
-            ) : (
-              <div className="space-y-3">
-                {calls.map(call => (
-                  <div key={call.id} className="flex items-start gap-3 p-3 rounded-[5px] bg-gray-50">
-                    <div className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Phone size={12} className="text-gray-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-medium ${outcomeColors[call.outcome]}`}>
-                          {outcomeLabels[call.outcome]}
-                        </span>
-                        {call.duration_seconds && (
-                          <span className="text-xs text-gray-400">
-                            {Math.floor(call.duration_seconds / 60)}:{String(call.duration_seconds % 60).padStart(2, '0')}
-                          </span>
-                        )}
-                        <span className="text-xs text-gray-400 ml-auto">{formatDate(call.called_at)}</span>
+              {disputes.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">No disputes</p>
+              ) : (
+                <div className="space-y-2">
+                  {disputes.map(d => (
+                    <div key={d.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div>
+                        <p className="text-sm text-gray-800">{formatDisputeReason(d.reason)}</p>
+                        <p className="text-xs text-gray-400">{formatDate(d.created_at)}</p>
                       </div>
-                      {call.notes && <p className="text-sm text-gray-600 mt-1">{call.notes}</p>}
+                      <DisputeStatusBadge status={d.status} />
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="calls">
+          <div className="mt-4 bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <table className="w-full text-md">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Outcome</th>
+                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Notes</th>
+                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {calls.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-12 text-center text-sm text-gray-400">No calls logged yet</td>
+                  </tr>
+                )}
+                {calls.map(call => (
+                  <tr key={call.id} className="border-b border-gray-100 last:border-0">
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <span
+                        className="inline-flex items-center gap-1.5 text-sm font-medium px-1.5 py-0.5 rounded-sm border"
+                        style={{
+                          background: outcomeConfig[call.outcome].bg,
+                          color: outcomeConfig[call.outcome].color,
+                          borderColor: outcomeConfig[call.outcome].borderColor,
+                        }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: outcomeConfig[call.outcome].dotColor }} />
+                        {outcomeConfig[call.outcome].label}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-600">{call.notes ?? '—'}</td>
+                    <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">{formatDate(call.called_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

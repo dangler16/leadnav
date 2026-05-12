@@ -48,7 +48,7 @@ export default async function DisputesPage({
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
@@ -57,26 +57,26 @@ export default async function DisputesPage({
         <NewDisputeDialog leads={leads} userId={user.id} />
       </div>
 
-      <div className="bg-white rounded-[5px] border border-gray-200">
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-          <div className="w-[30px] h-[30px] rounded-[5px] bg-red-50 flex items-center justify-center text-red-600">
-            <AlertCircle size={20} />
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
+          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+            <AlertCircle size={18} />
           </div>
           <p className="font-semibold text-base text-gray-800">All Disputes</p>
         </div>
 
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-1.5 p-3 border-b border-gray-100">
           {(['All', 'Active', 'Closed', 'Lost'] as FilterTab[]).map(f => (
             <Link
               key={f}
               href={`/disputes?filter=${f}`}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              className={`px-2 py-1 rounded-sm text-sm transition-colors whitespace-nowrap ${
                 filter === f
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-500 hover:text-gray-700 border border-gray-200'
+                  ? 'bg-red-600 text-white font-semibold'
+                  : 'text-gray-400 hover:text-gray-700 border border-gray-200 bg-white'
               }`}
             >
-              {f} <span className="opacity-70">({counts[f]})</span>
+              {f} ({counts[f]})
             </Link>
           ))}
         </div>
@@ -84,28 +84,28 @@ export default async function DisputesPage({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
-              <th className="text-left text-xs font-medium text-gray-400 px-5 py-3">Lead</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Reason</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Status</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Notes</th>
-              <th className="text-left text-xs font-medium text-gray-400 px-3 py-3">Filed</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Reason</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Status</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Notes</th>
+              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Filed</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-100">
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="py-12 text-center text-sm text-gray-400">No disputes found</td>
               </tr>
             )}
             {filtered.map(d => (
-              <tr key={d.id} className="hover:bg-gray-50">
-                <td className="px-5 py-3 font-medium text-gray-800">
+              <tr key={d.id} className="hover:bg-neutral-100 transition-colors">
+                <td className="px-3 py-2 font-medium text-gray-800">
                   {d.leads ? [d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ') : '—'}
                 </td>
-                <td className="px-3 py-3 text-gray-600">{formatDisputeReason(d.reason)}</td>
-                <td className="px-3 py-3"><DisputeStatusBadge status={d.status} /></td>
-                <td className="px-3 py-3 text-gray-500 text-xs max-w-[200px] truncate">{d.notes ?? '—'}</td>
-                <td className="px-3 py-3 text-xs text-gray-400">{formatDate(d.created_at)}</td>
+                <td className="px-3 py-2 text-gray-600">{formatDisputeReason(d.reason)}</td>
+                <td className="px-3 py-2"><DisputeStatusBadge status={d.status} /></td>
+                <td className="px-3 py-2 text-gray-500 text-xs max-w-[200px] truncate">{d.notes ?? '—'}</td>
+                <td className="px-3 py-2 text-xs text-gray-400">{formatDate(d.created_at)}</td>
               </tr>
             ))}
           </tbody>

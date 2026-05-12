@@ -65,7 +65,7 @@ export default function LoginPage() {
               />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <Button type="submit" className="w-full cursor-pointer rounded-[5px] bg-[#EA1212] hover:bg-[#BB0E0E] transition-colors duration-[200ms]" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>

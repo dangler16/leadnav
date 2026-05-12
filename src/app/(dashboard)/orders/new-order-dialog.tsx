@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Plus } from 'lucide-react'
 
 export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId: string }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedVendorId, setSelectedVendorId] = useState('')
+  const [selectedLeadType, setSelectedLeadType] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -38,7 +40,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
 
   function handleOpenChange(val: boolean) {
     setOpen(val)
-    if (!val) setSelectedVendorId('')
+    if (!val) { setSelectedVendorId(''); setSelectedLeadType('') }
   }
 
   return (
@@ -53,40 +55,32 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <Label htmlFor="vendor_id">Vendor</Label>
-              <select
-                id="vendor_id"
-                name="vendor_id"
+              <Label>Vendor</Label>
+              <SelectDropdown
+                options={vendors.map(v => ({ value: v.id, label: v.name }))}
                 value={selectedVendorId}
-                onChange={e => setSelectedVendorId(e.target.value)}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 bg-white"
-                required
-              >
-                <option value="">Select vendor…</option>
-                {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-              </select>
+                onChange={v => { setSelectedVendorId(v); setSelectedLeadType('') }}
+                name="vendor_id"
+                placeholder="Select vendor…"
+              />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="lead_type">Lead Type</Label>
-              <select
-                id="lead_type"
+              <Label>Lead Type</Label>
+              <SelectDropdown
+                options={(selectedVendor?.lead_types ?? []).map(lt => ({ value: lt, label: lt }))}
+                value={selectedLeadType}
+                onChange={setSelectedLeadType}
                 name="lead_type"
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!selectedVendor || selectedVendor.lead_types.length === 0}
-                required
-              >
-                <option value="">
-                  {!selectedVendor
+                placeholder={
+                  !selectedVendor
                     ? 'Select a vendor first'
                     : selectedVendor.lead_types.length === 0
                     ? 'No lead types configured'
-                    : 'Select lead type…'}
-                </option>
-                {selectedVendor?.lead_types.map(lt => (
-                  <option key={lt} value={lt}>{lt}</option>
-                ))}
-              </select>
+                    : 'Select lead type…'
+                }
+                disabled={!selectedVendor || selectedVendor.lead_types.length === 0}
+              />
               {selectedVendor?.cost_per_lead != null && (
                 <p className="text-xs text-gray-500">
                   Cost per lead: <span className="font-medium">${selectedVendor.cost_per_lead}</span>

@@ -24,7 +24,7 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: House },
   { label: 'Leads', href: '/leads', icon: SquareUser },
   { label: 'Orders', href: '/orders', icon: Package },
-  { label: 'Disputes', href: '/disputes', icon: AlertCircle, badge: true },
+  { label: 'Disputes', href: '/disputes', icon: AlertCircle },
   { label: 'Calls', href: '/calls', icon: Phone },
   { label: 'Reports', href: '/reports', icon: ChartColumnBig },
 ]
@@ -35,7 +35,7 @@ const adminNavItems = [
   { label: 'Users', href: '/users', icon: User },
 ]
 
-export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount = 0 }: { disputeCount?: number; isAdmin?: boolean; notificationCount?: number }) {
+export function Sidebar({ isAdmin = false, notificationCount = 0 }: { isAdmin?: boolean; notificationCount?: number }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -47,56 +47,51 @@ export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount =
   }
 
   return (
-    <aside className="flex flex-col w-[216px] min-h-screen bg-[#0F1117FF] text-white flex-shrink-0 gap-[10px] pt-[10px]">
+    <aside className="flex flex-col w-56 min-h-screen bg-neutral-900 text-white flex-shrink-0 gap-2.5 pt-2.5">
       {/* Logo */}
-      <div className="flex items-center px-[12px] py-[10px]">
+      <div className="flex items-center px-3 py-2.5">
         <img src="/leadnav-white-text.svg" alt="LeadNav" width="106" />
       </div>
 
       {/* Top icons */}
-      <div className="flex items-center px-[6px] py-[4px] border-y-[2px] border-white/10">
-        <Link href="/profile" className={cn('p-[6px] transition-colors cursor-pointer', pathname === '/profile' ? 'text-white' : 'text-white/35 hover:text-white')}>
+      <div className="flex items-center px-1.5 py-1 border-y-2 border-white/10">
+        <Link href="/profile" className={cn('p-1.5 transition-colors cursor-pointer', pathname === '/profile' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <CircleUser size={18} strokeWidth={2.5}/>
         </Link>
-        <Link href="/settings" className={cn('p-[6px] transition-colors cursor-pointer', pathname === '/settings' ? 'text-white' : 'text-white/35 hover:text-white')}>
+        <Link href="/settings" className={cn('p-1.5 transition-colors cursor-pointer', pathname === '/settings' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <Settings size={18} strokeWidth={2.5}/>
         </Link>
         <NotificationBell initialCount={notificationCount} />
       </div>
 
       {/* Menu label */}
-      <p className="px-[12px] pt-[12px] pb-0 text-[11px] font-bold uppercase tracking-[10%] text-white/35">
+      <p className="px-3 pt-3 pb-0 text-xs font-bold uppercase tracking-widest text-white/35">
         Menu
       </p>
 
       {/* Nav */}
       <nav className="flex-1">
-        {navItems.map(({ label, href, icon: Icon, badge }) => {
+        {navItems.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-regular transition-colors',
+                'flex items-center gap-2.5 px-3 py-2.5 text-sm font-regular transition-colors group',
                 isActive
-                  ? 'bg-[#EA121240] text-[#F9B7B7] border-l-2 border-[#EA1212] px-[10px]'
+                  ? 'bg-red-950 text-red-300 border-l-2 border-red-600 px-2.5 font-medium'
                   : 'hover:bg-white/5 font-regular'
               )}
             >
-              <Icon size={16} className={cn('flex-shrink-0', isActive ? '' : 'text-white/50')} strokeWidth={2.5}/>
+              <Icon size={16} className={cn('flex-shrink-0 transition-colors', isActive ? '' : 'text-white/50 group-hover:text-white')} strokeWidth={2.5}/>
               <span className={cn('flex-1', isActive ? '' : 'text-white')}>{label}</span>
-              {badge && disputeCount > 0 && (
-                <span className="flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-[10px] font-bold text-white">
-                  {disputeCount > 9 ? '9+' : disputeCount}
-                </span>
-              )}
             </Link>
           )
         })}
         {isAdmin && (
           <>
-            <p className="px-[12px] pt-[12px] pb-[10px] text-[11px] font-bold uppercase tracking-[10%] text-white/35">
+            <p className="p-3 pt-5 text-xs font-bold uppercase tracking-widest text-white/35">
               Admin
             </p>
             {adminNavItems.map(({ label, href, icon: Icon }) => {
@@ -106,13 +101,13 @@ export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount =
                   key={href}
                   href={href}
                   className={cn(
-                    'flex items-center gap-[10px] px-[12px] py-[8px] text-[14px] font-regular transition-colors',
+                    'flex items-center gap-2.5 px-3 py-2.5 text-sm font-regular transition-colors group',
                     isActive
-                      ? 'bg-[#EA121240] text-[#F9B7B7] border-l-2 border-[#EA1212] px-[10px]'
+                      ? 'bg-red-950 text-red-300 border-l-2 border-red-600 px-2.5 font-semibold'
                       : 'hover:bg-white/5 font-regular'
                   )}
                 >
-                  <Icon size={16} className={cn('flex-shrink-0', isActive ? '' : 'text-white/50')} strokeWidth={2.5}/>
+                  <Icon size={16} className={cn('flex-shrink-0 transition-colors', isActive ? '' : 'text-white/50 group-hover:text-white')} strokeWidth={2.5}/>
                   <span className={cn('flex-1', isActive ? '' : 'text-white')}>{label}</span>
                 </Link>
               )
@@ -122,12 +117,12 @@ export function Sidebar({ disputeCount = 0, isAdmin = false, notificationCount =
       </nav>
 
       {/* Sign out */}
-      <div className="flex items-center px-[6px] py-[4px] border-t-[2px] border-white/10">
+      <div className="flex items-center px-1.5 py-1 border-t-2 border-white/10">
         <button
           onClick={handleSignOut}
-          className="gap-[10px] px-[12px] py-[12px] text-[14px] font-medium flex items-center w-full text-white/35 cursor-pointer"
+          className="gap-2.5 p-3 text-sm font-regular flex items-center w-full text-white/35 cursor-pointer"
         >
-          <LogOut size={15} />
+          <LogOut size={16} />
           <span>Sign Out</span>
         </button>
       </div>

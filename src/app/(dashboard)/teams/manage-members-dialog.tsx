@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Team, TeamMember, Profile } from '@/lib/types'
 import { addTeamMember, removeTeamMember, updateMemberRole } from './actions'
 import { Crown, UserMinus, Users } from 'lucide-react'
@@ -114,26 +115,18 @@ export function ManageMembersDialog({
             <div className="pt-3 border-t border-gray-100 space-y-2">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Add Member</p>
               <div className="flex gap-2">
-                <select
+                <SelectDropdown
+                  options={available.map(p => ({ value: p.id, label: [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id }))}
                   value={addUserId}
-                  onChange={e => setAddUserId(e.target.value)}
-                  className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 bg-white"
-                >
-                  <option value="">Select user…</option>
-                  {available.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {[p.first_name, p.last_name].filter(Boolean).join(' ') || p.id}
-                    </option>
-                  ))}
-                </select>
-                <select
+                  onChange={setAddUserId}
+                  placeholder="Select user…"
+                  className="flex-1"
+                />
+                <SelectDropdown
+                  options={[{ value: 'member', label: 'Member' }, { value: 'leader', label: 'Leader' }]}
                   value={addRole}
-                  onChange={e => setAddRole(e.target.value as 'leader' | 'member')}
-                  className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 bg-white"
-                >
-                  <option value="member">Member</option>
-                  <option value="leader">Leader</option>
-                </select>
+                  onChange={v => setAddRole(v as 'leader' | 'member')}
+                />
                 <Button size="sm" onClick={handleAdd} disabled={!addUserId || loading === 'add'}>
                   {loading === 'add' ? '…' : 'Add'}
                 </Button>
