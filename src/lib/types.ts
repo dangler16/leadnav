@@ -49,7 +49,7 @@ export type Order = {
   vendor_id: string | null
   lead_type: string | null
   daily_budget: number | null
-  status: 'placed' | 'active' | 'paused' | 'completed' | 'cancelled' | 'expired'
+  status: 'active' | 'paused' | 'completed'
   created_at: string
 }
 

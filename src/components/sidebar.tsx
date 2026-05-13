@@ -54,11 +54,11 @@ export function Sidebar({ isAdmin = false, notificationCount = 0 }: { isAdmin?: 
       </div>
 
       {/* Top icons */}
-      <div className="flex items-center px-1.5 py-1 border-y-2 border-white/10">
-        <Link href="/profile" className={cn('p-1.5 transition-colors cursor-pointer', pathname === '/profile' ? 'text-white' : 'text-white/35 hover:text-white')}>
+      <div className="flex items-center border-y-2 border-white/10">
+        <Link href="/profile" className={cn('p-2 transition-colors cursor-pointer', pathname === '/profile' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <CircleUser size={18} strokeWidth={2.5}/>
         </Link>
-        <Link href="/settings" className={cn('p-1.5 transition-colors cursor-pointer', pathname === '/settings' ? 'text-white' : 'text-white/35 hover:text-white')}>
+        <Link href="/settings" className={cn('p-2 transition-colors cursor-pointer', pathname === '/settings' ? 'text-white' : 'text-white/35 hover:text-white')}>
           <Settings size={18} strokeWidth={2.5}/>
         </Link>
         <NotificationBell initialCount={notificationCount} />

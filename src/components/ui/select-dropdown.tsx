@@ -64,7 +64,7 @@ export function SelectDropdown({
         onClick={handleToggle}
         disabled={disabled}
         className={cn(
-          'flex h-8 w-full items-center justify-between cursor-pointer gap-1.5 text-sm border rounded-sm pl-2 pr-1.5 disabled:opacity-50 disabled:cursor-not-allowed outline-none bg-white text-gray-700 transition-colors hover:border-red-600',
+          'flex h-8 w-full items-center justify-between cursor-pointer gap-1.5 text-sm border rounded-sm pl-2 pr-1.5 disabled:opacity-50 disabled:cursor-not-allowed outline-none bg-white text-gray-900 transition-colors hover:border-red-600',
           open ? 'border-red-600' : 'border-input',
           buttonClassName,
         )}

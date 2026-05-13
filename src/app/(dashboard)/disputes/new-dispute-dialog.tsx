@@ -48,7 +48,7 @@ export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userI
 
   return (
     <>
-      <Button className="flex items-center gap-2" onClick={() => setOpen(true)}><Plus size={15} /> File Dispute</Button>
+      <Button className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors h-fit" onClick={() => setOpen(true)}>File Dispute</Button>
       <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

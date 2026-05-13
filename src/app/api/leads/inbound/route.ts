@@ -49,6 +49,19 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
+  // Block if no active orders exist for this vendor
+  const { data: activeOrder } = await supabase
+    .from('orders')
+    .select('id')
+    .eq('vendor_id', keyRecord.vendor_id)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (!activeOrder) {
+    return Response.json({ error: 'No active orders for this vendor' }, { status: 503 })
+  }
+
   // Fetch vendor to get configured lead type
   const { data: vendor } = await supabase
     .from('vendors')

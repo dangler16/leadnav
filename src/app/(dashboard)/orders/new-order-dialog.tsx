@@ -30,7 +30,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
       vendor_id: fd.get('vendor_id') || null,
       lead_type: fd.get('lead_type') || null,
       daily_budget: fd.get('daily_budget') ? parseFloat(fd.get('daily_budget') as string) : null,
-      status: 'placed',
+      status: 'active',
     })
     setLoading(false)
     setOpen(false)
@@ -45,8 +45,8 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
 
   return (
     <>
-      <Button className="flex items-center gap-2" onClick={() => setOpen(true)}>
-        <Plus size={15} /> Place Order
+      <Button className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors h-fit" onClick={() => setOpen(true)}>
+        Place Order
       </Button>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-sm">

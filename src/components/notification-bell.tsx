@@ -96,7 +96,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
         ref={buttonRef}
         onClick={toggle}
         className={cn(
-          'p-[6px] transition-colors cursor-pointer relative',
+          'p-2 transition-colors cursor-pointer relative',
           open ? 'text-white' : 'text-white/35 hover:text-white'
         )}
       >

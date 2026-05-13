@@ -58,8 +58,8 @@ export default async function CallsPage() {
   const sales = calls.filter(c => c.outcome === 'sale').length
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div>
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
+      <div className="pb-2">
         <h1 className="text-2xl font-bold text-gray-900">Calls</h1>
         <p className="text-sm text-gray-500 mt-0.5">Your complete call history.</p>
       </div>

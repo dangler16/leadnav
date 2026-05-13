@@ -1,31 +1,30 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Order, Vendor } from '@/lib/types'
-import { Package } from 'lucide-react'
 import { NewOrderDialog } from './new-order-dialog'
+import { OrderStatusSelect } from './order-status-select'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-const statusColors: Record<Order['status'], string> = {
-  placed: 'bg-blue-100 text-blue-700',
-  active: 'bg-green-100 text-green-700',
-  paused: 'bg-yellow-100 text-yellow-700',
-  completed: 'bg-gray-100 text-gray-600',
-  cancelled: 'bg-red-100 text-red-700',
-  expired: 'bg-orange-100 text-orange-700',
-}
+type StatusFilter = 'all' | Order['status']
 
-const statusLabels: Record<Order['status'], string> = {
-  placed: 'Placed',
-  active: 'Active',
-  paused: 'Paused',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-  expired: 'Expired',
-}
+const tabs: { value: StatusFilter; label: string }[] = [
+  { value: 'all',       label: 'All' },
+  { value: 'active',    label: 'Active' },
+  { value: 'paused',    label: 'Paused' },
+  { value: 'completed', label: 'Completed' },
+]
 
-export default async function OrdersPage() {
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>
+}) {
+  const params = await searchParams
+  const filter = (params.filter as StatusFilter) ?? 'all'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -39,9 +38,18 @@ export default async function OrdersPage() {
   const vendors = (vendorsData ?? []) as Vendor[]
   const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
 
+  const counts: Record<StatusFilter, number> = {
+    all:       orders.length,
+    active:    orders.filter(o => o.status === 'active').length,
+    paused:    orders.filter(o => o.status === 'paused').length,
+    completed: orders.filter(o => o.status === 'completed').length,
+  }
+
+  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter)
+
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div className="flex items-start justify-between">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
+      <div className="flex items-start justify-between w-full pb-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage your lead orders.</p>
@@ -49,48 +57,65 @@ export default async function OrdersPage() {
         <NewOrderDialog vendors={vendors} userId={user.id} />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-            <Package size={18} />
-          </div>
-          <p className="font-semibold text-base text-gray-800">All Orders</p>
-          <span className="text-xs text-gray-400 ml-1">({orders.length})</span>
+      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="flex items-center gap-1.5 flex-wrap p-3 border-b border-gray-100">
+          {tabs.map(tab => (
+            <Link
+              key={tab.value}
+              href={`/orders?filter=${tab.value}`}
+              className={`px-2 py-1 rounded-sm text-sm transition-colors whitespace-nowrap ${
+                filter === tab.value
+                  ? 'bg-red-600 text-white font-semibold'
+                  : 'text-gray-400 hover:text-gray-700 border border-gray-200 bg-white'
+              }`}
+            >
+              {tab.label} ({counts[tab.value]})
+            </Link>
+          ))}
         </div>
-        <div className="overflow-x-auto">
+        <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Order ID</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Order #</th>
                 <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Vendor</th>
                 <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead Type</th>
                 <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Daily Budget</th>
                 <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Cost/Lead</th>
                 <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Status</th>
-                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Created</th>
+                <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {orders.length === 0 && (
+              {filtered.length === 0 && (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-sm text-gray-400">No orders yet. Place your first order to get started.</td>
                 </tr>
               )}
-              {orders.map(order => {
+              {filtered.map(order => {
                 const vendor = order.vendor_id ? vendorMap[order.vendor_id] : null
+                const isEditable = order.status === 'active' || order.status === 'paused'
                 return (
                   <tr key={order.id} className="hover:bg-neutral-100 transition-colors">
-                    <td className="px-3 py-2 font-mono text-xs text-gray-600">#{order.id.slice(0, 8).toUpperCase()}</td>
-                    <td className="px-3 py-2 text-gray-700">{vendor?.name ?? '—'}</td>
+                    <td className="px-3 py-2 font-mono text-xs">
+                      <Link href={`/orders/${order.id}`} className="text-gray-400 hover:text-red-600 transition-colors">
+                        #{order.id.slice(0, 8).toUpperCase()}
+                      </Link>
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">{vendor?.name ?? '—'}</td>
                     <td className="px-3 py-2 text-gray-700">{order.lead_type ?? '—'}</td>
                     <td className="px-3 py-2 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
                     <td className="px-3 py-2 text-gray-700">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
-                    <td className="px-3 py-2">
-                      <span className={`inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${statusColors[order.status]}`}>
-                        {statusLabels[order.status]}
-                      </span>
+                    <td className="px-3 py-2 max-w-30 pr-10">
+                      {isEditable ? (
+                        <OrderStatusSelect orderId={order.id} initialStatus={order.status} />
+                      ) : (
+                        <span className="inline-flex h-8 items-center rounded-sm px-2 text-sm font-medium bg-gray-200 text-gray-800">
+                          Completed
+                        </span>
+                      )}
                     </td>
-                    <td className="px-3 py-2 text-xs text-gray-400">{formatDate(order.created_at)}</td>
+                    <td className="px-3 py-2 text-sm text-gray-400">{formatDate(order.created_at)}</td>
                   </tr>
                 )
               })}

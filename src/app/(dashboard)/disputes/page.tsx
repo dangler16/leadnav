@@ -48,8 +48,8 @@ export default async function DisputesPage({
   }
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div className="flex items-start justify-between">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
+      <div className="flex items-start justify-between w-full pb-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
           <p className="text-sm text-gray-500 mt-0.5">File and track lead quality disputes.</p>
@@ -58,12 +58,6 @@ export default async function DisputesPage({
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-            <AlertCircle size={18} />
-          </div>
-          <p className="font-semibold text-base text-gray-800">All Disputes</p>
-        </div>
 
         <div className="flex items-center gap-1.5 p-3 border-b border-gray-100">
           {(['All', 'Active', 'Closed', 'Lost'] as FilterTab[]).map(f => (
@@ -104,8 +98,8 @@ export default async function DisputesPage({
                 </td>
                 <td className="px-3 py-2 text-gray-600">{formatDisputeReason(d.reason)}</td>
                 <td className="px-3 py-2"><DisputeStatusBadge status={d.status} /></td>
-                <td className="px-3 py-2 text-gray-500 text-xs max-w-[200px] truncate">{d.notes ?? '—'}</td>
-                <td className="px-3 py-2 text-xs text-gray-400">{formatDate(d.created_at)}</td>
+                <td className="px-3 py-2 text-gray-500 max-w-[200px] truncate">{d.notes ?? '—'}</td>
+                <td className="px-3 py-2 text-gray-400">{formatDate(d.created_at)}</td>
               </tr>
             ))}
           </tbody>

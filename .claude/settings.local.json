@@ -9,7 +9,11 @@
       "PowerShell(cd \"c:\\\\Users\\\\Colin.COMPASS\\\\leadnav\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"\\\\[id\\\\]|contact-info|household|lead-actions\" })",
       "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('react:', p.dependencies.react, 'base-ui:', p.dependencies['@base-ui/react']\\)\")",
       "mcp__claude_ai_Supabase__execute_sql",
-      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.dependencies.react, p.dependencies['react-dom']\\)\")"
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.dependencies.react, p.dependencies['react-dom']\\)\")",
+      "Bash(mkdir \"c:\\\\Users\\\\Colin.COMPASS\\\\leadnav\\\\src\\\\app\\\\\\(dashboard\\)\\\\orders\\\\[id]\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Colin.COMPASS\\leadnav\\src\\app\\(dashboard)\\orders"
     ]
   }
 }

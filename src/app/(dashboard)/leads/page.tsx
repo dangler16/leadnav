@@ -147,7 +147,7 @@ export default async function LeadsPage({
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 max-w-30 pr-10">
+                  <td className="px-3 py-2 max-w-40 pr-10">
                     <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
                   </td>
                   <td className="px-3 text-sm text-gray-900 whitespace-nowrap">{lead.vendors?.name ?? '—'}</td>
