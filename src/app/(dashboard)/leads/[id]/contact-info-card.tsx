@@ -163,29 +163,29 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+        <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
           <User size={18} />
         </div>
-        <p className="font-semibold text-base text-gray-800">Contact Info</p>
+        <p className="font-semibold text-base text-foreground">Contact Info</p>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">First Name</p>
+            <p className="text-xs text-muted-foreground mb-1.5">First Name</p>
             <Input {...fieldProps('firstname')} />
           </div>
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">Last Name</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Last Name</p>
             <Input {...fieldProps('lastname')} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
-            <p className="text-xs text-gray-400 mb-1.5">Phone</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Phone</p>
             <Input
               ref={phoneRef}
               value={formatPhoneDisplay(vals.phone)}
@@ -196,14 +196,14 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
             />
           </div>
           <div className="flex-1">
-            <p className="text-xs text-gray-400 mb-1.5">Email</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Email</p>
             <Input {...fieldProps('email', { type: 'email' })} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
-            <p className="text-xs text-gray-400 mb-1.5">State</p>
+            <p className="text-xs text-muted-foreground mb-1.5">State</p>
             <SelectDropdown
               options={US_STATES}
               value={vals.state}
@@ -212,24 +212,24 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
             />
           </div>
           <div className="flex-1">
-            <p className="text-xs text-gray-400 mb-1.5">ZIP Code</p>
+            <p className="text-xs text-muted-foreground mb-1.5">ZIP Code</p>
             <Input {...fieldProps('zip', { placeholder: 'Zip' })} />
           </div>
         </div>
 
         {vendorName && (
           <div>
-            <p className="text-xs text-gray-400 flex items-center gap-1.5 mb-0.5">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-0.5">
               Vendor
             </p>
-            <p className="text-sm text-gray-800 font-medium">{vendorName}</p>
+            <p className="text-sm text-foreground font-medium">{vendorName}</p>
           </div>
         )}
 
         {isAdmin && (
           <div className="flex items-start gap-2.5">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-400 mb-1">Assigned To</p>
+              <p className="text-xs text-muted-foreground mb-1">Assigned To</p>
               <ReassignLead leadId={lead.id} currentAgentId={lead.assigned_to} agents={agents} />
             </div>
           </div>

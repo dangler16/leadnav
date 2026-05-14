@@ -40,8 +40,8 @@ export default async function NotificationsPage() {
     <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
             {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
           </p>
         </div>
@@ -49,32 +49,32 @@ export default async function NotificationsPage() {
       </div>
 
       <div className="max-w-2xl">
-        <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+        <div className="bg-card rounded-lg border border-border divide-y divide-border/50">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center py-16 gap-3 text-gray-400">
+            <div className="flex flex-col items-center py-16 gap-3 text-muted-foreground">
               <Bell size={32} strokeWidth={1.5} />
               <p className="text-sm">No notifications yet</p>
             </div>
           ) : (
             notifications.map(n => {
               const inner = (
-                <div className={`flex items-start gap-3 p-4 ${!n.read ? 'bg-red-50/40' : ''}`}>
+                <div className={`flex items-start gap-3 p-4 ${!n.read ? 'bg-accent/30' : ''}`}>
                   <span className="text-lg mt-0.5 flex-shrink-0">{typeIcon[n.type] ?? '🔔'}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm ${n.read ? 'text-gray-700' : 'font-semibold text-gray-900'}`}>
+                      <p className={`text-sm ${n.read ? 'text-muted-foreground' : 'font-semibold text-foreground'}`}>
                         {n.title}
                       </p>
                       {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
                     </div>
-                    {n.body && <p className="text-xs text-gray-500 mt-0.5">{n.body}</p>}
-                    <p className="text-xs text-gray-400 mt-1">{timeAgo(n.created_at)}</p>
+                    {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">{timeAgo(n.created_at)}</p>
                   </div>
                 </div>
               )
 
               return n.link ? (
-                <Link key={n.id} href={n.link} className="block hover:bg-gray-50 transition-colors">
+                <Link key={n.id} href={n.link} className="block hover:bg-muted transition-colors">
                   {inner}
                 </Link>
               ) : (

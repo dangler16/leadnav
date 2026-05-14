@@ -1,93 +1,211 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Dispute, Lead, formatDisputeReason } from '@/lib/types'
+import { Dispute, Lead, Vendor, Profile, UserRole, formatDisputeReason } from '@/lib/types'
 import { DisputeStatusBadge } from '@/components/status-badge'
-import { AlertCircle } from 'lucide-react'
 import { NewDisputeDialog } from './new-dispute-dialog'
 import { DisputesFilterTabs } from './disputes-filter-tabs'
+import { DisputeStatusSelect } from './dispute-status-select'
+import { SortableHeader, SortDir } from '@/components/sortable-header'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-type DisputeWithLead = Dispute & { leads: Pick<Lead, 'firstname' | 'lastname'> | null }
-type FilterTab = 'All' | 'Active' | 'Closed' | 'Lost'
+type DisputeWithLead = Dispute & {
+  leads: (Pick<Lead, 'id' | 'firstname' | 'lastname' | 'order_id'> & { vendors: Pick<Vendor, 'name'> | null }) | null
+  agentProfile?: Pick<Profile, 'first_name' | 'last_name'> | null
+}
+type FilterTab = 'All' | 'Active' | 'Resolved' | 'Rejected'
+
+function sortDisputes(data: DisputeWithLead[], col: string | null, dir: SortDir | null): DisputeWithLead[] {
+  if (!col || !dir) return data
+  return [...data].sort((a, b) => {
+    let av: string | null, bv: string | null
+    if (col === 'lead')   { av = [a.leads?.firstname, a.leads?.lastname].filter(Boolean).join(' ') || null; bv = [b.leads?.firstname, b.leads?.lastname].filter(Boolean).join(' ') || null }
+    else if (col === 'order')  { av = a.leads?.order_id ?? null; bv = b.leads?.order_id ?? null }
+    else if (col === 'vendor') { av = a.leads?.vendors?.name ?? null; bv = b.leads?.vendors?.name ?? null }
+    else if (col === 'reason') { av = a.reason; bv = b.reason }
+    else if (col === 'status') { av = a.status; bv = b.status }
+    else if (col === 'notes')  { av = a.notes ?? null; bv = b.notes ?? null }
+    else if (col === 'agent')  { av = [a.agentProfile?.first_name, a.agentProfile?.last_name].filter(Boolean).join(' ') || null; bv = [b.agentProfile?.first_name, b.agentProfile?.last_name].filter(Boolean).join(' ') || null }
+    else { av = a.created_at; bv = b.created_at }
+    if (av == null && bv == null) return 0
+    if (av == null) return 1
+    if (bv == null) return -1
+    const cmp = av.localeCompare(bv)
+    return dir === 'asc' ? cmp : -cmp
+  })
+}
 
 export default async function DisputesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>
+  searchParams: Promise<{ filter?: string; sort?: string; sortDir?: string }>
 }) {
   const params = await searchParams
   const filter = (params.filter as FilterTab) ?? 'All'
+  const sort = params.sort ?? null
+  const sortDir = (params.sortDir as SortDir | undefined) ?? null
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const [{ data: disputesData }, { data: leadsData }] = await Promise.all([
-    supabase.from('disputes').select('*, leads(firstname, lastname)').eq('agent_id', user.id).order('created_at', { ascending: false }),
-    supabase.from('leads').select('id, firstname, lastname').eq('assigned_to', user.id),
-  ])
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const role = (profile?.role ?? 'user') as UserRole
+  const canManageStatus = role === 'super_admin' || role === 'team_admin'
 
-  const disputes = (disputesData ?? []) as DisputeWithLead[]
-  const leads = (leadsData ?? []) as Pick<Lead, 'id' | 'firstname' | 'lastname'>[]
+  let disputesData: DisputeWithLead[] = []
+  let leadsForNew: Pick<Lead, 'id' | 'firstname' | 'lastname'>[] = []
 
-  const filtered = disputes.filter(d => {
-    if (filter === 'All') return true
-    if (filter === 'Active') return d.status === 'pending' || d.status === 'active'
-    if (filter === 'Closed') return d.status === 'closed'
-    if (filter === 'Lost') return d.status === 'lost'
-    return true
-  })
+  if (role === 'super_admin') {
+    const { data } = await supabase
+      .from('disputes')
+      .select('*, leads(id, firstname, lastname, order_id, vendors(name))')
+      .order('created_at', { ascending: false })
+    disputesData = (data ?? []) as DisputeWithLead[]
+
+    const agentIds = [...new Set(disputesData.map(d => d.agent_id))]
+    if (agentIds.length > 0) {
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .in('id', agentIds)
+      const profileById = Object.fromEntries((profilesData ?? []).map(p => [p.id, p]))
+      disputesData = disputesData.map(d => ({ ...d, agentProfile: profileById[d.agent_id] ?? null }))
+    }
+
+  } else if (role === 'team_admin') {
+    const { data: assignments } = await supabase
+      .from('team_admin_assignments')
+      .select('team_id')
+      .eq('user_id', user.id)
+    const myTeamIds = (assignments ?? []).map((a: { team_id: string }) => a.team_id)
+
+    const { data: members } = await supabase
+      .from('team_members')
+      .select('user_id')
+      .in('team_id', myTeamIds.length > 0 ? myTeamIds : ['00000000-0000-0000-0000-000000000000'])
+    const myMemberIds = (members ?? []).map((m: { user_id: string }) => m.user_id)
+
+    if (myMemberIds.length > 0) {
+      const { data } = await supabase
+        .from('disputes')
+        .select('*, leads(id, firstname, lastname, order_id, vendors(name))')
+        .in('agent_id', myMemberIds)
+        .order('created_at', { ascending: false })
+      disputesData = (data ?? []) as DisputeWithLead[]
+
+      const agentIds = [...new Set(disputesData.map(d => d.agent_id))]
+      if (agentIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name')
+          .in('id', agentIds)
+        const profileById = Object.fromEntries((profilesData ?? []).map(p => [p.id, p]))
+        disputesData = disputesData.map(d => ({ ...d, agentProfile: profileById[d.agent_id] ?? null }))
+      }
+    }
+
+  } else {
+    const { data } = await supabase
+      .from('disputes')
+      .select('*, leads(id, firstname, lastname, order_id, vendors(name))')
+      .eq('agent_id', user.id)
+      .order('created_at', { ascending: false })
+    disputesData = (data ?? []) as DisputeWithLead[]
+
+    const { data: leadsData } = await supabase
+      .from('leads')
+      .select('id, firstname, lastname')
+      .eq('assigned_to', user.id)
+    leadsForNew = (leadsData ?? []) as Pick<Lead, 'id' | 'firstname' | 'lastname'>[]
+  }
+
+  const filtered = sortDisputes(
+    disputesData.filter(d => {
+      if (filter === 'All')      return true
+      if (filter === 'Active')   return d.status === 'open' || d.status === 'in_review'
+      if (filter === 'Resolved') return d.status === 'resolved'
+      if (filter === 'Rejected') return d.status === 'rejected'
+      return true
+    }),
+    sort, sortDir,
+  )
 
   const counts = {
-    All: disputes.length,
-    Active: disputes.filter(d => d.status === 'pending' || d.status === 'active').length,
-    Closed: disputes.filter(d => d.status === 'closed').length,
-    Lost: disputes.filter(d => d.status === 'lost').length,
+    All:      disputesData.length,
+    Active:   disputesData.filter(d => d.status === 'open' || d.status === 'in_review').length,
+    Resolved: disputesData.filter(d => d.status === 'resolved').length,
+    Rejected: disputesData.filter(d => d.status === 'rejected').length,
   }
+
+  const showAgentColumn = role === 'super_admin' || role === 'team_admin'
 
   return (
     <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
       <div className="flex items-start justify-between w-full pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
-          <p className="text-sm text-gray-500 mt-0.5">File and track lead quality disputes.</p>
+          <h1 className="text-2xl font-bold text-foreground">Disputes</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {canManageStatus ? 'Review and manage lead quality disputes.' : 'File and track lead quality disputes.'}
+          </p>
         </div>
-        <NewDisputeDialog leads={leads} userId={user.id} />
+        {role === 'user' && <NewDisputeDialog leads={leadsForNew} userId={user.id} />}
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200">
-
-        <div className="p-3 border-b border-gray-100">
+      <div className="bg-card rounded-lg border border-border">
+        <div className="p-3 border-b border-border/50">
           <DisputesFilterTabs filter={filter} counts={counts} />
         </div>
 
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Reason</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Status</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Notes</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Filed</th>
+            <tr className="border-b border-border/50">
+              {showAgentColumn && <th className="text-left px-3 py-2"><SortableHeader column="agent" label="Filed By" currentSort={sort} currentDir={sortDir} /></th>}
+              <th className="text-left px-3 py-2"><SortableHeader column="lead"   label="Lead"    currentSort={sort} currentDir={sortDir} /></th>
+              <th className="text-left px-3 py-2"><SortableHeader column="order"  label="Order ID" currentSort={sort} currentDir={sortDir} /></th>
+              <th className="text-left px-3 py-2"><SortableHeader column="vendor" label="Vendor"  currentSort={sort} currentDir={sortDir} /></th>
+              <th className="text-left px-3 py-2"><SortableHeader column="reason" label="Reason"  currentSort={sort} currentDir={sortDir} /></th>
+              <th className="text-left px-3 py-2"><SortableHeader column="status" label="Status"  currentSort={sort} currentDir={sortDir} /></th>
+              <th className="text-left px-3 py-2"><SortableHeader column="notes"  label="Notes"   currentSort={sort} currentDir={sortDir} /></th>
+              <th className="text-left px-3 py-2"><SortableHeader column="date"   label="Filed"   currentSort={sort} currentDir={sortDir} /></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border/50">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-sm text-gray-400">No disputes found</td>
+                <td colSpan={showAgentColumn ? 8 : 7} className="py-12 text-center text-sm text-muted-foreground">No disputes found</td>
               </tr>
             )}
             {filtered.map(d => (
-              <tr key={d.id} className="hover:bg-neutral-100 transition-colors">
-                <td className="px-3 py-2 font-medium text-gray-800">
-                  {d.leads ? [d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ') : '—'}
+              <tr key={d.id} className="hover:bg-muted transition-colors">
+                {showAgentColumn && (
+                  <td className="px-3 py-2 text-sm text-foreground">
+                    {d.agentProfile
+                      ? [d.agentProfile.first_name, d.agentProfile.last_name].filter(Boolean).join(' ')
+                      : <span className="text-muted-foreground">—</span>}
+                  </td>
+                )}
+                <td className="px-3 py-2 text-sm font-medium">
+                  {d.leads
+                    ? <Link href={`/leads/${d.leads.id}`} className="text-foreground hover:text-red-600 transition-colors">{[d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ')}</Link>
+                    : <span className="text-foreground">—</span>}
                 </td>
-                <td className="px-3 py-2 text-gray-600">{formatDisputeReason(d.reason)}</td>
-                <td className="px-3 py-2"><DisputeStatusBadge status={d.status} /></td>
-                <td className="px-3 py-2 text-gray-500 max-w-[200px] truncate">{d.notes ?? '—'}</td>
-                <td className="px-3 py-2 text-gray-400">{formatDate(d.created_at)}</td>
+                <td className="px-3 py-2 font-mono text-xs">
+                  {d.leads?.order_id
+                    ? <Link href={`/orders/${d.leads.order_id}`} className="text-muted-foreground hover:text-red-600 transition-colors">#{d.leads.order_id.slice(0, 8).toUpperCase()}</Link>
+                    : <span className="text-muted-foreground">—</span>}
+                </td>
+                <td className="px-3 py-2 text-sm text-foreground">{d.leads?.vendors?.name ?? '—'}</td>
+                <td className="px-3 py-2 text-sm text-foreground">{formatDisputeReason(d.reason)}</td>
+                <td className="px-3 py-2">
+                  {canManageStatus
+                    ? <DisputeStatusSelect disputeId={d.id} status={d.status} />
+                    : <DisputeStatusBadge status={d.status} className="border border-transparent" />}
+                </td>
+                <td className="px-3 py-2 text-sm text-foreground max-w-[200px] truncate">{d.notes ?? '—'}</td>
+                <td className="px-3 py-2 text-sm text-muted-foreground">{formatDate(d.created_at)}</td>
               </tr>
             ))}
           </tbody>

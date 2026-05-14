@@ -9,7 +9,7 @@ async function requireAdmin() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || profile.role !== 'admin') throw new Error('Unauthorized')
+  if (!profile || profile.role !== 'super_admin') throw new Error('Unauthorized')
   return supabase
 }
 
@@ -34,5 +34,14 @@ export async function revokeApiKey(id: string): Promise<void> {
   const supabase = await requireAdmin()
   const { error } = await supabase.from('vendor_api_keys').update({ is_active: false }).eq('id', id)
   if (error) throw new Error('Failed to revoke key')
+  revalidatePath('/vendors')
+}
+
+export async function deleteVendor(id: string): Promise<void> {
+  const supabase = await requireAdmin()
+  const { count } = await supabase.from('orders').select('id', { count: 'exact', head: true }).eq('vendor_id', id)
+  if (count && count > 0) throw new Error(`This vendor has ${count} order${count === 1 ? '' : 's'} and cannot be deleted.`)
+  const { error } = await supabase.from('vendors').delete().eq('id', id)
+  if (error) throw new Error('Failed to delete vendor.')
   revalidatePath('/vendors')
 }

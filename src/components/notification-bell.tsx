@@ -105,7 +105,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
       >
         <Bell size={18} strokeWidth={2.5} />
         {unreadCount > 0 && (
-          <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 flex items-center justify-center text-[8px] font-bold text-white">
+          <span className="py-2 px-1.5 transition-colors cursor-pointer">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -117,14 +117,14 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           data-closed={!open ? '' : undefined}
           onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
           style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-150"
+          className="w-80 bg-card rounded-xl shadow-xl border border-border overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-150"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-gray-900">Notifications</p>
+              <p className="text-sm font-semibold text-foreground">Notifications</p>
               {unreadCount > 0 && (
-                <span className="text-[11px] bg-red-100 text-red-600 font-semibold px-1.5 py-0.5 rounded-full">
+                <span className="text-[11px] bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 font-semibold px-1.5 py-0.5 rounded-full">
                   {unreadCount}
                 </span>
               )}
@@ -134,14 +134,14 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
                 <button
                   onClick={markAllRead}
                   title="Mark all read"
-                  className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors rounded-md hover:bg-gray-100"
+                  className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
                 >
                   <CheckCheck size={14} />
                 </button>
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors rounded-md hover:bg-gray-100"
+                className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
               >
                 <X size={14} />
               </button>
@@ -149,30 +149,30 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           </div>
 
           {/* List */}
-          <div className="max-h-[360px] overflow-y-auto divide-y divide-gray-50">
+          <div className="max-h-[360px] overflow-y-auto divide-y divide-border/30">
             {loading ? (
-              <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+              <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
                 Loading…
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center py-10 gap-2 text-gray-400">
+              <div className="flex flex-col items-center py-10 gap-2 text-muted-foreground">
                 <Bell size={24} strokeWidth={1.5} />
                 <p className="text-sm">No notifications yet</p>
               </div>
             ) : (
               notifications.map(n => {
                 const inner = (
-                  <div className={cn('flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-50', !n.read && 'bg-red-50/50')}>
+                  <div className={cn('flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted', !n.read && 'bg-accent/30')}>
                     <span className="text-base mt-0.5 flex-shrink-0">{typeIcon[n.type] ?? '🔔'}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className={cn('text-xs leading-snug', n.read ? 'text-gray-700' : 'font-semibold text-gray-900')}>
+                        <p className={cn('text-xs leading-snug', n.read ? 'text-muted-foreground' : 'font-semibold text-foreground')}>
                           {n.title}
                         </p>
                         {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
                       </div>
-                      {n.body && <p className="text-[11px] text-gray-400 mt-0.5 truncate">{n.body}</p>}
-                      <p className="text-[10px] text-gray-400 mt-1">{timeAgo(n.created_at)}</p>
+                      {n.body && <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{n.body}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-1">{timeAgo(n.created_at)}</p>
                     </div>
                   </div>
                 )
@@ -188,7 +188,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-100 px-4 py-2.5">
+          <div className="border-t border-border/50 px-4 py-2.5">
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}

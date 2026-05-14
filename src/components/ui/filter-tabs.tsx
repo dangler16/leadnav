@@ -29,7 +29,7 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
   return (
     <TabsPrimitive.Root value={value} onValueChange={handleChange}>
       <TabsPrimitive.List
-        className="relative inline-flex items-center gap-1 rounded-md bg-[#fafafa] border-1 border-black/10 p-0.5 text-muted-foreground w-fit flex-wrap"
+        className="relative inline-flex items-center gap-1 rounded-md bg-muted border border-border p-0.5 text-muted-foreground w-fit flex-wrap"
       >
         {tabs.map(tab => (
           <TabsPrimitive.Tab
@@ -37,7 +37,7 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
             value={tab.value}
             className={cn(
               'relative z-10 inline-flex items-center justify-center rounded-sm px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors',
-              'text-gray-400 hover:text-foreground data-[active]:text-white',
+              'text-muted-foreground hover:text-foreground data-[active]:text-white',
             )}
           >
             {tab.label} ({counts[tab.value]})

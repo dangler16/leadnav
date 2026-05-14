@@ -172,6 +172,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
 
   const allSelected = selectedStates.size === US_STATES.length
   const vendorLeadTypes = selectedVendor?.lead_types ?? []
+  const canSubmit = !!selectedVendorId && selectedLeadTypes.size > 0 && !!budgetDigits && selectedStates.size > 0 && selectedDays.size > 0
 
   return (
     <>
@@ -189,7 +190,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
 
             {/* Vendor */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label>Vendor</Label>
               <SelectDropdown
                 options={vendors.map(v => ({ value: v.id, label: v.name }))}
@@ -315,7 +316,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
 
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
-              <Button type="submit" disabled={loading}>{loading ? 'Placing…' : 'Place Order'}</Button>
+              <Button type="submit" disabled={loading || !canSubmit}>{loading ? 'Placing…' : 'Place Order'}</Button>
             </div>
           </form>
         </DialogContent>

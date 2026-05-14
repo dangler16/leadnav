@@ -85,18 +85,18 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+        <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
           <DollarSign size={18} />
         </div>
-        <p className="font-semibold text-base text-gray-800">Household Details</p>
+        <p className="font-semibold text-base text-foreground">Household Details</p>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">Lead Type</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Lead Type</p>
             <SelectDropdown
               options={LEAD_TYPE_OPTIONS}
               value={vals.lead_type}
@@ -105,7 +105,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
             />
           </div>
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">Birthday</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Birthday</p>
             <Input
               value={vals.birthday}
               onChange={handleChange('birthday')}
@@ -118,7 +118,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
 
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">Household Size</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Household Size</p>
             <Input
               value={vals.household}
               onChange={handleChange('household')}
@@ -127,7 +127,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
             />
           </div>
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">Annual Income</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Annual Income</p>
             <Input
               ref={incomeRef}
               value={formatCurrency(vals.income)}

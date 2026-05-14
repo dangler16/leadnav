@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { redirect } from 'next/navigation'
-import { UsersRound, Phone } from 'lucide-react'
-import { Team, TeamMember, Profile } from '@/lib/types'
-import { formatPhone } from '@/lib/utils'
+import { Team, TeamMember, TeamAdminAssignment, Profile } from '@/lib/types'
 import { NewTeamDialog } from './new-team-dialog'
 import { EditTeamDialog } from './edit-team-dialog'
 import { ManageMembersDialog } from './manage-members-dialog'
+import { AssignAdminDialog } from './assign-admin-dialog'
 
 type MemberWithProfile = TeamMember & { profile: Profile }
+type AssignmentWithProfile = TeamAdminAssignment & { profile: Profile }
 
 export default async function TeamsPage() {
   const supabase = await createClient()
@@ -15,101 +16,119 @@ export default async function TeamsPage() {
   if (!user) return null
 
   const { data: myProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!myProfile || myProfile.role !== 'admin') redirect('/dashboard')
+  if (!myProfile || myProfile.role !== 'super_admin') redirect('/dashboard')
 
-  const [{ data: teamsData }, { data: membersData }, { data: profilesData }] = await Promise.all([
+  const service = createServiceClient()
+
+  const [{ data: teamsData }, { data: membersData }, { data: profilesData }, { data: assignmentsData }] = await Promise.all([
     supabase.from('teams').select('*').order('created_at', { ascending: false }),
-    supabase.from('team_members').select('*'),
-    supabase.from('profiles').select('*').order('first_name'),
+    service.from('team_members').select('*'),
+    service.from('profiles').select('*').order('first_name'),
+    service.from('team_admin_assignments').select('*'),
   ])
 
   const teams = (teamsData ?? []) as Team[]
   const allMembers = (membersData ?? []) as TeamMember[]
   const allProfiles = (profilesData ?? []) as Profile[]
+  const allAssignments = (assignmentsData ?? []) as TeamAdminAssignment[]
 
   const profileById = Object.fromEntries(allProfiles.map(p => [p.id, p]))
+  const teamAdmins = allProfiles.filter(p => p.role === 'team_admin')
 
   function getMembersForTeam(teamId: string): MemberWithProfile[] {
     return allMembers
       .filter(m => m.team_id === teamId)
-      .map(m => ({ ...m, profile: profileById[m.user_id] ?? { id: m.user_id, first_name: '?', last_name: '', role: 'agent' as const, created_at: '' } }))
-      .sort((a, b) => (a.role === 'leader' ? -1 : 1) - (b.role === 'leader' ? -1 : 1))
+      .map(m => ({ ...m, profile: profileById[m.user_id] ?? { id: m.user_id, first_name: '?', last_name: '', role: 'user' as const, created_at: '' } }))
+  }
+
+  function getAdminsForTeam(teamId: string): AssignmentWithProfile[] {
+    return allAssignments
+      .filter(a => a.team_id === teamId)
+      .map(a => ({ ...a, profile: profileById[a.user_id] ?? { id: a.user_id, first_name: '?', last_name: '', role: 'team_admin' as const, created_at: '' } }))
   }
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div className="flex items-start justify-between">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
+      <div className="flex items-start justify-between w-full pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Organize agents into teams.</p>
+          <h1 className="text-2xl font-bold text-foreground">Teams</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Organize agents into teams.</p>
         </div>
-        <NewTeamDialog />
+        <NewTeamDialog allUsers={allProfiles} />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200">
+      <div className="flex flex-col flex-1 min-h-0 bg-card border border-border rounded-lg overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Team</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Admin</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Members</th>
+                <th className="px-3 py-2" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {teams.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-12 text-center text-sm text-muted-foreground">No teams yet. Create one to get started.</td>
+                </tr>
+              )}
+              {teams.map(team => {
+                const members = getMembersForTeam(team.id)
+                const admins = getAdminsForTeam(team.id)
 
-        {teams.length === 0 && (
-          <p className="px-4 py-8 text-center text-sm text-gray-400">No teams yet. Create one to get started.</p>
-        )}
-
-        <div className="divide-y divide-gray-100">
-          {teams.map(team => {
-            const members = getMembersForTeam(team.id)
-            const leader = members.find(m => m.role === 'leader')
-
-            return (
-              <div key={team.id} className="p-4 flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  {team.logo_url ? (
-                    <img src={team.logo_url} alt={team.name} className="w-8 h-8 rounded-sm object-cover border border-gray-100" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-sm bg-red-100 flex items-center justify-center text-red-600 text-sm font-bold">
-                      {team.name[0].toUpperCase()}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900">{team.name}</p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-0.5">
-                    {team.phone && (
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
-                        <Phone size={11} />
-                        {formatPhone(team.phone)}
-                      </span>
-                    )}
-                    {leader && (
-                      <span className="text-xs text-gray-400">
-                        Leader: {[leader.profile.first_name, leader.profile.last_name].filter(Boolean).join(' ')}
-                      </span>
-                    )}
-                  </div>
-
-                  {members.length > 0 && (
-                    <div className="flex items-center gap-1 mt-2">
-                      {members.slice(0, 6).map(m => (
-                        <div
-                          key={m.user_id}
-                          title={[m.profile.first_name, m.profile.last_name].filter(Boolean).join(' ')}
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${m.role === 'leader' ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300' : 'bg-gray-100 text-gray-600'}`}
-                        >
-                          {(m.profile.first_name?.[0] ?? '?').toUpperCase()}
+                return (
+                  <tr key={team.id} className="hover:bg-muted transition-colors">
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-2.5">
+                        {team.logo_url ? (
+                          <img src={team.logo_url} alt={team.name} className="w-7 h-7 rounded-sm object-cover border border-border/50 shrink-0" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-sm bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 text-xs font-bold shrink-0">
+                            {team.name[0].toUpperCase()}
+                          </div>
+                        )}
+                        <span className="font-medium text-foreground">{team.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-sm text-muted-foreground">
+                      {admins.length > 0
+                        ? admins.map(a => [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ')).join(', ')
+                        : <span className="text-muted-foreground/40">—</span>}
+                    </td>
+                    <td className="px-3 py-2">
+                      {members.length === 0 ? (
+                        <span className="text-sm text-muted-foreground/40">—</span>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          {members.slice(0, 6).map(m => (
+                            <div
+                              key={m.user_id}
+                              title={[m.profile.first_name, m.profile.last_name].filter(Boolean).join(' ')}
+                              className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-[10px] font-bold"
+                            >
+                              {(m.profile.first_name?.[0] ?? '?').toUpperCase()}
+                            </div>
+                          ))}
+                          {members.length > 6 && (
+                            <span className="text-xs text-muted-foreground ml-1">+{members.length - 6}</span>
+                          )}
                         </div>
-                      ))}
-                      {members.length > 6 && (
-                        <span className="text-xs text-gray-400 ml-1">+{members.length - 6} more</span>
                       )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <ManageMembersDialog team={team} members={members} allProfiles={allProfiles} />
-                  <EditTeamDialog team={team} />
-                </div>
-              </div>
-            )
-          })}
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center justify-end gap-2">
+                        <AssignAdminDialog team={team} assignments={admins} teamAdmins={teamAdmins} />
+                        <ManageMembersDialog team={team} members={members} allProfiles={allProfiles} />
+                        <EditTeamDialog team={team} />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

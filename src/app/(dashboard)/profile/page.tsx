@@ -24,54 +24,56 @@ export default async function ProfilePage() {
   return (
     <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-sm text-gray-500 mt-0.5">View and update your account information.</p>
+        <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">View and update your account information.</p>
       </div>
 
       <div className="max-w-lg flex flex-col gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xl font-bold flex-shrink-0">
+            <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 text-xl font-bold flex-shrink-0">
               {(profile?.first_name?.[0] ?? '?').toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-900 truncate">
+              <p className="font-semibold text-foreground truncate">
                 {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '—'}
               </p>
-              <p className="text-sm text-gray-400 truncate">{user.email}</p>
+              <p className="text-sm text-muted-foreground truncate">{user.email}</p>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none flex-shrink-0 ${
-              profile?.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+              profile?.role === 'super_admin' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+              profile?.role === 'team_admin'  ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+              'bg-muted text-muted-foreground'
             }`}>
-              {profile?.role === 'admin' && <ShieldCheck size={11} />}
-              {profile?.role === 'admin' ? 'Admin' : 'Agent'}
+              {profile?.role === 'super_admin' && <ShieldCheck size={11} />}
+              {profile?.role === 'super_admin' ? 'Super Admin' : profile?.role === 'team_admin' ? 'Team Admin' : 'User'}
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 border-t border-gray-100 pt-4">
+          <div className="grid grid-cols-3 gap-3 border-t border-border/50 pt-4">
             {[
               { label: 'Leads', value: leadsCount ?? 0 },
               { label: 'Calls', value: callsCount ?? 0 },
               { label: 'Sales', value: salesCount ?? 0 },
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p className="text-xl font-bold text-gray-900">{s.value}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
+                <p className="text-xl font-bold text-foreground">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-xs text-gray-400 border-t border-gray-100 pt-4 mt-4">
+          <p className="text-xs text-muted-foreground border-t border-border/50 pt-4 mt-4">
             Member since {formatDate(profile?.created_at ?? '')}
           </p>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+            <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
               <User size={18} />
             </div>
-            <p className="font-semibold text-base text-gray-800">Edit Name</p>
+            <p className="font-semibold text-base text-foreground">Edit Name</p>
           </div>
           <ProfileForm profile={profile} />
         </div>

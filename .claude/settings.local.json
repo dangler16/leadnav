@@ -14,10 +14,17 @@
       "mcp__claude_ai_Supabase__apply_migration",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Colin.COMPASS\\\\leadnav\" -Recurse -Directory -Depth 2)",
       "Bash(Select-Object FullName)",
-      "Bash(xargs grep -l \"order\")"
+      "Bash(xargs grep -l \"order\")",
+      "Bash(node -e \"const p = require\\('c:/Users/Colin.COMPASS/leadnav/node_modules/next/package.json'\\); console.log\\(p.version\\)\")",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__get_logs",
+      "Bash(mkdir -p \"c:\\\\Users\\\\Colin.COMPASS\\\\leadnav\\\\src\\\\app\\\\\\(dashboard\\)\\\\users\\\\[id]\")",
+      "Bash(Get-ChildItem -Path src -Recurse -Include \"*provider*\", \"*context*\" -File)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Colin.COMPASS\\leadnav\\src\\app\\(dashboard)\\orders"
+      "c:\\Users\\Colin.COMPASS\\leadnav\\src\\app\\(dashboard)\\orders",
+      "c:\\Users\\Colin.COMPASS\\leadnav\\src\\app\\(dashboard)\\users"
     ]
   }
 }

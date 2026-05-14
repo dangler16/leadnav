@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/sidebar'
+import { TeamMember, UserRole } from '@/lib/types'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -13,9 +14,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
     supabase.from('profiles').select('role').eq('id', user.id).single(),
   ])
 
+  const role = (profile?.role ?? 'user') as UserRole
+
+  let permissions: Pick<TeamMember, 'can_order' | 'can_view_leads' | 'can_make_calls' | 'can_file_disputes'> | undefined
+  if (role === 'user') {
+    const { data: membership } = await supabase
+      .from('team_members')
+      .select('can_order, can_view_leads, can_make_calls, can_file_disputes')
+      .eq('user_id', user.id)
+      .single()
+    permissions = membership ?? undefined
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar isAdmin={profile?.role === 'admin'} notificationCount={notificationCount ?? 0} />
+    <div className="flex h-screen overflow-hidden bg-background">
+      <Sidebar role={role} notificationCount={notificationCount ?? 0} permissions={permissions} />
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

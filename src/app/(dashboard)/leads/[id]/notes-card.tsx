@@ -20,12 +20,12 @@ export function NotesCard({ lead }: { lead: Lead }) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
+        <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
           <FileText size={18} />
         </div>
-        <p className="font-semibold text-base text-gray-800">Notes</p>
+        <p className="font-semibold text-base text-foreground">Notes</p>
       </div>
       <Textarea
         value={notes}

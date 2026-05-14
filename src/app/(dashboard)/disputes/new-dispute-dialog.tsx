@@ -74,7 +74,7 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
             <li
               key={l.id}
               onMouseDown={() => select(l)}
-              className="cursor-pointer px-3 py-2 hover:bg-accent hover:text-accent-foreground"
+              className="cursor-pointer px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               {leadLabel(l)}
             </li>

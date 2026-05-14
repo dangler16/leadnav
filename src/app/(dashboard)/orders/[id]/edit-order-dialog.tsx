@@ -7,7 +7,7 @@ import { Order, Vendor } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Pencil } from 'lucide-react'
 
 const US_STATES: { abbr: string; name: string }[] = [
@@ -294,22 +294,10 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
               </div>
             </div>
 
-            <DialogFooter>
-              <button
-                type="button"
-                onClick={() => handleOpenChange(false)}
-                className="px-2 py-1 text-sm rounded-sm border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-2 py-1 text-sm rounded-sm bg-red-600 text-white hover:bg-red-800 transition-colors disabled:opacity-50 h-fit"
-              >
-                {loading ? 'Saving…' : 'Save Changes'}
-              </button>
-            </DialogFooter>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
+              <Button type="submit" disabled={loading}>{loading ? 'Saving…' : 'Save Changes'}</Button>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

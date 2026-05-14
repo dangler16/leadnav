@@ -47,8 +47,8 @@ export default async function ReportsPage() {
   return (
     <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
       <div className="pb-2">
-        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Pipeline performance and sales analytics.</p>
+        <h1 className="text-2xl font-bold text-foreground">Reports</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Pipeline performance and sales analytics.</p>
       </div>
 
       <div className="flex gap-4">
@@ -58,33 +58,33 @@ export default async function ReportsPage() {
           { icon: <Phone size={18} />, label: 'Contact Rate', value: `${contactRate}%` },
           { icon: <BarChart2 size={18} />, label: 'Total Calls', value: calls.length },
         ].map(s => (
-          <div key={s.label} className="flex-1 bg-white rounded-lg border border-gray-200 p-4">
+          <div key={s.label} className="flex-1 bg-card rounded-lg border border-border p-4">
             <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600 mb-3">
               {s.icon}
             </div>
-            <p className="text-xs text-gray-400">{s.label}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-0.5">{s.value}</p>
+            <p className="text-xs text-muted-foreground">{s.label}</p>
+            <p className="text-2xl font-bold text-foreground mt-0.5">{s.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
               <Users size={18} />
             </div>
-            <p className="font-semibold text-base text-gray-800">Lead Status Breakdown</p>
+            <p className="font-semibold text-base text-foreground">Lead Status Breakdown</p>
           </div>
           {statusBreakdown.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">No leads yet</p>
+            <p className="text-sm text-muted-foreground text-center py-6">No leads yet</p>
           ) : (
             <div className="space-y-3">
               {statusBreakdown.map(s => (
                 <div key={s.status}>
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-gray-600">{s.label}</span>
-                    <span className="font-medium text-gray-800">{s.count} <span className="text-xs text-gray-400 font-normal">({total > 0 ? ((s.count / total) * 100).toFixed(0) : 0}%)</span></span>
+                    <span className="text-muted-foreground">{s.label}</span>
+                    <span className="font-medium text-foreground">{s.count} <span className="text-xs text-muted-foreground font-normal">({total > 0 ? ((s.count / total) * 100).toFixed(0) : 0}%)</span></span>
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
@@ -98,15 +98,15 @@ export default async function ReportsPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
               <Phone size={18} />
             </div>
-            <p className="font-semibold text-base text-gray-800">Call Outcomes</p>
+            <p className="font-semibold text-base text-foreground">Call Outcomes</p>
           </div>
           {calls.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">No calls yet</p>
+            <p className="text-sm text-muted-foreground text-center py-6">No calls yet</p>
           ) : (
             <div className="space-y-3">
               {Object.entries(callOutcomeCounts)
@@ -114,8 +114,8 @@ export default async function ReportsPage() {
                 .map(([outcome, count]) => (
                   <div key={outcome}>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-600 capitalize">{outcome.replace(/_/g, ' ')}</span>
-                      <span className="font-medium text-gray-800">{count}</span>
+                      <span className="text-muted-foreground capitalize">{outcome.replace(/_/g, ' ')}</span>
+                      <span className="font-medium text-foreground">{count}</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div
@@ -129,12 +129,12 @@ export default async function ReportsPage() {
           )}
         </div>
 
-        <div className="col-span-2 bg-white rounded-lg border border-gray-200 p-4">
+        <div className="col-span-2 bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
               <BarChart2 size={18} />
             </div>
-            <p className="font-semibold text-base text-gray-800">Pipeline Summary</p>
+            <p className="font-semibold text-base text-foreground">Pipeline Summary</p>
           </div>
           <div className="grid grid-cols-3 gap-6 text-center">
             {[
@@ -144,8 +144,8 @@ export default async function ReportsPage() {
             ].map(s => (
               <div key={s.label}>
                 <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-                <p className="text-sm text-gray-500 mt-1">{s.label}</p>
-                <p className="text-xs text-gray-400">{total > 0 ? ((s.value / total) * 100).toFixed(1) : 0}% of total</p>
+                <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
+                <p className="text-xs text-muted-foreground">{total > 0 ? ((s.value / total) * 100).toFixed(1) : 0}% of total</p>
               </div>
             ))}
           </div>

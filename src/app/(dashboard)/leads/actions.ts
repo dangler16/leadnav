@@ -9,7 +9,7 @@ export async function reassignLead(leadId: string, agentId: string): Promise<voi
   if (!user) throw new Error('Unauthorized')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || profile.role !== 'admin') throw new Error('Unauthorized')
+  if (!profile || (profile.role !== 'super_admin' && profile.role !== 'team_admin')) throw new Error('Unauthorized')
 
   const { error } = await supabase
     .from('leads')

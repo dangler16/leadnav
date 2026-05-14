@@ -63,8 +63,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
 
   return (
     <>
-      <Button size="sm" variant="outline" onClick={() => setOpen(true)} className="text-xs flex items-center gap-1.5">
-        <Key size={12} />
+      <Button variant="outline" onClick={() => setOpen(true)} className="text-sm font-medium px-2 py-1 rounded-sm bg-white border-1 border-neutral-300 text-gray-900 transition-colors hover:bg-neutral-200">
         Keys ({activeKeys.length})
       </Button>
 
@@ -72,7 +71,6 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Key size={15} className="text-gray-400" />
               API Keys — {vendor.name}
             </DialogTitle>
           </DialogHeader>
@@ -81,7 +79,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
               <p className="text-xs font-medium text-amber-800">Copy this key now — it won&apos;t be shown again.</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs bg-white border border-amber-200 rounded px-2 py-1.5 break-all font-mono text-gray-800">
+                <code className="flex-1 text-xs bg-card border border-amber-200 rounded px-2 py-1.5 break-all font-mono text-foreground">
                   {newKey}
                 </code>
                 <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0 text-xs">
@@ -93,13 +91,13 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
 
           <div className="space-y-1">
             {initialKeys.length === 0 && !newKey && (
-              <p className="text-sm text-gray-400 py-4 text-center">No API keys yet.</p>
+              <p className="text-sm text-muted-foreground py-4 text-center">No API keys yet.</p>
             )}
             {activeKeys.map(k => (
-              <div key={k.id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5">
+              <div key={k.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-muted px-3 py-2.5">
                 <div>
-                  <code className="text-xs font-mono text-gray-700">{k.key_prefix}…</code>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <code className="text-xs font-mono text-foreground">{k.key_prefix}…</code>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Created {formatDate(k.created_at)}
                     {k.last_used_at && ` · Last used ${formatDate(k.last_used_at)}`}
                   </p>
@@ -118,14 +116,14 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
             ))}
             {revokedKeys.length > 0 && (
               <details className="pt-1">
-                <summary className="text-xs text-gray-400 cursor-pointer select-none">
+                <summary className="text-xs text-muted-foreground cursor-pointer select-none">
                   {revokedKeys.length} revoked key{revokedKeys.length !== 1 ? 's' : ''}
                 </summary>
                 <div className="space-y-1 mt-1">
                   {revokedKeys.map(k => (
                     <div key={k.id} className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2 opacity-50">
                       <code className="text-xs font-mono text-gray-500">{k.key_prefix}…</code>
-                      <span className="text-xs text-gray-400">Revoked</span>
+                      <span className="text-xs text-muted-foreground">Revoked</span>
                     </div>
                   ))}
                 </div>
@@ -133,14 +131,13 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
             )}
           </div>
 
-          <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+          <div className="flex justify-between items-center pt-2 border-t border-gray-100">
             <Button
               size="sm"
               onClick={handleGenerate}
               disabled={loading}
-              className="flex items-center gap-1.5 text-xs"
+              className="flex items-center gap-1.5 text-sm"
             >
-              <Plus size={13} />
               {loading ? 'Generating…' : 'Generate Key'}
             </Button>
           </div>

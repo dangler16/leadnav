@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Lead, Dispute, getLeadDisplayStatus, formatDisputeReason } from '@/lib/types'
+import { Lead, Dispute, Vendor, formatDisputeReason } from '@/lib/types'
 import { LeadStatusBadge, DisputeStatusBadge } from '@/components/status-badge'
+import { NewOrderDialog } from '@/app/(dashboard)/orders/new-order-dialog'
 import { Users, Package, AlertCircle, Phone, TrendingUp, ArrowRight } from 'lucide-react'
 
 function formatDate(dateStr: string) {
@@ -17,7 +18,7 @@ function formatDayHeader() {
 
 type StatCardProps = {
   icon: React.ReactNode
-  label: string 
+  label: string
   sublabel: string
   value: number
   href: string
@@ -26,15 +27,15 @@ type StatCardProps = {
 
 function StatCard({ icon, label, sublabel, value, href, linkLabel }: StatCardProps) {
   return (
-    <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-3 overflow-hidden hover:bg-neutral-100 transition-colors">
-      <div className="w-8 h-8 bg-red-50 rounded-sm flex items-center justify-center text-red-600 shrink-0">
+    <div className="flex-1 min-w-0 bg-card border border-border rounded-lg p-4 flex flex-col gap-3 overflow-hidden hover:bg-muted transition-colors">
+      <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center text-accent-foreground shrink-0">
         {icon}
       </div>
       <div className="flex flex-col gap-3">
-        <p className="font-semibold text-base text-gray-800 leading-none">{label}</p>
-        <p className="text-sm text-gray-400 leading-none whitespace-nowrap">{sublabel}</p>
+        <p className="font-semibold text-base text-foreground leading-none">{label}</p>
+        <p className="text-sm text-muted-foreground leading-none whitespace-nowrap">{sublabel}</p>
       </div>
-      <p className="font-bold text-3xl text-gray-900 leading-none whitespace-nowrap">{value}</p>
+      <p className="font-bold text-3xl text-foreground leading-none whitespace-nowrap">{value}</p>
       <Link href={href} className="group flex gap-0.5 items-center transition-colors">
         <span className="font-medium text-sm text-red-600 leading-none whitespace-nowrap group-hover:text-red-800 transition-colors">{linkLabel}</span>
         <span className="w-4 h-4 flex items-center justify-center text-red-600 group-hover:text-red-800 transition-colors">
@@ -58,6 +59,7 @@ export default async function DashboardPage() {
     { count: conversionCount },
     { data: recentLeads },
     { data: openDisputes },
+    { data: vendorData },
   ] = await Promise.all([
     supabase.from('leads').select('*', { count: 'exact', head: true }).eq('assigned_to', user.id).not('status', 'in', '("lost","sale","appt_no_sale")'),
     supabase.from('orders').select('*', { count: 'exact', head: true }).eq('account_id', user.id).eq('status', 'active'),
@@ -66,12 +68,14 @@ export default async function DashboardPage() {
     supabase.from('leads').select('*', { count: 'exact', head: true }).eq('assigned_to', user.id).eq('status', 'sale'),
     supabase.from('leads').select('*').eq('assigned_to', user.id).order('created_at', { ascending: false }).limit(20),
     supabase.from('disputes').select('*, leads(firstname, lastname)').eq('agent_id', user.id).in('status', ['pending', 'active']).order('created_at', { ascending: false }).limit(10),
+    supabase.from('vendors').select('*'),
   ])
 
   const leads = (recentLeads ?? []) as Lead[]
   const disputes = (openDisputes ?? []) as (Dispute & { leads: { firstname: string | null; lastname: string | null } | null })[]
+  const vendors = (vendorData ?? []) as Vendor[]
 
-  const divider = <div className="w-full h-px bg-gray-100" />
+  const divider = <div className="w-full h-px bg-border/50" />
 
   return (
     <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
@@ -80,22 +84,17 @@ export default async function DashboardPage() {
       <div className="flex items-start justify-between w-full pb-2">
         <div>
           <p className="text-sm font-medium text-red-600 mb-1">{formatDayHeader()}</p>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">View your leads, orders, and disputes from the dashboard.</p>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">View your leads, orders, and disputes from the dashboard.</p>
         </div>
-        <div className="flex gap-2 items-center shrink-0">
+        <div className="flex gap-2 items-center shrink-0 -mt-0.25">
           <Link
             href="/calls"
-            className="flex items-center px-2 py-1 rounded-sm border border-gray-200 bg-white text-gray-800 text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-neutral-100 transition-colors"
+            className="flex items-center px-2 py-1 rounded-sm border border-border bg-card text-foreground text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-muted transition-colors"
           >
             Call Lead
           </Link>
-          <Link
-            href="/orders"
-            className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors"
-          >
-            Place Order
-          </Link>
+          <NewOrderDialog vendors={vendors} userId={user.id} />
         </div>
       </div>
 
@@ -112,17 +111,17 @@ export default async function DashboardPage() {
       <div className="flex gap-4 w-full h-full">
 
         {/* Recent Leads */}
-        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 min-w-0 bg-card border border-border rounded-lg p-4 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center justify-between w-full">
             <div className="flex gap-3 items-center">
-              <div className="w-8 h-8 bg-red-50 rounded-sm flex items-center justify-center text-red-600 shrink-0">
+              <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center text-accent-foreground shrink-0">
                 <Users size={18} />
               </div>
-              <span className="font-semibold text-base text-gray-800 leading-none whitespace-nowrap">Recent Leads</span>
+              <span className="font-semibold text-base text-foreground leading-none whitespace-nowrap">Recent Leads</span>
             </div>
             <Link
               href="/leads"
-              className="flex items-center px-2 py-1 rounded-sm border border-gray-200 bg-white text-gray-800 text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-neutral-100 transition-colors"
+              className="flex items-center px-2 py-1 rounded-sm border border-border bg-card text-foreground text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-muted transition-colors"
             >
               View All
             </Link>
@@ -131,25 +130,25 @@ export default async function DashboardPage() {
           <div className="flex flex-col w-full">
             <div className="flex flex-col gap-3 w-full">
               <div className="flex items-start justify-between w-full">
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Order</span>
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Lead</span>
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Status</span>
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Date</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Order</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Lead</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Status</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Date</span>
               </div>
               {divider}
             </div>
 
             {leads.length === 0 && (
-              <p className="py-6 text-center text-sm text-gray-400">No leads found</p>
+              <p className="py-6 text-center text-sm text-muted-foreground">No leads found</p>
             )}
 
             {leads.map((lead, i) => (
               <div key={lead.id}>
-                <Link href={`/leads/${lead.id}`} className="flex items-center justify-between w-full py-2 bg-white-100 hover:bg-neutral-100 transition-colors cursor-pointer">
-                  <span className="flex-1 min-w-0 font-mono text-sm text-gray-500 leading-none">
+                <Link href={`/leads/${lead.id}`} className="flex items-center justify-between w-full py-2 hover:bg-muted transition-colors cursor-pointer">
+                  <span className="flex-1 min-w-0 font-mono text-sm text-muted-foreground leading-none">
                     {lead.order_id ? `#${lead.order_id.slice(0, 4).toUpperCase()}` : '—'}
                   </span>
-                  <span className="flex-1 min-w-0 font-medium text-sm text-gray-800 leading-none">
+                  <span className="flex-1 min-w-0 font-medium text-sm text-foreground leading-none">
                     <span>
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </span>
@@ -157,7 +156,7 @@ export default async function DashboardPage() {
                   <span className="flex-1 min-w-0">
                     <LeadStatusBadge status={lead.status} variant="raw" />
                   </span>
-                  <span className="flex-1 min-w-0 text-sm text-gray-400 leading-none">
+                  <span className="flex-1 min-w-0 text-sm text-muted-foreground leading-none">
                     {formatDate(lead.created_at)}
                   </span>
                 </Link>
@@ -168,17 +167,17 @@ export default async function DashboardPage() {
         </div>
 
         {/* Open Disputes */}
-        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 min-w-0 bg-card border border-border rounded-lg p-4 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center justify-between w-full">
             <div className="flex gap-3 items-center">
-              <div className="w-8 h-8 bg-red-50 rounded-sm flex items-center justify-center text-red-600 shrink-0">
+              <div className="w-8 h-8 bg-accent rounded-sm flex items-center justify-center text-accent-foreground shrink-0">
                 <AlertCircle size={18} />
               </div>
-              <span className="font-semibold text-base text-gray-800 leading-none whitespace-nowrap">Open Disputes</span>
+              <span className="font-semibold text-base text-foreground leading-none whitespace-nowrap">Open Disputes</span>
             </div>
             <Link
               href="/disputes"
-              className="flex items-center px-2 py-1 rounded-sm border border-gray-200 bg-white text-gray-800 text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-neutral-100 transition-colors"
+              className="flex items-center px-2 py-1 rounded-sm border border-border bg-card text-foreground text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-muted transition-colors"
             >
               View All
             </Link>
@@ -187,31 +186,31 @@ export default async function DashboardPage() {
           <div className="flex flex-col w-full">
             <div className="flex flex-col gap-3 w-full">
               <div className="flex items-start justify-between w-full">
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Lead</span>
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Reason</span>
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Status</span>
-                <span className="flex-1 min-w-0 font-medium text-sm text-gray-400 leading-none">Date</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Lead</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Reason</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Status</span>
+                <span className="flex-1 min-w-0 font-medium text-sm text-muted-foreground leading-none">Date</span>
               </div>
               {divider}
             </div>
 
             {disputes.length === 0 && (
-              <p className="py-6 text-center text-sm text-gray-400">No disputes found</p>
+              <p className="py-6 text-center text-sm text-muted-foreground">No disputes found</p>
             )}
 
             {disputes.map((d, i) => (
               <div key={d.id}>
-                <div className="flex items-center justify-between w-full py-2 bg-white-100 hover:bg-neutral-100 transition-colors cursor-pointer">
-                  <span className="flex-1 min-w-0 font-medium text-sm text-gray-800 leading-none">
+                <div className="flex items-center justify-between w-full py-2 hover:bg-muted transition-colors cursor-pointer">
+                  <span className="flex-1 min-w-0 font-medium text-sm text-foreground leading-none">
                     {d.leads ? [d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ') : '—'}
                   </span>
-                  <span className="flex-1 min-w-0 text-sm text-gray-500 leading-none">
+                  <span className="flex-1 min-w-0 text-sm text-muted-foreground leading-none">
                     {formatDisputeReason(d.reason)}
                   </span>
                   <span className="flex-1 min-w-0">
                     <DisputeStatusBadge status={d.status} />
                   </span>
-                  <span className="flex-1 min-w-0 text-sm text-gray-400 leading-none">
+                  <span className="flex-1 min-w-0 text-sm text-muted-foreground leading-none">
                     {formatDate(d.created_at)}
                   </span>
                 </div>

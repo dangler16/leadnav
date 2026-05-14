@@ -1,8 +1,10 @@
+export type UserRole = 'super_admin' | 'team_admin' | 'user'
+
 export type Profile = {
   id: string
   first_name: string
   last_name: string
-  role: 'agent' | 'admin'
+  role: UserRole
   created_at: string
 }
 
@@ -64,6 +66,7 @@ export type Vendor = {
   lead_type_costs: Record<string, number>
   locations: string[]
   cost_per_lead: number | null
+  is_active: boolean
   created_at: string
 }
 
@@ -99,7 +102,7 @@ export type CallLog = {
 }
 
 export type DisputeReason = 'bad_phone' | 'bad_email' | 'bad_address' | 'duplicate' | 'not_interested' | 'other'
-export type DisputeStatus = 'pending' | 'active' | 'closed' | 'lost'
+export type DisputeStatus = 'open' | 'in_review' | 'resolved' | 'rejected'
 
 export type Dispute = {
   id: string
@@ -116,14 +119,22 @@ export type Team = {
   id: string
   name: string
   logo_url: string | null
-  phone: string | null
   created_at: string
 }
 
 export type TeamMember = {
   team_id: string
   user_id: string
-  role: 'leader' | 'member'
+  can_order: boolean
+  can_view_leads: boolean
+  can_make_calls: boolean
+  can_file_disputes: boolean
+  created_at: string
+}
+
+export type TeamAdminAssignment = {
+  team_id: string
+  user_id: string
   created_at: string
 }
 

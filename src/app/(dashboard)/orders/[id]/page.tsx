@@ -7,19 +7,19 @@ import { OrderLeadsFilterTabs } from './order-leads-filter-tabs'
 import { EditOrderDialog } from './edit-order-dialog'
 import { ChevronLeft } from 'lucide-react'
 import { badgeShape } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
-const leadStatusConfig: Record<LeadStatus, { label: string; dotColor: string; bg: string; color: string; borderColor: string }> = {
-  new:               { label: 'New',           dotColor: '#3b82f6', bg: '#dbeafe', color: '#1d4ed8', borderColor: '#bfdbfe' },
-  not_contacted:     { label: 'Not Contacted', dotColor: '#9ca3af', bg: '#f3f4f6', color: '#4b5563', borderColor: '#e5e7eb' },
-  contacted:         { label: 'Contacted',     dotColor: '#06b6d4', bg: '#cffafe', color: '#0e7490', borderColor: '#a5f3fc' },
-  appt_set:          { label: 'Appt Set',      dotColor: '#6366f1', bg: '#e0e7ff', color: '#4338ca', borderColor: '#c7d2fe' },
-  appt_no_show:      { label: 'No Show',       dotColor: '#eab308', bg: '#fef9c3', color: '#a16207', borderColor: '#fef08a' },
-  appt_no_sale:      { label: 'No Sale',       dotColor: '#f97316', bg: '#ffedd5', color: '#c2410c', borderColor: '#fed7aa' },
-  appt_rescheduled:  { label: 'Rescheduled',   dotColor: '#a855f7', bg: '#f3e8ff', color: '#7e22ce', borderColor: '#e9d5ff' },
-  sale:              { label: 'Sale',          dotColor: '#22c55e', bg: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0' },
-  lost:              { label: 'Lost',          dotColor: '#ef4444', bg: '#fee2e2', color: '#b91c1c', borderColor: '#fecaca' },
+const leadStatusConfig: Record<LeadStatus, { label: string; className: string; dotClass: string }> = {
+  new:              { label: 'New',           className: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',       dotClass: 'bg-blue-500' },
+  not_contacted:    { label: 'Not Contacted', className: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',       dotClass: 'bg-gray-400 dark:bg-gray-500' },
+  contacted:        { label: 'Contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800',       dotClass: 'bg-cyan-500' },
+  appt_set:         { label: 'Appt Set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800', dotClass: 'bg-indigo-500' },
+  appt_no_show:     { label: 'No Show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', dotClass: 'bg-yellow-500' },
+  appt_no_sale:     { label: 'No Sale',       className: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', dotClass: 'bg-orange-500' },
+  appt_rescheduled: { label: 'Rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800', dotClass: 'bg-purple-500' },
+  sale:             { label: 'Sale',          className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
+  lost:             { label: 'Lost',          className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',             dotClass: 'bg-red-500' },
 }
-
 
 const STATE_NAMES: Record<string, string> = {
   AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',
@@ -111,77 +111,77 @@ export default async function OrderDetailPage({
   return (
     <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full overflow-hidden">
       <div>
-        <Link href="/orders" className="flex items-center gap-0 text-sm text-gray-500 hover:text-gray-700 mb-1 -mt-1 -ml-1">
+        <Link href="/orders" className="flex items-center gap-0 text-sm text-muted-foreground hover:text-foreground mb-1 -mt-1 -ml-1">
           <ChevronLeft size={15} /> Back to Orders
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 font-mono">
+            <h1 className="text-2xl font-bold text-foreground font-mono">
               #{order.id.slice(0, 8).toUpperCase()}
             </h1>
-            <p className="text-sm text-gray-400 mt-0.5">Placed {formatDate(order.created_at)}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Placed {formatDate(order.created_at)}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
-        <div className="bg-white rounded-lg border border-gray-200 col-span-1 overflow-auto flex flex-col">
-          <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between">
-            <p className="font-semibold text-base text-gray-800">Order Details</p>
+        <div className="bg-card rounded-lg border border-border col-span-1 overflow-auto flex flex-col">
+          <div className="px-4 py-3 border-b border-border/50 shrink-0 flex items-center justify-between">
+            <p className="font-semibold text-base text-foreground">Order Details</p>
             {isEditable && <EditOrderDialog order={order} vendor={vendor} />}
           </div>
 
-          <div className="grid grid-cols-3 border-b border-gray-100 shrink-0">
-            <div className="px-4 py-3 border-r border-gray-100">
-              <p className="text-xs text-gray-400 mb-1">Total Leads</p>
-              <p className="text-2xl font-bold text-gray-900">{leads.length}</p>
+          <div className="grid grid-cols-3 border-b border-border/50 shrink-0">
+            <div className="px-4 py-3 border-r border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Total Leads</p>
+              <p className="text-2xl font-bold text-foreground">{leads.length}</p>
             </div>
-            <div className="px-4 py-3 border-r border-gray-100">
-              <p className="text-xs text-gray-400 mb-1">Lead Cost</p>
-              <p className="text-2xl font-bold text-gray-900">${leadCost.toLocaleString('en-US')}</p>
+            <div className="px-4 py-3 border-r border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Lead Cost</p>
+              <p className="text-2xl font-bold text-foreground">${leadCost.toLocaleString('en-US')}</p>
             </div>
             <div className="px-4 py-3">
-              <p className="text-xs text-gray-400 mb-1">Total Spend</p>
-              <p className="text-2xl font-bold text-gray-900">${totalSpend.toLocaleString('en-US')}</p>
+              <p className="text-xs text-muted-foreground mb-1">Total Spend</p>
+              <p className="text-2xl font-bold text-foreground">${totalSpend.toLocaleString('en-US')}</p>
             </div>
           </div>
 
-          <dl className="divide-y divide-gray-100">
+          <dl className="divide-y divide-border/50">
             <div className="flex justify-between items-center px-4 py-3">
-              <dt className="text-sm text-gray-400">Status</dt>
+              <dt className="text-sm text-muted-foreground">Status</dt>
               <dd className="max-w-36">
                 {isEditable ? (
                   <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
                 ) : (
-                  <span className={`${badgeShape} bg-gray-100 text-gray-600`}>
+                  <span className={`${badgeShape} bg-muted text-muted-foreground`}>
                     Completed
                   </span>
                 )}
               </dd>
             </div>
             <div className="flex justify-between items-center px-4 py-3">
-              <dt className="text-sm text-gray-400">Vendor</dt>
-              <dd className="text-sm font-medium text-gray-800">{vendor?.name ?? '—'}</dd>
+              <dt className="text-sm text-muted-foreground">Vendor</dt>
+              <dd className="text-sm font-medium text-foreground">{vendor?.name ?? '—'}</dd>
             </div>
             <div className="flex justify-between items-center px-4 py-3">
-              <dt className="text-sm text-gray-400">Daily Budget</dt>
-              <dd className="text-sm font-medium text-gray-800">{order.daily_budget ? `$${order.daily_budget.toLocaleString('en-US')}` : '—'}</dd>
+              <dt className="text-sm text-muted-foreground">Daily Budget</dt>
+              <dd className="text-sm font-medium text-foreground">{order.daily_budget ? `$${order.daily_budget.toLocaleString('en-US')}` : '—'}</dd>
             </div>
             <div className="flex justify-between items-center px-4 py-3 gap-3">
-              <dt className="text-sm text-gray-400 shrink-0">Lead Type</dt>
+              <dt className="text-sm text-muted-foreground shrink-0">Lead Type</dt>
               <dd className="flex gap-1.5 flex-wrap justify-end">
                 {order.lead_types.length > 0 ? order.lead_types.map(lt => (
                   <span key={lt} className="text-sm font-medium px-2 py-1 rounded-sm bg-red-600 text-white">{lt}</span>
                 )) : (
-                  <span className="text-sm font-medium text-gray-800">{order.lead_type ?? '—'}</span>
+                  <span className="text-sm font-medium text-foreground">{order.lead_type ?? '—'}</span>
                 )}
               </dd>
             </div>
             <div className="px-4 py-3 space-y-2">
-              <dt className="text-sm text-gray-400">States</dt>
+              <dt className="text-sm text-muted-foreground">States</dt>
               <dd>
                 {order.states.length === 0 ? (
-                  <span className="text-sm text-gray-800">—</span>
+                  <span className="text-sm text-foreground">—</span>
                 ) : (
                   <div className="flex gap-1.5 flex-wrap">
                     {order.states.map(s => (
@@ -192,14 +192,14 @@ export default async function OrderDetailPage({
               </dd>
             </div>
             <div className="px-4 py-3 space-y-2">
-              <dt className="text-sm text-gray-400">Availability</dt>
+              <dt className="text-sm text-muted-foreground">Availability</dt>
               <dd className="flex gap-1.5">
                 {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => {
                   const active = order.availability.includes(d)
                   return (
                     <span
                       key={d}
-                      className={`text-sm font-medium flex-1 text-center py-1.5 rounded-sm ${active ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-500'}`}
+                      className={`text-sm font-medium flex-1 text-center py-1.5 rounded-sm ${active ? 'bg-red-600 text-white' : 'bg-muted text-muted-foreground'}`}
                     >
                       {d}
                     </span>
@@ -210,51 +210,48 @@ export default async function OrderDetailPage({
           </dl>
         </div>
 
-        <div className="col-span-2 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 shrink-0">
-            <p className="font-semibold text-base text-gray-800">Leads ({leads.length})</p>
+        <div className="col-span-2 flex flex-col bg-card rounded-lg border border-border overflow-hidden">
+          <div className="px-4 py-3 border-b border-border/50 shrink-0">
+            <p className="font-semibold text-base text-foreground">Leads ({leads.length})</p>
           </div>
-          <div className="p-3 border-b border-gray-100 shrink-0">
+          <div className="p-3 border-b border-border/50 shrink-0">
             <OrderLeadsFilterTabs orderId={id} filter={filter} counts={counts} />
           </div>
           <div className="flex-1 min-h-0 overflow-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-white z-10">
-                <tr className="border-b border-gray-100">
-                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead</th>
-                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Status</th>
-                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Phone</th>
-                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">State</th>
-                  <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Date</th>
+              <thead className="sticky top-0 bg-card z-10">
+                <tr className="border-b border-border/50">
+                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Lead</th>
+                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Status</th>
+                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Phone</th>
+                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">State</th>
+                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border/50">
                 {filteredLeads.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-sm text-gray-400">No leads associated with this order yet.</td>
+                    <td colSpan={5} className="py-12 text-center text-sm text-muted-foreground">No leads associated with this order yet.</td>
                   </tr>
                 )}
                 {filteredLeads.map(lead => {
-                  const statusCfg = leadStatusConfig[lead.status]
+                  const cfg = leadStatusConfig[lead.status]
                   return (
-                    <tr key={lead.id} className="hover:bg-neutral-100 transition-colors">
+                    <tr key={lead.id} className="hover:bg-muted transition-colors">
                       <td className="px-3 py-2">
-                        <Link href={`/leads/${lead.id}`} className="text-sm text-gray-900 hover:text-red-600 transition-colors">
+                        <Link href={`/leads/${lead.id}`} className="text-sm text-foreground hover:text-red-600 transition-colors">
                           {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                         </Link>
                       </td>
                       <td className="px-3 py-2">
-                        <span
-                          className={`${badgeShape} gap-1.5 border`}
-                          style={{ backgroundColor: statusCfg.bg, color: statusCfg.color, borderColor: statusCfg.borderColor }}
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: statusCfg.dotColor }} />
-                          {statusCfg.label}
+                        <span className={cn(badgeShape, 'gap-1.5 border', cfg.className)}>
+                          <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dotClass)} />
+                          {cfg.label}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{formatPhone(lead.phone)}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{lead.state ?? '—'}</td>
-                      <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">{formatDateTime(lead.created_at)}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{formatPhone(lead.phone)}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground">{lead.state ?? '—'}</td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">{formatDateTime(lead.created_at)}</td>
                     </tr>
                   )
                 })}

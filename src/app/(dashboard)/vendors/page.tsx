@@ -1,15 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Store } from 'lucide-react'
 import { Vendor, VendorApiKey } from '@/lib/types'
-import { VendorApiKeys } from './vendor-api-keys'
 import { NewVendorDialog } from './new-vendor-dialog'
-import { EditVendorDialog } from './edit-vendor-dialog'
+import { VendorStatusSelect } from './vendor-status-select'
+import { VendorRowCells } from './vendor-row-cells'
 import { badgeShape } from '@/components/ui/badge'
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
 
 export default async function VendorsPage() {
   const supabase = await createClient()
@@ -17,7 +12,7 @@ export default async function VendorsPage() {
   if (!user) return null
 
   const { data: myProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!myProfile || myProfile.role !== 'admin') redirect('/dashboard')
+  if (!myProfile || myProfile.role !== 'super_admin') redirect('/dashboard')
 
   const { data: vendorsData } = await supabase.from('vendors').select('*').order('created_at', { ascending: false })
   const vendors = (vendorsData ?? []) as Vendor[]
@@ -26,75 +21,63 @@ export default async function VendorsPage() {
   const allKeys = (keysData ?? []) as VendorApiKey[]
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div className="flex items-start justify-between">
+    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
+      <div className="flex items-start justify-between w-full pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage lead vendors and sources.</p>
+          <h1 className="text-2xl font-bold text-foreground">Vendors</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage lead vendors and sources.</p>
         </div>
         <NewVendorDialog />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200">
-
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Name</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Type</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead Types</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Locations</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Cost/Lead</th>
-              <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Added</th>
-              <th className="px-3 py-2"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {vendors.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-sm text-gray-400">No vendors yet.</td>
+      <div className="flex flex-col flex-1 min-h-0 bg-card border border-border rounded-lg overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Name</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Status</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Type</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Lead Types</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Locations</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Cost/Lead</th>
+                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Added</th>
+                <th className="px-3 py-2 text-right"></th>
               </tr>
-            )}
-            {vendors.map(v => {
-              const vendorKeys = allKeys.filter(k => k.vendor_id === v.id)
-              return (
-                <tr key={v.id} className="hover:bg-neutral-100 transition-colors">
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold">
-                        {v.name[0].toUpperCase()}
-                      </div>
-                      <p className="font-medium text-gray-800">{v.name}</p>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <span className={`${badgeShape} ${v.type === 'inbound' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                      {v.type === 'inbound' ? 'Inbound' : 'Manual'}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-xs text-gray-600">
-                    {v.lead_types.length > 0 ? v.lead_types.join(', ') : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="px-3 py-2 text-xs text-gray-600">
-                    {v.locations.length > 0 ? v.locations.join(', ') : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="px-3 py-2 text-xs text-gray-600">
-                    {v.cost_per_lead != null ? `$${v.cost_per_lead}` : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="px-3 py-2 text-xs text-gray-400">{formatDate(v.created_at)}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <EditVendorDialog vendor={v} />
-                      {v.type === 'inbound' && (
-                        <VendorApiKeys vendor={v} initialKeys={vendorKeys} />
-                      )}
-                    </div>
-                  </td>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {vendors.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">No vendors yet.</td>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
+              )}
+              {vendors.map(v => {
+                const vendorKeys = allKeys.filter(k => k.vendor_id === v.id)
+                return (
+                  <tr key={v.id} className="hover:bg-muted transition-colors">
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 text-xs font-bold">
+                          {v.name[0].toUpperCase()}
+                        </div>
+                        <p className="font-medium text-foreground">{v.name}</p>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <VendorStatusSelect vendorId={v.id} initialIsActive={v.is_active} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={`${badgeShape} ${v.type === 'inbound' ? 'px-2 border-1 border-blue-100 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400' : 'bg-muted text-muted-foreground'}`}>
+                        {v.type === 'inbound' ? 'Inbound' : 'Manual'}
+                      </span>
+                    </td>
+                    <VendorRowCells vendor={v} vendorKeys={vendorKeys} />
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
