@@ -1,10 +1,11 @@
 import { cn } from '@/lib/utils'
+import { badgeShape } from '@/components/ui/badge'
 import { LeadStatus, DisputeStatus, getLeadDisplayStatus } from '@/lib/types'
 
 type LeadBadgeProps = { status: LeadStatus; variant?: 'display' | 'raw'; className?: string }
-type DisputeBadgeProps = { status: DisputeStatus }
+type DisputeBadgeProps = { status: DisputeStatus; className?: string }
 
-const shape = 'inline-flex items-center rounded-sm px-2 py-1.5 text-sm font-medium leading-none'
+const shape = badgeShape
 
 const displayColors: Record<string, string> = {
   Active: 'bg-green-100 text-green-700',
@@ -50,7 +51,7 @@ export function LeadStatusBadge({ status, variant = 'display', className }: Lead
   )
 }
 
-export function DisputeStatusBadge({ status }: DisputeBadgeProps) {
+export function DisputeStatusBadge({ status, className }: DisputeBadgeProps) {
   const colors: Record<DisputeStatus, string> = {
     pending: 'bg-orange-100 text-orange-700',
     active: 'bg-green-100 text-green-700',
@@ -64,7 +65,7 @@ export function DisputeStatusBadge({ status }: DisputeBadgeProps) {
     lost: 'Lost',
   }
   return (
-    <span className={cn(shape, colors[status])}>
+    <span className={cn(shape, colors[status], className)}>
       {labels[status]}
     </span>
   )

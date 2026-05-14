@@ -28,9 +28,12 @@ export function SelectDropdown({
   buttonClassName,
 }: Props) {
   const [open, setOpen] = useState(false)
+  const [rendered, setRendered] = useState(false)
   const [openUpward, setOpenUpward] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => { if (open) setRendered(true) }, [open])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -78,10 +81,12 @@ export function SelectDropdown({
         />
       </button>
 
-      {open && (
+      {rendered && (
         <div
+          data-closed={!open ? '' : undefined}
+          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
           className={cn(
-            'absolute z-50 left-0 min-w-full max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg',
+            'absolute z-50 left-0 min-w-full max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100',
             openUpward ? 'bottom-full mb-0.5' : 'top-full mt-0.5',
           )}
         >

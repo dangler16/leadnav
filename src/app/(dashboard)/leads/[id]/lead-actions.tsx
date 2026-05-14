@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { LeadStatusSelect } from '@/app/(dashboard)/leads/lead-status-select'
 
 const outcomeOptions: { value: CallOutcome; label: string }[] = [
   { value: 'no_answer', label: 'No Answer' },
@@ -42,7 +41,6 @@ export function LeadActions({ lead, userId }: Props) {
   const router = useRouter()
   const supabase = createClient()
 
-  const [localStatus, setLocalStatus] = useState<LeadStatus>(lead.status)
   const [open, setOpen] = useState(false)
   const [outcome, setOutcome] = useState<CallOutcome>('no_answer')
   const [notes, setNotes] = useState('')
@@ -56,8 +54,6 @@ export function LeadActions({ lead, userId }: Props) {
     setNotes('')
     setOutcome('no_answer')
     setOpen(false)
-    if (newStatus) setLocalStatus(newStatus)
-
     await Promise.all([
       supabase.from('call_logs').insert({
         lead_id: lead.id,
@@ -77,7 +73,6 @@ export function LeadActions({ lead, userId }: Props) {
   return (
     <>
       <div className="flex items-center gap-2">
-        <LeadStatusSelect leadId={lead.id} initialStatus={localStatus} />
         <Button
           onClick={() => setOpen(true)}
           variant="outline"

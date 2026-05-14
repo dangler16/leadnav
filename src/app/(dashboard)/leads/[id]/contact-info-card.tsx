@@ -79,6 +79,16 @@ type Fields = {
   zip: string
 }
 
+const STATE_NAME_TO_ABBR: Record<string, string> = Object.fromEntries(
+  US_STATES.map(s => [s.label.toLowerCase(), s.value])
+)
+
+function normalizeState(raw: string): string {
+  if (!raw) return ''
+  if (US_STATES.some(s => s.value === raw.toUpperCase())) return raw.toUpperCase()
+  return STATE_NAME_TO_ABBR[raw.toLowerCase()] ?? raw
+}
+
 function formatPhoneDisplay(raw: string): string {
   const d = raw.replace(/\D/g, '').slice(0, 10)
   if (d.length < 4) return d
@@ -96,7 +106,7 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
     lastname: lead.lastname ?? '',
     phone: lead.phone ?? '',
     email: lead.email ?? '',
-    state: lead.state ?? '',
+    state: normalizeState(lead.state ?? ''),
     zip: lead.zip ?? '',
   })
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { LeadStatus } from '@/lib/types'
 import { ChevronDown, Check } from 'lucide-react'
+import { badgeShape } from '@/components/ui/badge'
 
 const statusConfig: Record<LeadStatus, { label: string; dotColor: string; bg: string; color: string; borderColor: string }> = {
   new:               { label: 'New',           dotColor: '#3b82f6', bg: '#dbeafe', color: '#1d4ed8', borderColor: '#bfdbfe' },
@@ -23,6 +24,7 @@ const TRANSITION = 'background-color 200ms, color 200ms, border-color 200ms'
 export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; initialStatus: LeadStatus }) {
   const [status, setStatus] = useState(initialStatus)
   const [open, setOpen] = useState(false)
+  const [rendered, setRendered] = useState(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const [saving, setSaving] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -33,6 +35,10 @@ export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; in
   useEffect(() => {
     setStatus(initialStatus)
   }, [initialStatus])
+
+  useEffect(() => {
+    if (open) setRendered(true)
+  }, [open])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -83,7 +89,7 @@ export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; in
           borderColor: open ? '#f87171' : current.borderColor,
           transition: TRANSITION,
         }}
-        className="flex h-8 w-full items-center justify-between cursor-pointer gap-1.5 text-sm border rounded-sm pl-2 pr-1.5 disabled:opacity-50 outline-none"
+        className={`${badgeShape} justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50`}
       >
         <span className="flex items-center gap-1.5">
           <span
@@ -98,16 +104,18 @@ export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; in
         />
       </button>
 
-      {open && (
+      {rendered && (
         <div
-          className="z-50 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden"
+          data-closed={!open ? '' : undefined}
+          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
+          className="z-50 bg-white border border-gray-200 rounded-3xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
           style={dropdownStyle}
         >
           {(Object.entries(statusConfig) as [LeadStatus, typeof statusConfig[LeadStatus]][]).map(([value, cfg]) => (
             <button
               key={value}
               onClick={() => handleSelect(value)}
-              className="w-full flex items-center gap-2 pl-2 pr-1.5 py-2 text-sm text-left hover:bg-gray-50 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cfg.dotColor }} />
               <span className="flex-1 text-gray-800">{cfg.label}</span>

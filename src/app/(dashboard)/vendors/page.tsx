@@ -5,6 +5,7 @@ import { Vendor, VendorApiKey } from '@/lib/types'
 import { VendorApiKeys } from './vendor-api-keys'
 import { NewVendorDialog } from './new-vendor-dialog'
 import { EditVendorDialog } from './edit-vendor-dialog'
+import { badgeShape } from '@/components/ui/badge'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -35,13 +36,7 @@ export default async function VendorsPage() {
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-            <Store size={18} />
-          </div>
-          <p className="font-semibold text-base text-gray-800">All Vendors</p>
-          <span className="text-xs text-gray-400 ml-1">({vendors.length})</span>
-        </div>
+
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
@@ -73,9 +68,7 @@ export default async function VendorsPage() {
                     </div>
                   </td>
                   <td className="px-3 py-2">
-                    <span className={`inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${
-                      v.type === 'inbound' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span className={`${badgeShape} ${v.type === 'inbound' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
                       {v.type === 'inbound' ? 'Inbound' : 'Manual'}
                     </span>
                   </td>

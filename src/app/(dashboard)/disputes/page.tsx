@@ -3,7 +3,7 @@ import { Dispute, Lead, formatDisputeReason } from '@/lib/types'
 import { DisputeStatusBadge } from '@/components/status-badge'
 import { AlertCircle } from 'lucide-react'
 import { NewDisputeDialog } from './new-dispute-dialog'
-import Link from 'next/link'
+import { DisputesFilterTabs } from './disputes-filter-tabs'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -59,20 +59,8 @@ export default async function DisputesPage({
 
       <div className="bg-white rounded-lg border border-gray-200">
 
-        <div className="flex items-center gap-1.5 p-3 border-b border-gray-100">
-          {(['All', 'Active', 'Closed', 'Lost'] as FilterTab[]).map(f => (
-            <Link
-              key={f}
-              href={`/disputes?filter=${f}`}
-              className={`px-2 py-1 rounded-sm text-sm transition-colors whitespace-nowrap ${
-                filter === f
-                  ? 'bg-red-600 text-white font-semibold'
-                  : 'text-gray-400 hover:text-gray-700 border border-gray-200 bg-white'
-              }`}
-            >
-              {f} ({counts[f]})
-            </Link>
-          ))}
+        <div className="p-3 border-b border-gray-100">
+          <DisputesFilterTabs filter={filter} counts={counts} />
         </div>
 
         <table className="w-full text-sm">

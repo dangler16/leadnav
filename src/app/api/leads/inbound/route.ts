@@ -49,17 +49,39 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  // Block if no active orders exist for this vendor
+  const STATE_NAME_TO_ABBR: Record<string, string> = {
+    alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA',
+    colorado: 'CO', connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA',
+    hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA',
+    kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD',
+    massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS',
+    missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV',
+    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+    'north carolina': 'NC', 'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK',
+    oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+    'south dakota': 'SD', tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT',
+    virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY',
+  }
+  const rawState = body.state ? String(body.state) : null
+  const state = rawState
+    ? (STATE_NAME_TO_ABBR[rawState.toLowerCase()] ?? rawState.toUpperCase())
+    : null
+  if (!state) {
+    return Response.json({ error: 'Missing required field: state' }, { status: 400 })
+  }
+
+  // Block if no active order exists for this vendor that covers the lead's state
   const { data: activeOrder } = await supabase
     .from('orders')
     .select('id')
     .eq('vendor_id', keyRecord.vendor_id)
     .eq('status', 'active')
+    .contains('states', [state])
     .limit(1)
     .maybeSingle()
 
   if (!activeOrder) {
-    return Response.json({ error: 'No active orders for this vendor' }, { status: 503 })
+    return Response.json({ error: 'No active orders for this vendor in this state' }, { status: 503 })
   }
 
   // Fetch vendor to get configured lead type
@@ -100,6 +122,7 @@ export async function POST(request: NextRequest) {
     .from('leads')
     .insert({
       vendor_id: keyRecord.vendor_id,
+      order_id: activeOrder.id,
       assigned_to,
       lead_type: vendor?.lead_types?.[0] ?? null,
       firstname,
@@ -107,7 +130,7 @@ export async function POST(request: NextRequest) {
       birthday: body.birthday ?? null,
       email,
       phone,
-      state: body.state ?? null,
+      state,
       zip: body.zip ?? null,
       plan_for: body.plan_for ?? null,
       looking_for: body.looking_for ?? null,

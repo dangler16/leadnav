@@ -3,12 +3,14 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Lead, Profile, CallLog, Dispute, CallOutcome, formatDisputeReason } from '@/lib/types'
 import { LeadActions } from './lead-actions'
+import { LeadStatusSelect } from '@/app/(dashboard)/leads/lead-status-select'
 import { ContactInfoCard } from './contact-info-card'
 import { HouseholdCard } from './household-card'
 import { NotesCard } from './notes-card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ChevronLeft, AlertCircle } from 'lucide-react'
 import { DisputeStatusBadge } from '@/components/status-badge'
+import { badgeShape } from '@/components/ui/badge'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('en-US', {
@@ -85,10 +87,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <Tabs defaultValue="details">
-        <TabsList>
-          <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="calls">Call History ({calls.length})</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center gap-3">
+          <TabsList>
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="calls">Call History ({calls.length})</TabsTrigger>
+          </TabsList>
+          <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
+        </div>
 
         <TabsContent value="details">
           <div className="grid grid-cols-3 gap-4 mt-4">
@@ -151,7 +156,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   <tr key={call.id} className="border-b border-gray-100 last:border-0">
                     <td className="px-3 py-2 whitespace-nowrap">
                       <span
-                        className="inline-flex items-center gap-1.5 text-sm font-medium px-1.5 py-0.5 rounded-sm border"
+                        className={`${badgeShape} gap-1.5 border`}
                         style={{
                           background: outcomeConfig[call.outcome].bg,
                           color: outcomeConfig[call.outcome].color,

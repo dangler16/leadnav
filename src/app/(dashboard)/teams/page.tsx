@@ -47,13 +47,6 @@ export default async function TeamsPage() {
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-            <UsersRound size={18} />
-          </div>
-          <p className="font-semibold text-base text-gray-800">All Teams</p>
-          <span className="text-xs text-gray-400 ml-1">({teams.length})</span>
-        </div>
 
         {teams.length === 0 && (
           <p className="px-4 py-8 text-center text-sm text-gray-400">No teams yet. Create one to get started.</p>

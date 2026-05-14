@@ -27,6 +27,7 @@ function timeAgo(dateStr: string) {
 
 export function NotificationBell({ initialCount }: { initialCount: number }) {
   const [open, setOpen] = useState(false)
+  const [rendered, setRendered] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(initialCount)
@@ -35,6 +36,8 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
   const popupRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => { if (open) setRendered(true) }, [open])
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
@@ -108,11 +111,13 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
         )}
       </button>
 
-      {open && (
+      {rendered && (
         <div
           ref={popupRef}
+          data-closed={!open ? '' : undefined}
+          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
           style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+          className="w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-150"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">

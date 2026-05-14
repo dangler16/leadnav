@@ -48,7 +48,10 @@ export type Order = {
   account_id: string | null
   vendor_id: string | null
   lead_type: string | null
+  lead_types: string[]
   daily_budget: number | null
+  states: string[]
+  availability: string[]
   status: 'active' | 'paused' | 'completed'
   created_at: string
 }
@@ -58,6 +61,7 @@ export type Vendor = {
   name: string
   type: 'inbound' | 'manual'
   lead_types: string[]
+  lead_type_costs: Record<string, number>
   locations: string[]
   cost_per_lead: number | null
   created_at: string

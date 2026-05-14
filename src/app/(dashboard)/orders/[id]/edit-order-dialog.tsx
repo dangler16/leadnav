@@ -3,12 +3,12 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Vendor } from '@/lib/types'
+import { Order, Vendor } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { SelectDropdown } from '@/components/ui/select-dropdown'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Pencil } from 'lucide-react'
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' },
@@ -71,19 +71,20 @@ function formatBudget(digits: string): string {
   return isNaN(n) ? '$' : '$' + n.toLocaleString('en-US')
 }
 
-export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId: string }) {
+export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendor | null }) {
+  const initialBudgetDigits = order.daily_budget?.toString() ?? ''
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [selectedVendorId, setSelectedVendorId] = useState('')
-  const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(new Set())
-  const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set())
-  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set())
-  const [budgetDigits, setBudgetDigits] = useState('')
+  const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(new Set(order.lead_types))
+  const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set(order.states))
+  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set(order.availability))
+  const [budgetDigits, setBudgetDigits] = useState(initialBudgetDigits)
   const budgetRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const supabase = createClient()
 
-  const selectedVendor = vendors.find(v => v.id === selectedVendorId) ?? null
+  const vendorLeadTypes = vendor?.lead_types ?? []
+  const leadTypeOptions = Array.from(new Set([...vendorLeadTypes, ...order.lead_types]))
 
   function toggleLeadType(lt: string) {
     setSelectedLeadTypes(prev => {
@@ -138,31 +139,11 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
     })
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    const fd = new FormData(e.currentTarget)
-    await supabase.from('orders').insert({
-      account_id: userId,
-      vendor_id: fd.get('vendor_id') || null,
-      lead_types: Array.from(selectedLeadTypes),
-      daily_budget: budgetDigits ? parseInt(budgetDigits) : null,
-      states: Array.from(selectedStates),
-      availability: Array.from(selectedDays),
-      status: 'active',
-    })
-    setLoading(false)
-    setOpen(false)
-    reset()
-    router.refresh()
-  }
-
   function reset() {
-    setSelectedVendorId('')
-    setSelectedLeadTypes(new Set())
-    setSelectedStates(new Set())
-    setSelectedDays(new Set())
-    setBudgetDigits('')
+    setSelectedLeadTypes(new Set(order.lead_types))
+    setSelectedStates(new Set(order.states))
+    setSelectedDays(new Set(order.availability))
+    setBudgetDigits(initialBudgetDigits)
   }
 
   function handleOpenChange(val: boolean) {
@@ -170,54 +151,55 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
     if (!val) reset()
   }
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    await supabase.from('orders').update({
+      lead_types: Array.from(selectedLeadTypes),
+      daily_budget: budgetDigits ? parseInt(budgetDigits) : null,
+      states: Array.from(selectedStates),
+      availability: Array.from(selectedDays),
+    }).eq('id', order.id)
+    setLoading(false)
+    setOpen(false)
+    router.refresh()
+  }
+
   const allSelected = selectedStates.size === US_STATES.length
-  const vendorLeadTypes = selectedVendor?.lead_types ?? []
 
   return (
     <>
-      <Button
-        className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors h-fit"
+      <button
         onClick={() => setOpen(true)}
+        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-700 transition-colors px-1.5 py-1 rounded hover:bg-gray-100"
       >
-        Place Order
-      </Button>
+        <Pencil size={14} />
+        Edit
+      </button>
+
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Place New Order</DialogTitle>
+            <DialogTitle>Edit Order</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
 
-            {/* Vendor */}
-            <div className="space-y-2">
-              <Label>Vendor</Label>
-              <SelectDropdown
-                options={vendors.map(v => ({ value: v.id, label: v.name }))}
-                value={selectedVendorId}
-                onChange={v => { setSelectedVendorId(v); setSelectedLeadTypes(new Set()) }}
-                name="vendor_id"
-                placeholder="Select vendor…"
-              />
-            </div>
-
             {/* Lead Types */}
             <div className="space-y-2">
-              <Label>Lead Type</Label>
-              {!selectedVendor ? (
-                <p className="text-sm text-gray-400 py-1">Select a vendor first</p>
-              ) : vendorLeadTypes.length === 0 ? (
+              <Label>Lead Types</Label>
+              {leadTypeOptions.length === 0 ? (
                 <p className="text-sm text-gray-400 py-1">No lead types configured for this vendor</p>
               ) : (
                 <div className="flex gap-2 flex-wrap">
-                  {vendorLeadTypes.map(lt => {
+                  {leadTypeOptions.map(lt => {
                     const checked = selectedLeadTypes.has(lt)
-                    const cost = selectedVendor.lead_type_costs[lt] ?? selectedVendor.cost_per_lead
+                    const cost = vendor?.lead_type_costs?.[lt] ?? vendor?.cost_per_lead
                     return (
                       <button
                         key={lt}
                         type="button"
                         onClick={() => toggleLeadType(lt)}
-                        className={`flex flex-col items-center text-sm px-2.5 py-1.5 rounded transition-colors font-medium leading-tight ${
+                        className={`flex flex-col items-center text-sm px-2.5 py-1.5 rounded-sm transition-colors font-medium leading-tight ${
                           checked
                             ? 'bg-red-600 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -244,7 +226,6 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                 value={formatBudget(budgetDigits)}
                 onChange={handleBudgetChange}
                 inputMode="numeric"
-                required
                 placeholder="$0"
               />
             </div>
@@ -300,7 +281,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                       key={d}
                       type="button"
                       onClick={() => toggleDay(d)}
-                      className={`text-sm w-full py-1.5 rounded transition-colors font-medium ${
+                      className={`text-sm w-full py-1.5 rounded-sm transition-colors font-medium ${
                         checked
                           ? 'bg-red-600 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -313,10 +294,22 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>
-              <Button type="submit" disabled={loading}>{loading ? 'Placing…' : 'Place Order'}</Button>
-            </div>
+            <DialogFooter>
+              <button
+                type="button"
+                onClick={() => handleOpenChange(false)}
+                className="px-2 py-1 text-sm rounded-sm border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-2 py-1 text-sm rounded-sm bg-red-600 text-white hover:bg-red-800 transition-colors disabled:opacity-50 h-fit"
+              >
+                {loading ? 'Saving…' : 'Save Changes'}
+              </button>
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

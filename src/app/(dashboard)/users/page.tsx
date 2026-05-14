@@ -4,6 +4,7 @@ import { Profile, Team, TeamMember } from '@/lib/types'
 import { redirect } from 'next/navigation'
 import { Users, ShieldCheck } from 'lucide-react'
 import { EditUserDialog } from './edit-user-dialog'
+import { badgeShape } from '@/components/ui/badge'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -53,13 +54,7 @@ export default async function AdminPage() {
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="flex items-center gap-2 p-4 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-            <Users size={18} />
-          </div>
-          <p className="font-semibold text-base text-gray-800">All Users</p>
-          <span className="text-xs text-gray-400 ml-1">({profiles.length})</span>
-        </div>
+
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
@@ -92,16 +87,14 @@ export default async function AdminPage() {
                       {userTeams.length === 0 ? (
                         <span className="text-xs text-gray-300">—</span>
                       ) : userTeams.map(t => (
-                        <span key={t.id} className="inline-flex items-center rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none bg-blue-50 text-blue-700">
+                        <span key={t.id} className={`${badgeShape} bg-blue-50 text-blue-700`}>
                           {t.name}
                         </span>
                       ))}
                     </div>
                   </td>
                   <td className="px-3 py-2">
-                    <span className={`inline-flex items-center gap-1 rounded-[3px] px-2 py-[6px] text-xs font-medium leading-none ${
-                      p.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span className={`${badgeShape} gap-1 ${p.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}`}>
                       {p.role === 'admin' && <ShieldCheck size={11} />}
                       {p.role === 'admin' ? 'Admin' : 'Agent'}
                     </span>

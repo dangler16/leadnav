@@ -3,19 +3,14 @@ import { createClient } from '@/lib/supabase/server'
 import { Order, Vendor } from '@/lib/types'
 import { NewOrderDialog } from './new-order-dialog'
 import { OrderStatusSelect } from './order-status-select'
+import { badgeShape } from '@/components/ui/badge'
+import { OrdersFilterTabs } from './orders-filter-tabs'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 type StatusFilter = 'all' | Order['status']
-
-const tabs: { value: StatusFilter; label: string }[] = [
-  { value: 'all',       label: 'All' },
-  { value: 'active',    label: 'Active' },
-  { value: 'paused',    label: 'Paused' },
-  { value: 'completed', label: 'Completed' },
-]
 
 export default async function OrdersPage({
   searchParams,
@@ -58,20 +53,8 @@ export default async function OrdersPage({
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="flex items-center gap-1.5 flex-wrap p-3 border-b border-gray-100">
-          {tabs.map(tab => (
-            <Link
-              key={tab.value}
-              href={`/orders?filter=${tab.value}`}
-              className={`px-2 py-1 rounded-sm text-sm transition-colors whitespace-nowrap ${
-                filter === tab.value
-                  ? 'bg-red-600 text-white font-semibold'
-                  : 'text-gray-400 hover:text-gray-700 border border-gray-200 bg-white'
-              }`}
-            >
-              {tab.label} ({counts[tab.value]})
-            </Link>
-          ))}
+        <div className="p-3 border-b border-gray-100">
+          <OrdersFilterTabs filter={filter} counts={counts} />
         </div>
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-sm">
@@ -103,14 +86,18 @@ export default async function OrdersPage({
                       </Link>
                     </td>
                     <td className="px-3 py-2 text-sm text-gray-900">{vendor?.name ?? '—'}</td>
-                    <td className="px-3 py-2 text-gray-700">{order.lead_type ?? '—'}</td>
-                    <td className="px-3 py-2 text-gray-700">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
-                    <td className="px-3 py-2 text-gray-700">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
-                    <td className="px-3 py-2 max-w-30 pr-10">
+                    <td className="px-3 py-2 text-gray-900">
+                      {order.lead_types.length > 0
+                        ? order.lead_types.join(', ')
+                        : (order.lead_type ?? '—')}
+                    </td>
+                    <td className="px-3 py-2 text-gray-900">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
+                    <td className="px-3 py-2 text-gray-900">{vendor?.cost_per_lead ? `$${vendor.cost_per_lead}` : '—'}</td>
+                    <td className="px-3 py-2">
                       {isEditable ? (
-                        <OrderStatusSelect orderId={order.id} initialStatus={order.status} />
+                        <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
                       ) : (
-                        <span className="inline-flex h-8 items-center rounded-sm px-2 text-sm font-medium bg-gray-200 text-gray-800">
+                        <span className={`${badgeShape} bg-blue-100 text-blue-500 border border-blue-200`}>
                           Completed
                         </span>
                       )}

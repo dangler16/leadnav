@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Lead, LeadStatus } from '@/lib/types'
 import { LeadStatusSelect } from './lead-status-select'
 import { SearchInput } from './search-input'
+import { LeadsFilterTabs } from './leads-filter-tabs'
 
 function formatPhone(phone: string | null) {
   if (!phone) return '—'
@@ -20,19 +21,6 @@ function formatDate(dateStr: string) {
 }
 
 type StatusFilter = 'all' | 'new' | 'contacted' | 'not_contacted' | 'appt_set' | 'appt_rescheduled' | 'appt_no_show' | 'appt_no_sale' | 'sale' | 'lost'
-
-const tabs: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'new', label: 'New' },
-  { value: 'not_contacted', label: 'Not Contacted' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'appt_set', label: 'Appt Set' },
-  { value: 'appt_no_show', label: 'No-Show' },
-  { value: 'appt_no_sale', label: 'No-Sale' },
-  { value: 'appt_rescheduled', label: 'Rescheduled' },
-  { value: 'sale', label: 'Sale' },
-  { value: 'lost', label: 'Lost' },
-]
 
 export default async function LeadsPage({
   searchParams,
@@ -98,27 +86,13 @@ export default async function LeadsPage({
 
         {/* Filter tabs */}
         <div className="flex items-center justify-between gap-1.5 p-3 border-b border-gray-100">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {tabs.map(tab => (
-              <Link
-                key={tab.value}
-                href={`/leads?filter=${tab.value}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
-                className={`px-2 py-1 rounded-sm text-sm transition-colors whitespace-nowrap ${
-                  filter === tab.value
-                    ? 'bg-red-600 text-white font-semibold'
-                    : 'text-gray-400 hover:text-gray-700 border border-gray-200 bg-white'
-                }`}
-              >
-                {tab.label} ({counts[tab.value]})
-              </Link>
-            ))}
-          </div>
+          <LeadsFilterTabs filter={filter} counts={counts} search={search} />
           <SearchInput defaultValue={search} />
         </div>
 
         {/* Table */}
         <div className="flex-1 min-h-0 overflow-auto">
-          <table className="w-full text-md">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left text-sm font-medium text-gray-400 px-3 py-2">Lead</th>
@@ -150,15 +124,15 @@ export default async function LeadsPage({
                   <td className="px-3 py-2 max-w-40 pr-10">
                     <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
                   </td>
-                  <td className="px-3 text-sm text-gray-900 whitespace-nowrap">{lead.vendors?.name ?? '—'}</td>
-                  <td className="px-3 text-sm text-gray-900 whitespace-nowrap">
+                  <td className="px-3 py-2 text-sm text-gray-900 whitespace-nowrap">{lead.vendors?.name ?? '—'}</td>
+                  <td className="px-3 py-2 text-sm text-gray-900 whitespace-nowrap">
                     {lead.vendors?.cost_per_lead != null ? `$${lead.vendors.cost_per_lead.toLocaleString('en-US')}` : '—'}
                   </td>
-                  <td className="px-3 text-sm text-gray-900">{formatPhone(lead.phone)}</td>
-                  <td className="px-3 text-sm text-gray-900 max-w-[200px] truncate">{lead.email ?? '—'}</td>
-                  <td className="px-3 text-sm text-gray-900">{lead.state ?? '—'}</td>
-                  <td className="px-3 text-sm text-gray-900">{lead.zip ?? '—'}</td>
-                  <td className="px-3 text-sm text-gray-400 whitespace-nowrap">{formatDate(lead.created_at)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-900">{formatPhone(lead.phone)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-900 max-w-[200px] truncate">{lead.email ?? '—'}</td>
+                  <td className="px-3 py-2 text-sm text-gray-900">{lead.state ?? '—'}</td>
+                  <td className="px-3 py-2 text-sm text-gray-900">{lead.zip ?? '—'}</td>
+                  <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">{formatDate(lead.created_at)}</td>
                 </tr>
               ))}
             </tbody>

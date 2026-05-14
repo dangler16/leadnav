@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ChevronDown, Check, X } from 'lucide-react'
+import { badgeShape } from '@/components/ui/badge'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription, DialogFooter, DialogClose,
@@ -29,6 +30,7 @@ const TRANSITION = 'background-color 200ms, color 200ms, border-color 200ms'
 export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string; initialStatus: TriggerStatus }) {
   const [status, setStatus] = useState<TriggerStatus>(initialStatus)
   const [open, setOpen] = useState(false)
+  const [rendered, setRendered] = useState(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const [saving, setSaving] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -38,6 +40,7 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
   const supabase = createClient()
 
   useEffect(() => { setStatus(initialStatus) }, [initialStatus])
+  useEffect(() => { if (open) setRendered(true) }, [open])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -86,7 +89,7 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
           borderColor: open ? '#f87171' : current.borderColor,
           transition: TRANSITION,
         }}
-        className="flex h-8 w-full items-center justify-between cursor-pointer gap-1.5 text-sm border rounded-sm pl-2 pr-1.5 disabled:opacity-50 outline-none"
+        className={`${badgeShape} justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50`}
       >
         <span className="flex items-center gap-1.5">
           <span
@@ -98,13 +101,18 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
         <ChevronDown size={13} className={`opacity-60 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      {open && (
-        <div className="z-50 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden" style={dropdownStyle}>
+      {rendered && (
+        <div
+          data-closed={!open ? '' : undefined}
+          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
+          className="z-50 bg-white border border-gray-200 rounded-3xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
+          style={dropdownStyle}
+        >
           {dropdownOptions.map(([value, cfg]) => (
             <button
               key={value}
               onClick={() => handleSelect(value)}
-              className="w-full flex items-center gap-2 pl-2 pr-1.5 py-2 text-sm text-left hover:bg-gray-50 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cfg.dotColor }} />
               <span className="flex-1 text-gray-800">{cfg.label}</span>
@@ -114,7 +122,7 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
           <div className="border-t border-gray-100" />
           <button
             onClick={() => { setOpen(false); setConfirmOpen(true) }}
-            className="w-full flex items-center gap-1 pl-1 pr-1.5 py-2 text-sm text-left hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
           >
             <X size={13} className="shrink-0" />
             <span className="flex-1">Close Order</span>
