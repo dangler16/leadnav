@@ -98,13 +98,13 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
         ref={buttonRef}
         onClick={toggle}
         className={cn(
-          'relative p-[7px] rounded transition-colors cursor-pointer flex-shrink-0',
+          'relative p-2 -mr-1.5 rounded transition-colors cursor-pointer flex-shrink-0',
           open
-            ? 'text-white bg-white/[0.08]'
-            : 'text-white/35 hover:text-white/70 hover:bg-white/[0.05]'
+            ? 'text-white bg-neutral-800'
+            : 'text-gray-300 hover:text-white hover:bg-neutral-800'
         )}
       >
-        <Bell size={14} strokeWidth={2} />
+        <Bell size={16} strokeWidth={2} />
         {unreadCount > 0 && (
           <span className="absolute top-[3px] right-[3px] w-[5px] h-[5px] rounded-full bg-gray-400" />
         )}

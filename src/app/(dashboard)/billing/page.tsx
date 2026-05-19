@@ -69,7 +69,7 @@ export default async function BillingPage({
           <Wallet className="w-4 h-4 text-gray-500" />
           <p className="text-xs font-semibold text-gray-900">Wallet Balance</p>
         </div>
-        <p className="text-2xl font-semibold text-gray-900 tabular-nums leading-none" style={{ fontFamily: 'var(--font-dm-mono), monospace' }}>{formatCents(balance)}</p>
+        <p className="text-3xl font-semibold text-gray-900 tabular-nums leading-none" style={{ fontFamily: 'var(--font-mono), monospace' }}>{formatCents(balance)}</p>
         <p className="text-xs text-gray-400 mt-1.5">Used automatically when leads are delivered</p>
       </div>
 

@@ -79,7 +79,6 @@ export function Sidebar({ role = 'user', notificationCount = 0, permissions }: S
         <NavLink href="/dashboard" label="Dashboard" icon={House} />
         {showLeads    && <NavLink href="/leads"    label="Leads"    icon={SquareUser} />}
         {showOrders   && <NavLink href="/orders"   label="Orders"   icon={Package} />}
-        {showOrders   && <NavLink href="/billing"  label="Billing"  icon={Wallet} />}
         {showDisputes && <NavLink href="/disputes" label="Disputes" icon={AlertCircle} />}
         {showCalls    && <NavLink href="/calls"    label="Calls"    icon={Phone} />}
         {(isSuperAdmin || isTeamAdmin) && <NavLink href="/reports" label="Reports" icon={ChartColumnBig} />}
@@ -105,6 +104,10 @@ export function Sidebar({ role = 'user', notificationCount = 0, permissions }: S
       <div className="border-t border-white/10 pt-2 pb-2 flex flex-col gap-0.5">
         <NavLink href="/profile"  label="Profile"  icon={CircleUser} />
         <NavLink href="/settings" label="Settings" icon={Settings} />
+        <NavLink href="/billing"  label="Billing"  icon={Wallet} />
+      </div>
+
+      <div className="border-t border-white/10 pt-2 pb-2 flex flex-col gap-0.5">
         <button
           onClick={handleSignOut}
           className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-neutral-800 hover:text-white rounded-md transition-colors cursor-pointer"
