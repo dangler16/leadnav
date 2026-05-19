@@ -62,7 +62,7 @@ export function InviteUserDialog({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-sm font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
+      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-xs font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
         Invite User
       </Button>
       <Dialog open={open} onOpenChange={val => { setOpen(val); setError(null) }}>
@@ -118,7 +118,7 @@ export function InviteUserDialog({
                 <Label>Manages Teams</Label>
                 <div className="space-y-1.5 max-h-36 overflow-y-auto border border-border/50 rounded-lg p-2">
                   {availableTeams.map(t => (
-                    <label key={t.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded">
+                    <label key={t.id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded">
                       <input
                         type="checkbox"
                         checked={selectedAdminTeams.includes(t.id)}

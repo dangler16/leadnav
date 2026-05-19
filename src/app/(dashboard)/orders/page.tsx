@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Order, Vendor } from '@/lib/types'
 import { NewOrderDialog } from './new-order-dialog'
 import { OrderStatusSelect } from './order-status-select'
+import { EditOrderDialog } from './[id]/edit-order-dialog'
 import { badgeShape } from '@/components/ui/badge'
 import { OrdersFilterTabs } from './orders-filter-tabs'
 import { SortableHeader, SortDir } from '@/components/sortable-header'
@@ -75,7 +76,7 @@ export default async function OrdersPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-xl font-bold text-gray-900">Orders</h1>
         <NewOrderDialog vendors={vendors} userId={user.id} />
       </div>
 
@@ -94,12 +95,13 @@ export default async function OrdersPage({
                 <th className="text-left px-3 py-2.5"><SortableHeader column="cost_per_lead" label="Cost/Lead"     currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="status"        label="Status"        currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="date"          label="Date"          currentSort={sort} currentDir={sortDir} /></th>
+                <th className="px-3 py-2.5" />
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-sm text-gray-400">No orders yet. Place your first order to get started.</td>
+                  <td colSpan={8} className="py-12 text-center text-xs text-gray-400">No orders yet. Place your first order to get started.</td>
                 </tr>
               )}
               {filtered.map(order => {
@@ -111,22 +113,25 @@ export default async function OrdersPage({
                         #{order.id.slice(0, 8).toUpperCase()}
                       </Link>
                     </td>
-                    <td className="px-3 py-2.5 text-sm text-gray-900">{order._vendor?.name ?? '—'}</td>
-                    <td className="px-3 py-2.5 text-sm text-gray-900">
+                    <td className="px-3 py-2.5 text-xs text-gray-900">{order._vendor?.name ?? '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-gray-900">
                       {order.lead_types.length > 0 ? order.lead_types.join(', ') : (order.lead_type ?? '—')}
                     </td>
-                    <td className="px-3 py-2.5 text-sm text-gray-900">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
-                    <td className="px-3 py-2.5 text-sm text-gray-900">{order._vendor?.cost_per_lead ? `$${order._vendor.cost_per_lead}` : '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-gray-900">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-gray-900">{order._vendor?.cost_per_lead ? `$${order._vendor.cost_per_lead}` : '—'}</td>
                     <td className="px-3 py-2.5">
                       {isEditable ? (
                         <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
                       ) : (
                         <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>
-                          Completed
+                          completed
                         </span>
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(order.created_at)}</td>
+                    <td className="px-3 py-2.5">
+                      {isEditable && <EditOrderDialog order={order} />}
+                    </td>
                   </tr>
                 )
               })}

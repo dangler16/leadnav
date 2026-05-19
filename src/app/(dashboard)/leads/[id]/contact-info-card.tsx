@@ -178,7 +178,7 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
     return {
       value: vals[field],
       onChange: handleChange(field),
-      className: 'h-8 text-sm',
+      className: 'h-8 text-xs',
       ...extra,
     }
   }
@@ -187,7 +187,7 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
     <div className="bg-white border border-gray-200 rounded-lg p-5 h-full flex flex-col">
       <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
         <User className="w-4 h-4 text-gray-500" />
-        <p className="text-sm font-semibold text-gray-900">Contact Info</p>
+        <p className="text-xs font-semibold text-gray-900">Contact Info</p>
       </div>
 
       <div className="space-y-4 flex-1">
@@ -209,7 +209,7 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
               ref={phoneRef}
               value={formatPhoneDisplay(vals.phone)}
               onChange={handlePhoneChange}
-              className="h-8 text-sm"
+              className="h-8 text-xs"
               inputMode="numeric"
             />
           </div>
@@ -238,7 +238,7 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
         {vendorName && (
           <div>
             <p className="text-xs font-medium text-gray-500 mb-0.5">Vendor</p>
-            <p className="text-sm text-gray-900 font-medium">{vendorName}</p>
+            <p className="text-xs text-gray-900 font-medium">{vendorName}</p>
           </div>
         )}
 

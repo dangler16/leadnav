@@ -73,11 +73,11 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
       {/* Header */}
       <div className="px-8 pt-5 pb-4 shrink-0 border-b border-gray-100">
-        <Link href="/leads" className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-2">
+        <Link href="/leads" className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors mb-2">
           <ChevronLeft size={13} /> Back to Leads
         </Link>
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-gray-900">
             {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || 'Unknown Lead'}
           </h1>
           <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
@@ -114,7 +114,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 <div className="bg-white border border-gray-200 rounded-lg p-5 shrink-0">
                   <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
                     <AlertCircle className="w-4 h-4 text-gray-500" />
-                    <p className="text-sm font-semibold text-gray-900">Disputes</p>
+                    <p className="text-xs font-semibold text-gray-900">Disputes</p>
                   </div>
                   {disputes.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-5 gap-2">
@@ -126,7 +126,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                       {disputes.map(d => (
                         <div key={d.id} className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0">
                           <div>
-                            <p className="text-sm text-gray-900">{formatDisputeReason(d.reason)}</p>
+                            <p className="text-xs text-gray-900">{formatDisputeReason(d.reason)}</p>
                             <p className="text-xs text-gray-400 mt-0.5">{formatDate(d.created_at)}</p>
                           </div>
                           <DisputeStatusBadge status={d.status} />
@@ -152,7 +152,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 <tbody>
                   {calls.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="py-12 text-center text-sm text-gray-400">No calls logged yet</td>
+                      <td colSpan={3} className="py-12 text-center text-xs text-gray-400">No calls logged yet</td>
                     </tr>
                   )}
                   {calls.map(call => (

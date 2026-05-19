@@ -60,7 +60,7 @@ export default async function VendorsPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
+        <h1 className="text-xl font-bold text-gray-900">Vendors</h1>
         <NewVendorDialog />
       </div>
 
@@ -82,7 +82,7 @@ export default async function VendorsPage({
             <tbody>
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-3 py-12 text-center text-sm text-gray-400">No vendors yet.</td>
+                  <td colSpan={8} className="px-3 py-12 text-center text-xs text-gray-400">No vendors yet.</td>
                 </tr>
               )}
               {sorted.map(v => {
@@ -94,7 +94,7 @@ export default async function VendorsPage({
                         <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold">
                           {v.name[0].toUpperCase()}
                         </div>
-                        <p className="text-sm font-medium text-gray-900">{v.name}</p>
+                        <p className="text-xs font-medium text-gray-900">{v.name}</p>
                       </div>
                     </td>
                     <td className="px-3 py-2.5">

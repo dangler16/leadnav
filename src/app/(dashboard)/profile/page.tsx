@@ -26,18 +26,18 @@ export default async function ProfilePage() {
   return (
     <div className="flex flex-col bg-white min-h-full px-8 pt-5 pb-8">
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-5">My Profile</h1>
+      <h1 className="text-xl font-bold text-gray-900 mb-5">My Profile</h1>
 
       <div className="max-w-lg flex flex-col gap-4">
 
         {/* Profile card */}
         <div className="bg-white border border-gray-200 rounded-lg p-5">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-lg font-bold flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-base font-bold flex-shrink-0">
               {(profile?.first_name?.[0] ?? '?').toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-xs font-semibold text-gray-900 truncate">
                 {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '—'}
               </p>
               <p className="text-xs text-gray-400 truncate mt-0.5">{user.email}</p>
@@ -59,7 +59,7 @@ export default async function ProfilePage() {
               { label: 'Sales', value: salesCount ?? 0 },
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p className="text-2xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
+                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
                 <p className="text-xs text-gray-400 mt-1">{s.label}</p>
               </div>
             ))}
@@ -74,7 +74,7 @@ export default async function ProfilePage() {
         <div className="bg-white border border-gray-200 rounded-lg p-5">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
             <User className="w-4 h-4 text-gray-500" />
-            <p className="text-sm font-semibold text-gray-900">Edit Name</p>
+            <p className="text-xs font-semibold text-gray-900">Edit Name</p>
           </div>
           <ProfileForm profile={profile} />
         </div>

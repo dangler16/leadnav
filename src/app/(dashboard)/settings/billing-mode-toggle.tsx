@@ -55,7 +55,7 @@ export function BillingModeToggle({ teamId, initialMode }: { teamId: string; ini
             {opt.icon}
           </div>
           <div>
-            <p className={cn('text-sm font-medium', mode === opt.value ? 'text-gray-900' : 'text-gray-600')}>{opt.label}</p>
+            <p className={cn('text-xs font-medium', mode === opt.value ? 'text-gray-900' : 'text-gray-600')}>{opt.label}</p>
             <p className="text-xs text-gray-400 mt-0.5">{opt.description}</p>
           </div>
         </button>

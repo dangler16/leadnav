@@ -184,7 +184,7 @@ export function LeadsTable({
                 <td colSpan={colCount} className="py-16 text-center">
                   <div className="flex flex-col items-center gap-2.5">
                     <SquareUser size={24} className="text-gray-200" strokeWidth={1.5} />
-                    <p className="text-sm text-gray-400">No leads in this category</p>
+                    <p className="text-xs text-gray-400">No leads in this category</p>
                   </div>
                 </td>
               </tr>
@@ -207,26 +207,26 @@ export function LeadsTable({
                       </td>
                     )}
                     <td className="px-3 pt-1 pb-2">
-                      <Link href={`/leads/${lead.id}`} className="text-sm font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                      <Link href={`/leads/${lead.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
                         {lead.name ?? nullValue}
                       </Link>
                     </td>
                     <td className="px-3 pt-1 pb-2">
                       <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
                     </td>
-                    <td className="px-3 py-1.5 text-sm text-gray-900 whitespace-nowrap">
+                    <td className="px-3 py-1.5 text-xs text-gray-900 whitespace-nowrap">
                       {lead.vendor ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 font-mono text-sm text-gray-900 whitespace-nowrap">
+                    <td className="px-3 py-1.5 font-mono text-xs text-gray-900 whitespace-nowrap">
                       {lead.phone ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 text-sm text-gray-900 max-w-[200px] truncate">
+                    <td className="px-3 py-1.5 text-xs text-gray-900 max-w-[200px] truncate">
                       {lead.email ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 text-sm text-gray-900">
+                    <td className="px-3 py-1.5 text-xs text-gray-900">
                       {lead.state ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 font-mono text-sm text-gray-900">
+                    <td className="px-3 py-1.5 font-mono text-xs text-gray-900">
                       {lead.zip ?? nullValue}
                     </td>
                     <td className="px-3 py-1.5 text-xs text-gray-400 whitespace-nowrap" title={lead.dateFull}>

@@ -123,7 +123,7 @@ export default async function LeadsPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
+        <h1 className="text-xl font-bold text-gray-900">Leads</h1>
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded overflow-hidden">

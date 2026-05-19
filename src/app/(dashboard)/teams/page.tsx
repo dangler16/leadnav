@@ -97,7 +97,7 @@ export default async function TeamsPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
+        <h1 className="text-xl font-bold text-gray-900">Teams</h1>
         <NewTeamDialog allUsers={allProfiles} />
       </div>
 
@@ -115,7 +115,7 @@ export default async function TeamsPage({
             <tbody>
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-12 text-center text-sm text-gray-400">No teams yet. Create one to get started.</td>
+                  <td colSpan={4} className="py-12 text-center text-xs text-gray-400">No teams yet. Create one to get started.</td>
                 </tr>
               )}
               {sorted.map(team => {
@@ -133,17 +133,17 @@ export default async function TeamsPage({
                             {team.name[0].toUpperCase()}
                           </div>
                         )}
-                        <span className="text-sm font-medium text-gray-900">{team.name}</span>
+                        <span className="text-xs font-medium text-gray-900">{team.name}</span>
                       </div>
                     </td>
-                    <td className="px-3 py-2.5 text-sm text-gray-400">
+                    <td className="px-3 py-2.5 text-xs text-gray-400">
                       {admins.length > 0
                         ? admins.map(a => [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ')).join(', ')
                         : <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-3 py-2.5">
                       {members.length === 0 ? (
-                        <span className="text-sm text-gray-400">—</span>
+                        <span className="text-xs text-gray-400">—</span>
                       ) : (
                         <div className="flex items-center gap-1">
                           {members.slice(0, 6).map(m => (

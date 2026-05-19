@@ -45,12 +45,12 @@ export default async function ReportsPage() {
   }, {} as Record<string, number>)
 
   const card = 'bg-white border border-gray-200 rounded-lg p-5'
-  const sectionTitle = 'text-sm font-semibold text-gray-900'
+  const sectionTitle = 'text-xs font-semibold text-gray-900'
 
   return (
     <div className="flex flex-col bg-white min-h-full px-8 pt-5 pb-8">
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-5">Reports</h1>
+      <h1 className="text-xl font-bold text-gray-900 mb-5">Reports</h1>
 
       {/* Stat cards */}
       <div className="flex gap-3 mb-4">
@@ -61,7 +61,7 @@ export default async function ReportsPage() {
           { label: 'total calls',            value: calls.length },
         ].map(s => (
           <div key={s.label} className={`flex-1 ${card} flex flex-col gap-2`}>
-            <p className="text-3xl font-semibold leading-none tabular-nums tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
+            <p className="text-2xl font-semibold leading-none tabular-nums tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
             <p className="text-xs text-gray-400 leading-none lowercase mt-auto">{s.label}</p>
           </div>
         ))}
@@ -79,7 +79,7 @@ export default async function ReportsPage() {
             <p className={sectionTitle}>Lead Status Breakdown</p>
           </div>
           {statusBreakdown.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">No leads yet</p>
+            <p className="text-xs text-gray-400 text-center py-6">No leads yet</p>
           ) : (
             <div className="flex flex-col gap-3">
               {statusBreakdown.map(s => (
@@ -106,7 +106,7 @@ export default async function ReportsPage() {
             <p className={sectionTitle}>Call Outcomes</p>
           </div>
           {calls.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">No calls yet</p>
+            <p className="text-xs text-gray-400 text-center py-6">No calls yet</p>
           ) : (
             <div className="flex flex-col gap-3">
               {Object.entries(callOutcomeCounts)
@@ -141,8 +141,8 @@ export default async function ReportsPage() {
               { label: 'Lost', value: lost, color: 'text-red-600' },
             ].map(s => (
               <div key={s.label}>
-                <p className={`text-3xl font-semibold leading-none tabular-nums tracking-tight ${s.color}`} style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
-                <p className="text-sm text-gray-900 mt-1.5">{s.label}</p>
+                <p className={`text-2xl font-semibold leading-none tabular-nums tracking-tight ${s.color}`} style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
+                <p className="text-xs text-gray-900 mt-1.5">{s.label}</p>
                 <p className="text-xs text-gray-400">{total > 0 ? ((s.value / total) * 100).toFixed(1) : 0}% of total</p>
               </div>
             ))}

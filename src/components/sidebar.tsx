@@ -26,7 +26,7 @@ function NavLink({ href, label, icon: Icon }: { href: string; label: string; ico
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+        'flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors',
         isActive
           ? 'bg-neutral-800 text-white'
           : 'text-gray-300 hover:bg-neutral-800 hover:text-white'
@@ -65,7 +65,7 @@ export function Sidebar({ role = 'user', notificationCount = 0, permissions }: S
   const showCalls    = isSuperAdmin || isTeamAdmin || permissions?.can_make_calls
 
   return (
-    <aside className="flex flex-col w-44 min-h-screen bg-neutral-950 text-white flex-shrink-0">
+    <aside className="flex flex-col w-52 min-h-screen bg-neutral-950 text-white flex-shrink-0">
 
       {/* Logo */}
       <div className="flex items-center justify-between h-12 px-4 border-b border-white/10">
@@ -107,7 +107,7 @@ export function Sidebar({ role = 'user', notificationCount = 0, permissions }: S
         <NavLink href="/settings" label="Settings" icon={Settings} />
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-neutral-800 hover:text-white rounded-md transition-colors cursor-pointer"
+          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-neutral-800 hover:text-white rounded-md transition-colors cursor-pointer"
         >
           <LogOut size={14} strokeWidth={2} className="flex-shrink-0" />
           <span>Sign out</span>

@@ -35,7 +35,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex flex-col bg-white min-h-full px-8 pt-5 pb-8">
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-5">Settings</h1>
+      <h1 className="text-xl font-bold text-gray-900 mb-5">Settings</h1>
 
       <div className="max-w-lg flex flex-col gap-4">
 
@@ -43,12 +43,12 @@ export default async function SettingsPage() {
         <div className="bg-white border border-gray-200 rounded-lg p-5">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
             <Settings className="w-4 h-4 text-gray-500" />
-            <p className="text-sm font-semibold text-gray-900">Account</p>
+            <p className="text-xs font-semibold text-gray-900">Account</p>
           </div>
           <div className="flex flex-col gap-3">
             <div>
               <p className="text-xs font-medium text-gray-500 mb-1">Email</p>
-              <p className="text-sm text-gray-900">{user.email}</p>
+              <p className="text-xs text-gray-900">{user.email}</p>
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500 mb-1">Role</p>
@@ -63,7 +63,7 @@ export default async function SettingsPage() {
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500 mb-1">Member Since</p>
-              <p className="text-sm text-gray-900">{formatDate(profile?.created_at ?? '')}</p>
+              <p className="text-xs text-gray-900">{formatDate(profile?.created_at ?? '')}</p>
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default async function SettingsPage() {
           <div className="bg-white border border-gray-200 rounded-lg p-5">
             <div className="flex items-center gap-2 pb-4 mb-1 border-b border-gray-200">
               <CreditCard className="w-4 h-4 text-gray-500" />
-              <p className="text-sm font-semibold text-gray-900">Billing</p>
+              <p className="text-xs font-semibold text-gray-900">Billing</p>
             </div>
             <p className="text-xs text-gray-400 mb-4 ml-9">Controls how charges are applied across <span className="font-medium text-gray-500">{adminTeam.name}</span></p>
             <BillingModeToggle teamId={adminTeam.id} initialMode={adminTeam.billing_mode} />
@@ -84,11 +84,11 @@ export default async function SettingsPage() {
         <div className="bg-white border border-gray-200 rounded-lg p-5">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
             <Lock className="w-4 h-4 text-gray-500" />
-            <p className="text-sm font-semibold text-gray-900">Security</p>
+            <p className="text-xs font-semibold text-gray-900">Security</p>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-900">Password</p>
+              <p className="text-xs font-medium text-gray-900">Password</p>
               <p className="text-xs text-gray-400 mt-0.5">Send a reset link to your email address</p>
             </div>
             <ResetPassword email={user.email!} />

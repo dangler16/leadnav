@@ -10,15 +10,15 @@ import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 const leadStatusConfig: Record<LeadStatus, { label: string; className: string; dotClass: string }> = {
-  new:              { label: 'New',           className: 'bg-blue-100 text-blue-700 border-blue-200',       dotClass: 'bg-blue-500' },
-  not_contacted:    { label: 'Not Contacted', className: 'bg-gray-100 text-gray-600 border-gray-200',       dotClass: 'bg-gray-400' },
-  contacted:        { label: 'Contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200',       dotClass: 'bg-cyan-500' },
-  appt_set:         { label: 'Appt Set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200', dotClass: 'bg-indigo-500' },
-  appt_no_show:     { label: 'No Show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200', dotClass: 'bg-yellow-500' },
-  appt_no_sale:     { label: 'No Sale',       className: 'bg-orange-100 text-orange-700 border-orange-200', dotClass: 'bg-orange-500' },
-  appt_rescheduled: { label: 'Rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200', dotClass: 'bg-purple-500' },
-  sale:             { label: 'Sale',          className: 'bg-green-100 text-green-700 border-green-200',    dotClass: 'bg-green-500' },
-  lost:             { label: 'Lost',          className: 'bg-red-100 text-red-700 border-red-200',          dotClass: 'bg-red-500' },
+  new:              { label: 'new',           className: 'bg-blue-100 text-blue-700 border-blue-200',       dotClass: 'bg-blue-500' },
+  not_contacted:    { label: 'not contacted', className: 'bg-gray-100 text-gray-600 border-gray-200',       dotClass: 'bg-gray-400' },
+  contacted:        { label: 'contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200',       dotClass: 'bg-cyan-500' },
+  appt_set:         { label: 'appt set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200', dotClass: 'bg-indigo-500' },
+  appt_no_show:     { label: 'no show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200', dotClass: 'bg-yellow-500' },
+  appt_no_sale:     { label: 'no sale',       className: 'bg-orange-100 text-orange-700 border-orange-200', dotClass: 'bg-orange-500' },
+  appt_rescheduled: { label: 'rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200', dotClass: 'bg-purple-500' },
+  sale:             { label: 'sale',          className: 'bg-green-100 text-green-700 border-green-200',    dotClass: 'bg-green-500' },
+  lost:             { label: 'lost',          className: 'bg-red-100 text-red-700 border-red-200',          dotClass: 'bg-red-500' },
 }
 
 const STATE_NAMES: Record<string, string> = {
@@ -110,19 +110,19 @@ export default async function OrderDetailPage({
   const colHeader = 'text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5'
   const detailRow = 'flex justify-between items-center px-4 py-3 border-b border-gray-200'
   const dt = 'text-xs text-gray-500'
-  const dd = 'text-sm font-medium text-gray-900'
+  const dd = 'text-xs font-medium text-gray-900'
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       {/* Header */}
       <div className="px-8 pt-5 pb-4 shrink-0 border-b border-gray-100">
-        <Link href="/orders" className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-2">
+        <Link href="/orders" className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors mb-2">
           <ChevronLeft size={13} /> Back to Orders
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 font-mono">
+            <h1 className="text-xl font-bold text-gray-900 font-mono">
               #{order.id.slice(0, 8).toUpperCase()}
             </h1>
             <p className="text-xs text-gray-400 mt-1.5">Placed {formatDate(order.created_at)}</p>
@@ -137,22 +137,22 @@ export default async function OrderDetailPage({
           {/* Order details sidebar */}
           <div className="bg-white border border-gray-200 rounded-lg col-span-1 overflow-auto flex flex-col">
             <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between">
-              <p className="text-sm font-semibold text-gray-900">Order Details</p>
-              {isEditable && <EditOrderDialog order={order} vendor={vendor} />}
+              <p className="text-xs font-semibold text-gray-900">Order Details</p>
+              <EditOrderDialog order={order} />
             </div>
 
             <div className="grid grid-cols-3 border-b border-gray-100 shrink-0">
               <div className="px-4 py-3 border-r border-gray-100">
                 <p className="text-xs text-gray-400 mb-1">Leads</p>
-                <p className="text-2xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{leads.length}</p>
+                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{leads.length}</p>
               </div>
               <div className="px-4 py-3 border-r border-gray-100">
                 <p className="text-xs text-gray-400 mb-1">Cost</p>
-                <p className="text-2xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${leadCost.toLocaleString('en-US')}</p>
+                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${leadCost.toLocaleString('en-US')}</p>
               </div>
               <div className="px-4 py-3">
                 <p className="text-xs text-gray-400 mb-1">Spend</p>
-                <p className="text-2xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${totalSpend.toLocaleString('en-US')}</p>
+                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${totalSpend.toLocaleString('en-US')}</p>
               </div>
             </div>
 
@@ -163,7 +163,7 @@ export default async function OrderDetailPage({
                   {isEditable ? (
                     <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
                   ) : (
-                    <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>Completed</span>
+                    <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>completed</span>
                   )}
                 </dd>
               </div>
@@ -221,7 +221,7 @@ export default async function OrderDetailPage({
           {/* Leads table */}
           <div className="col-span-2 flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 shrink-0">
-              <p className="text-sm font-semibold text-gray-900">Leads ({leads.length})</p>
+              <p className="text-xs font-semibold text-gray-900">Leads ({leads.length})</p>
             </div>
             <div className="px-3 py-2.5 border-b border-gray-100 shrink-0">
               <OrderLeadsFilterTabs orderId={id} filter={filter} counts={counts} />
@@ -240,7 +240,7 @@ export default async function OrderDetailPage({
                 <tbody>
                   {filteredLeads.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-sm text-gray-400">No leads associated with this order yet.</td>
+                      <td colSpan={5} className="py-12 text-center text-xs text-gray-400">No leads associated with this order yet.</td>
                     </tr>
                   )}
                   {filteredLeads.map(lead => {
@@ -248,7 +248,7 @@ export default async function OrderDetailPage({
                     return (
                       <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                         <td className="px-3 py-2.5">
-                          <Link href={`/leads/${lead.id}`} className="text-sm text-gray-900 hover:text-gray-500 transition-colors">
+                          <Link href={`/leads/${lead.id}`} className="text-xs text-gray-900 hover:text-gray-500 transition-colors">
                             {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                           </Link>
                         </td>

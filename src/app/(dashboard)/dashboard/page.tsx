@@ -49,7 +49,7 @@ function StatCard({ label, value, href }: StatCardProps) {
       className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-5 flex flex-col gap-2 overflow-hidden hover:bg-gray-50 transition-colors group"
     >
       <p
-        className="text-3xl font-semibold leading-none tabular-nums tracking-tight text-gray-900"
+        className="text-2xl font-semibold leading-none tabular-nums tracking-tight text-gray-900"
         style={{ fontFamily: 'var(--font-mono)' }}
       >
         {value}
@@ -141,7 +141,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2 leading-none">{formatDayHeader()}</p>
-          <h1 className="text-2xl font-bold text-gray-900 leading-none">Dashboard</h1>
+          <h1 className="text-xl font-bold text-gray-900 leading-none">Dashboard</h1>
         </div>
         <NewOrderDialog vendors={vendors} userId={user.id} />
       </div>
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
           {/* Recent Leads */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-3 shrink-0">
-              <h2 className="text-sm font-semibold text-gray-900 tracking-tight">Recent Leads</h2>
+              <h2 className="text-xs font-semibold text-gray-900 tracking-tight">Recent Leads</h2>
               <Link href="/leads" className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors">
                 View all <ArrowRight size={10} />
               </Link>
@@ -182,7 +182,7 @@ export default async function DashboardPage() {
               {leads.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 gap-3">
                   <SquareUser size={22} className="text-gray-200" strokeWidth={1.5} />
-                  <p className="text-sm text-gray-400">No leads yet</p>
+                  <p className="text-xs text-gray-400">No leads yet</p>
                   <Link href="/orders" className="text-xs font-medium text-gray-700 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">
                     Place an order
                   </Link>
@@ -194,7 +194,7 @@ export default async function DashboardPage() {
                     <span className="font-mono text-xs text-gray-400 leading-none py-2.5 pl-0">
                       {lead.order_id ? `#${lead.order_id.slice(0, 4).toUpperCase()}` : '—'}
                     </span>
-                    <span className="text-sm font-medium text-gray-900 truncate pr-2 leading-none py-2.5">
+                    <span className="text-xs font-medium text-gray-900 truncate pr-2 leading-none py-2.5">
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </span>
                     <span className="py-2.5">
@@ -218,7 +218,7 @@ export default async function DashboardPage() {
           {/* Open Disputes */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-3 shrink-0">
-              <h2 className="text-sm font-semibold text-gray-900 tracking-tight">Open Disputes</h2>
+              <h2 className="text-xs font-semibold text-gray-900 tracking-tight">Open Disputes</h2>
               <Link href="/disputes" className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors">
                 View all <ArrowRight size={10} />
               </Link>
@@ -235,7 +235,7 @@ export default async function DashboardPage() {
               {disputes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 gap-3">
                   <AlertCircle size={22} className="text-gray-200" strokeWidth={1.5} />
-                  <p className="text-sm text-gray-400">No open disputes</p>
+                  <p className="text-xs text-gray-400">No open disputes</p>
                   <Link href="/disputes" className="text-xs font-medium text-gray-700 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">
                     File a dispute
                   </Link>
@@ -243,7 +243,7 @@ export default async function DashboardPage() {
               ) : (
                 disputes.map((d) => (
                   <div key={d.id} className={`${disputesGrid} items-center py-2.5 border-b border-gray-100 hover:bg-gray-50 transition-colors`}>
-                    <span className="text-sm font-medium text-gray-900 truncate pr-2 leading-none">
+                    <span className="text-xs font-medium text-gray-900 truncate pr-2 leading-none">
                       {d.leads ? [d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ') : '—'}
                     </span>
                     <span className="text-xs text-gray-500 truncate pr-2 leading-none">
@@ -266,7 +266,7 @@ export default async function DashboardPage() {
         {/* Recent Activity */}
         {activity.length > 0 && (
           <div className="shrink-0 border-t border-gray-200 mt-4 pt-4">
-            <h2 className="text-sm font-semibold text-gray-900 tracking-tight mb-2">Recent Activity</h2>
+            <h2 className="text-xs font-semibold text-gray-900 tracking-tight mb-2">Recent Activity</h2>
             <div className="overflow-y-auto max-h-44 flex flex-col">
               {activity.map((item, i) => {
                 const Icon = item.kind === 'lead' ? SquareUser : item.kind === 'call' ? Phone : Package

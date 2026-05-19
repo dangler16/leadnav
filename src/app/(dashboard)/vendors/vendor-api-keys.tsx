@@ -91,7 +91,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
 
           <div className="space-y-1">
             {initialKeys.length === 0 && !newKey && (
-              <p className="text-sm text-muted-foreground py-4 text-center">No API keys yet.</p>
+              <p className="text-xs text-muted-foreground py-4 text-center">No API keys yet.</p>
             )}
             {activeKeys.map(k => (
               <div key={k.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-gray-100 px-3 py-2.5">
@@ -136,7 +136,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
               size="sm"
               onClick={handleGenerate}
               disabled={loading}
-              className="flex items-center gap-1.5 text-sm"
+              className="flex items-center gap-1.5 text-xs"
             >
               {loading ? 'Generating…' : 'Generate Key'}
             </Button>

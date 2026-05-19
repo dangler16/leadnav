@@ -76,7 +76,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             {(profile.first_name?.[0] ?? '?').toUpperCase()}
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 leading-none ">{fullName}</h1>
+            <h1 className="text-xl font-semibold text-gray-900 leading-none ">{fullName}</h1>
             <div className="flex items-center gap-2 mt-1.5">
               {email && <span className="text-xs text-gray-400">{email}</span>}
               <span className={cn(badgeShape, roleStyle.className)}>{roleStyle.label}</span>
@@ -92,7 +92,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       {/* Leads table */}
       <div className="flex flex-col border border-gray-200 rounded overflow-hidden mb-4">
         <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-900 ">Leads</h2>
+          <h2 className="text-xs font-semibold text-gray-900 ">Leads</h2>
           <span className="text-xs text-gray-400">{leads.length}</span>
         </div>
         <div className="overflow-auto">
@@ -110,13 +110,13 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             <tbody>
               {leads.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-sm text-gray-400">No leads assigned.</td>
+                  <td colSpan={6} className="py-8 text-center text-xs text-gray-400">No leads assigned.</td>
                 </tr>
               )}
               {leads.map(lead => (
                 <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="px-3 py-2.5">
-                    <Link href={`/leads/${lead.id}`} className="text-sm font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                    <Link href={`/leads/${lead.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </Link>
                   </td>
@@ -137,7 +137,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       {/* Disputes table */}
       <div className="flex flex-col border border-gray-200 rounded overflow-hidden">
         <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-900 ">Disputes</h2>
+          <h2 className="text-xs font-semibold text-gray-900 ">Disputes</h2>
           <span className="text-xs text-gray-400">{disputes.length}</span>
         </div>
         <div className="overflow-auto">
@@ -154,17 +154,17 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             <tbody>
               {disputes.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-sm text-gray-400">No disputes filed.</td>
+                  <td colSpan={5} className="py-8 text-center text-xs text-gray-400">No disputes filed.</td>
                 </tr>
               )}
               {disputes.map(dispute => (
                 <tr key={dispute.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="px-3 py-2.5">
                     {dispute.leads ? (
-                      <Link href={`/leads/${dispute.leads.id}`} className="text-sm text-gray-900 hover:text-gray-500 transition-colors">
+                      <Link href={`/leads/${dispute.leads.id}`} className="text-xs text-gray-900 hover:text-gray-500 transition-colors">
                         {[dispute.leads.firstname, dispute.leads.lastname].filter(Boolean).join(' ') || '—'}
                       </Link>
-                    ) : <span className="text-sm text-gray-400">—</span>}
+                    ) : <span className="text-xs text-gray-400">—</span>}
                   </td>
                   <td className="px-3 py-2.5 text-xs text-gray-400">{formatDisputeReason(dispute.reason)}</td>
                   <td className="px-3 py-2.5"><DisputeStatusBadge status={dispute.status} /></td>

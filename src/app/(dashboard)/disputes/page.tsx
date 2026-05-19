@@ -146,7 +146,7 @@ export default async function DisputesPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
+        <h1 className="text-xl font-bold text-gray-900">Disputes</h1>
         {role === 'user' && <NewDisputeDialog leads={leadsForNew} userId={user.id} />}
       </div>
 
@@ -172,19 +172,19 @@ export default async function DisputesPage({
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={showAgentColumn ? 8 : 7} className="py-12 text-center text-sm text-gray-400">No disputes found</td>
+                  <td colSpan={showAgentColumn ? 8 : 7} className="py-12 text-center text-xs text-gray-400">No disputes found</td>
                 </tr>
               )}
               {filtered.map(d => (
                 <tr key={d.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   {showAgentColumn && (
-                    <td className="px-3 py-2.5 text-sm text-gray-900">
+                    <td className="px-3 py-2.5 text-xs text-gray-900">
                       {d.agentProfile
                         ? [d.agentProfile.first_name, d.agentProfile.last_name].filter(Boolean).join(' ')
                         : <span className="text-gray-400">—</span>}
                     </td>
                   )}
-                  <td className="px-3 py-2.5 text-sm font-medium">
+                  <td className="px-3 py-2.5 text-xs font-medium">
                     {d.leads
                       ? <Link href={`/leads/${d.leads.id}`} className="text-gray-900 hover:text-gray-500 transition-colors">{[d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ')}</Link>
                       : <span className="text-gray-900">—</span>}
@@ -194,14 +194,14 @@ export default async function DisputesPage({
                       ? <Link href={`/orders/${d.leads.order_id}`} className="font-mono text-xs text-gray-400 hover:text-gray-700 transition-colors">#{d.leads.order_id.slice(0, 8).toUpperCase()}</Link>
                       : <span className="text-gray-400">—</span>}
                   </td>
-                  <td className="px-3 py-2.5 text-sm text-gray-900">{d.leads?.vendors?.name ?? '—'}</td>
-                  <td className="px-3 py-2.5 text-sm text-gray-900">{formatDisputeReason(d.reason)}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-900">{d.leads?.vendors?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-900">{formatDisputeReason(d.reason)}</td>
                   <td className="px-3 py-2.5">
                     {canManageStatus
                       ? <DisputeStatusSelect disputeId={d.id} status={d.status} />
                       : <DisputeStatusBadge status={d.status} />}
                   </td>
-                  <td className="px-3 py-2.5 text-sm text-gray-900 max-w-[200px] truncate">{d.notes ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-900 max-w-[200px] truncate">{d.notes ?? '—'}</td>
                   <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(d.created_at)}</td>
                 </tr>
               ))}

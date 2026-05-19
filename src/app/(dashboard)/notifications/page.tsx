@@ -33,7 +33,7 @@ export default async function NotificationsPage() {
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+        <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
         {unreadCount > 0 && <MarkAllRead userId={user.id} />}
       </div>
 
@@ -41,7 +41,7 @@ export default async function NotificationsPage() {
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 gap-3">
             <Bell size={22} className="text-gray-200" strokeWidth={1.5} />
-            <p className="text-sm text-gray-400">No notifications yet</p>
+            <p className="text-xs text-gray-400">No notifications yet</p>
           </div>
         ) : (
           <div className="flex-1 min-h-0 overflow-y-auto">
@@ -53,7 +53,7 @@ export default async function NotificationsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm leading-snug ${n.read ? 'text-gray-400' : 'font-semibold text-gray-900'}`}>
+                      <p className={`text-xs leading-snug ${n.read ? 'text-gray-400' : 'font-semibold text-gray-900'}`}>
                         {n.title}
                       </p>
                       {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-gray-900 flex-shrink-0" />}

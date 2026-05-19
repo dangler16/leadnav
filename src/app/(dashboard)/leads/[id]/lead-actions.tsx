@@ -103,7 +103,7 @@ export function LeadActions({ lead, userId }: Props) {
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Notes…"
                 rows={3}
-                className="text-sm resize-none"
+                className="text-xs resize-none"
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">

@@ -62,7 +62,7 @@ export function VendorRowCells({ vendor, vendorKeys }: { vendor: Vendor; vendorK
           </div>
         )}
       </td>
-      <td className="px-3 py-2.5 text-sm text-gray-900">
+      <td className="px-3 py-2.5 text-xs text-gray-900">
         {vendor.cost_per_lead != null ? `$${vendor.cost_per_lead}` : <span className="text-gray-400">—</span>}
       </td>
       <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(vendor.created_at)}</td>

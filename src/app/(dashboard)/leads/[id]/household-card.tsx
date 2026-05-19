@@ -108,7 +108,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
     <div className="bg-white border border-gray-200 rounded-lg p-5 h-full flex flex-col">
       <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
         <DollarSign className="w-4 h-4 text-gray-500" />
-        <p className="text-sm font-semibold text-gray-900">Household Details</p>
+        <p className="text-xs font-semibold text-gray-900">Household Details</p>
       </div>
 
       <div className="space-y-4 flex-1">
@@ -128,7 +128,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
               value={vals.birthday}
               onChange={handleChange('birthday')}
               type="date"
-              className="h-8 text-sm"
+              className="h-8 text-xs"
             />
           </div>
         </div>
@@ -139,7 +139,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
             <Input
               value={vals.household}
               onChange={handleChange('household')}
-              className="h-8 text-sm"
+              className="h-8 text-xs"
             />
           </div>
           <div>
@@ -149,7 +149,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
               value={formatCurrency(vals.income)}
               onChange={handleIncomeChange}
               inputMode="numeric"
-              className="h-8 text-sm"
+              className="h-8 text-xs"
             />
           </div>
         </div>

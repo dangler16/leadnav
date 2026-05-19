@@ -49,7 +49,7 @@ export function NotesCard({ lead, className }: { lead: Lead; className?: string 
     <div className={cn('bg-white border border-gray-200 rounded-lg p-5 flex flex-col', className)}>
       <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
         <FileText className="w-4 h-4 text-gray-500" />
-        <p className="text-sm font-semibold text-gray-900">Notes</p>
+        <p className="text-xs font-semibold text-gray-900">Notes</p>
       </div>
 
       {/* Existing notes — two-column key/value grid */}
@@ -82,7 +82,7 @@ export function NotesCard({ lead, className }: { lead: Lead; className?: string 
           onKeyDown={handleKeyDown}
           placeholder="Add a note…"
           rows={3}
-          className="text-sm resize-none"
+          className="text-xs resize-none"
         />
         <div className="flex justify-end">
           <Button

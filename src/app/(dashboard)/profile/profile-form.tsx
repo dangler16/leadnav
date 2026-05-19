@@ -33,7 +33,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             type="text"
             value={firstName}
             onChange={e => setFirstName(e.target.value)}
-            className="w-full text-sm border border-gray-200 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors"
+            className="w-full text-xs border border-gray-200 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors"
           />
         </div>
         <div>
@@ -42,7 +42,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             type="text"
             value={lastName}
             onChange={e => setLastName(e.target.value)}
-            className="w-full text-sm border border-gray-200 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors"
+            className="w-full text-xs border border-gray-200 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors"
           />
         </div>
       </div>

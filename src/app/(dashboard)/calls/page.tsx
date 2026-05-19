@@ -21,14 +21,14 @@ function formatDuration(seconds: number | null) {
 }
 
 const outcomeLabels: Record<CallOutcome, string> = {
-  no_answer: 'No Answer',
-  voicemail: 'Voicemail',
-  callback_requested: 'Callback Requested',
-  appointment_set: 'Appointment Set',
-  contacted: 'Contacted',
-  not_interested: 'Not Interested',
-  wrong_number: 'Wrong Number',
-  sale: 'Sale',
+  no_answer: 'no answer',
+  voicemail: 'voicemail',
+  callback_requested: 'callback requested',
+  appointment_set: 'appointment set',
+  contacted: 'contacted',
+  not_interested: 'not interested',
+  wrong_number: 'wrong number',
+  sale: 'sale',
 }
 
 const outcomeColors: Record<CallOutcome, string> = {
@@ -109,7 +109,7 @@ export default async function CallsPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Calls</h1>
+        <h1 className="text-xl font-bold text-gray-900">Calls</h1>
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
@@ -131,24 +131,24 @@ export default async function CallsPage({
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-sm text-gray-400">No calls found</td>
+                  <td colSpan={5} className="py-12 text-center text-xs text-gray-400">No calls found</td>
                 </tr>
               )}
               {filtered.map(call => (
                 <tr key={call.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="px-3 py-2.5">
                     {call.leads ? (
-                      <Link href={`/leads/${call.leads.id}`} className="text-sm font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                      <Link href={`/leads/${call.leads.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
                         {[call.leads.firstname, call.leads.lastname].filter(Boolean).join(' ') || '—'}
                       </Link>
-                    ) : <span className="text-sm text-gray-400">—</span>}
+                    ) : <span className="text-xs text-gray-400">—</span>}
                   </td>
                   <td className="px-3 py-2.5">
                     <span className={cn(badgeShape, outcomeColors[call.outcome])}>
                       {outcomeLabels[call.outcome]}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-sm text-gray-400">{formatDuration(call.duration_seconds)}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDuration(call.duration_seconds)}</td>
                   <td className="px-3 py-2.5 text-xs text-gray-400 max-w-[220px] truncate">{call.notes ?? '—'}</td>
                   <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(call.called_at)}</td>
                 </tr>

@@ -39,11 +39,11 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
               key={tab.value}
               value={tab.value}
               className={cn(
-                'relative z-10 inline-flex items-center gap-1 justify-center rounded-sm px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
+                'relative z-10 inline-flex items-center gap-1 justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
                 'data-[active]:text-white',
                 isEmpty
                   ? 'text-gray-400 opacity-40'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+                  : 'text-gray-500 hover:text-gray-900',
               )}
             >
               {tab.label}

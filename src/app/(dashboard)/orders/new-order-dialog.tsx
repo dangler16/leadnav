@@ -177,7 +177,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
   return (
     <>
       <Button
-        className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-gray-800 transition-colors border-0"
+        className="bg-gray-900 text-white text-xs font-medium px-4 py-2 rounded-md hover:bg-gray-800 transition-colors border-0"
         onClick={() => setOpen(true)}
       >
         Place Order
@@ -205,9 +205,9 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
             <div className="space-y-2">
               <Label>Lead Type</Label>
               {!selectedVendor ? (
-                <p className="text-sm text-gray-400 py-1">Select a vendor first</p>
+                <p className="text-xs text-gray-400 py-1">Select a vendor first</p>
               ) : vendorLeadTypes.length === 0 ? (
-                <p className="text-sm text-gray-400 py-1">No lead types configured for this vendor</p>
+                <p className="text-xs text-gray-400 py-1">No lead types configured for this vendor</p>
               ) : (
                 <div className="flex gap-2 flex-wrap">
                   {vendorLeadTypes.map(lt => {
@@ -218,7 +218,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                         key={lt}
                         type="button"
                         onClick={() => toggleLeadType(lt)}
-                        className={`flex flex-col items-center text-sm px-2.5 py-1.5 rounded transition-colors font-medium leading-tight ${
+                        className={`flex flex-col items-center text-xs px-2.5 py-1.5 rounded transition-colors font-medium leading-tight ${
                           checked
                             ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -257,7 +257,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-sm text-gray-400 hover:text-gray-900 transition-colors"
+                  className="text-xs text-gray-400 hover:text-gray-900 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
@@ -271,7 +271,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                         key={abbr}
                         type="button"
                         onClick={() => toggleState(abbr)}
-                        className={`text-sm px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
+                        className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
                             ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -301,7 +301,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                       key={d}
                       type="button"
                       onClick={() => toggleDay(d)}
-                      className={`text-sm w-full py-1.5 rounded transition-colors font-medium ${
+                      className={`text-xs w-full py-1.5 rounded transition-colors font-medium ${
                         checked
                           ? 'bg-gray-900 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

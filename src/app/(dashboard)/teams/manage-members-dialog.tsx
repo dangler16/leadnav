@@ -89,7 +89,7 @@ export function ManageMembersDialog({
 
           <div className="mt-2">
             {members.length === 0 && (
-              <p className="text-sm text-gray-400 py-2">No members yet.</p>
+              <p className="text-xs text-gray-400 py-2">No members yet.</p>
             )}
 
             {members.length > 0 && (
@@ -114,7 +114,7 @@ export function ManageMembersDialog({
                               <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold flex-shrink-0">
                                 {(m.profile.first_name?.[0] ?? '?').toUpperCase()}
                               </div>
-                              <p className="text-sm font-medium text-gray-900 truncate">{name}</p>
+                              <p className="text-xs font-medium text-gray-900 truncate">{name}</p>
                             </div>
                           </td>
                           {PERMISSIONS.map(({ key }) => (

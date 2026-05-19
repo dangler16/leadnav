@@ -15,8 +15,8 @@ import { Button } from '@/components/ui/button'
 type TriggerStatus = 'active' | 'paused'
 
 const triggerStyles: Record<TriggerStatus, { label: string; className: string; dotClass: string }> = {
-  active: { label: 'Active', className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
-  paused: { label: 'Paused', className: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', dotClass: 'bg-yellow-500' },
+  active: { label: 'active', className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
+  paused: { label: 'paused', className: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', dotClass: 'bg-yellow-500' },
 }
 
 export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string; initialStatus: TriggerStatus }) {

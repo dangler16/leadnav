@@ -55,7 +55,7 @@ function AdminSearch({ admins, value, onChange }: { admins: Profile[]; value: st
         autoComplete="off"
       />
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-md border border-border bg-popover shadow-md text-sm">
+        <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-md border border-border bg-popover shadow-md text-xs">
           {filtered.map(p => (
             <li
               key={p.id}
@@ -68,7 +68,7 @@ function AdminSearch({ admins, value, onChange }: { admins: Profile[]; value: st
         </ul>
       )}
       {open && query.trim() && filtered.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover px-3 py-2 text-sm text-muted-foreground shadow-md">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover px-3 py-2 text-xs text-muted-foreground shadow-md">
           No team admins found
         </div>
       )}
@@ -135,7 +135,7 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-sm font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
+      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-xs font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
         New Team
       </Button>
       <Dialog open={open} onOpenChange={handleClose}>

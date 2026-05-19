@@ -53,12 +53,12 @@ export default async function BillingPage({
     <div className="flex flex-col bg-white min-h-full px-8 pt-5 pb-8">
 
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
+        <h1 className="text-xl font-bold text-gray-900">Billing</h1>
         <AddFundsButton />
       </div>
 
       {showSuccess && (
-        <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 mb-4">
+        <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-xs text-green-700 mb-4">
           Payment successful! Your wallet balance will update shortly.
         </div>
       )}
@@ -67,16 +67,16 @@ export default async function BillingPage({
       <div className="bg-white border border-gray-200 rounded-lg p-4 max-w-xs mb-4">
         <div className="flex items-center gap-2 pb-3 mb-3 border-b border-gray-200">
           <Wallet className="w-4 h-4 text-gray-500" />
-          <p className="text-sm font-semibold text-gray-900">Wallet Balance</p>
+          <p className="text-xs font-semibold text-gray-900">Wallet Balance</p>
         </div>
-        <p className="text-3xl font-semibold text-gray-900 tabular-nums leading-none" style={{ fontFamily: 'var(--font-dm-mono), monospace' }}>{formatCents(balance)}</p>
+        <p className="text-2xl font-semibold text-gray-900 tabular-nums leading-none" style={{ fontFamily: 'var(--font-dm-mono), monospace' }}>{formatCents(balance)}</p>
         <p className="text-xs text-gray-400 mt-1.5">Used automatically when leads are delivered</p>
       </div>
 
       {/* Transaction history */}
       <div className="flex flex-col border border-gray-200 rounded-lg overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-200">
-          <p className="text-sm font-semibold text-gray-900">Transaction History</p>
+          <p className="text-xs font-semibold text-gray-900">Transaction History</p>
         </div>
         <div className="overflow-auto">
           <table className="w-full">
@@ -91,7 +91,7 @@ export default async function BillingPage({
             <tbody>
               {transactions.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-12 text-center text-sm text-gray-400">
+                  <td colSpan={4} className="py-12 text-center text-xs text-gray-400">
                     No transactions yet. Add funds to get started.
                   </td>
                 </tr>
@@ -102,11 +102,11 @@ export default async function BillingPage({
                   <td className="px-4 py-2.5">
                     <span className="flex items-center gap-1.5">
                       <TxIcon type={tx.type} />
-                      <span className="text-sm text-gray-900">{txLabel(tx.type)}</span>
+                      <span className="text-xs text-gray-900">{txLabel(tx.type)}</span>
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-xs text-gray-400">{tx.description ?? '—'}</td>
-                  <td className={`px-4 py-2.5 text-right font-mono tabular-nums text-sm font-medium ${
+                  <td className={`px-4 py-2.5 text-right font-mono tabular-nums text-xs font-medium ${
                     tx.type === 'charge' ? 'text-gray-900' : 'text-green-600'
                   }`}>
                     {tx.type === 'charge' ? '−' : '+'}{formatCents(tx.amount_cents)}

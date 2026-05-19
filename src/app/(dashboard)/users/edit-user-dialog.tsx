@@ -123,7 +123,7 @@ export function EditUserDialog({
                 <Label>Manages Teams</Label>
                 <div className="space-y-1.5 max-h-36 overflow-y-auto border border-border/50 rounded-lg p-2">
                   {teams.map(t => (
-                    <label key={t.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded">
+                    <label key={t.id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded">
                       <input
                         type="checkbox"
                         checked={selectedAdminTeams.includes(t.id)}

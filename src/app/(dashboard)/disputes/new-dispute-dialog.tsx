@@ -65,11 +65,11 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
         }}
         onFocus={() => setOpen(true)}
         placeholder="Search leads…"
-        className="text-sm"
+        className="text-xs"
         autoComplete="off"
       />
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded border border-gray-200 bg-white shadow-sm text-sm">
+        <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded border border-gray-200 bg-white shadow-sm text-xs">
           {filtered.map(l => (
             <li
               key={l.id}
@@ -139,7 +139,7 @@ export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userI
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" placeholder="Describe the issue…" rows={3} className="text-sm resize-none" />
+            <Textarea id="notes" name="notes" placeholder="Describe the issue…" rows={3} className="text-xs resize-none" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

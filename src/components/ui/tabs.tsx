@@ -48,8 +48,8 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "relative z-10 inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
-        "not-data-[active]:text-gray-500 not-data-[active]:hover:bg-gray-100 not-data-[active]:hover:text-gray-900",
+        "relative z-10 inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors",
+        "not-data-[active]:text-gray-500 not-data-[active]:bg-gray-100 not-data-[active]:hover:text-gray-900",
         "disabled:pointer-events-none disabled:opacity-50",
         "data-[active]:text-white",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -64,7 +64,7 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
-      className={cn("flex-1 text-sm outline-none", className)}
+      className={cn("flex-1 text-xs outline-none", className)}
       {...props}
     />
   )

@@ -190,7 +190,7 @@ export function EditVendorDialog({
               <div className="space-y-2">
                 {LEAD_TYPES.map(lt => (
                   <div key={lt} className="flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm cursor-pointer w-24 shrink-0">
+                    <label className="flex items-center gap-2 text-xs cursor-pointer w-24 shrink-0">
                       <input
                         type="checkbox"
                         checked={checkedTypes.has(lt)}
@@ -206,7 +206,7 @@ export function EditVendorDialog({
                         onChange={e => handleCostChange(lt, e)}
                         inputMode="numeric"
                         placeholder="$0"
-                        className="flex-1 h-8 text-sm"
+                        className="flex-1 h-8 text-xs"
                       />
                     )}
                   </div>
@@ -219,7 +219,7 @@ export function EditVendorDialog({
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-sm text-gray-400 hover:text-red-600 transition-colors"
+                  className="text-xs text-gray-400 hover:text-red-600 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
@@ -233,7 +233,7 @@ export function EditVendorDialog({
                         key={abbr}
                         type="button"
                         onClick={() => toggleState(abbr)}
-                        className={`text-sm px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
+                        className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
                             ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

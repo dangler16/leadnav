@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Order, Vendor } from '@/lib/types'
+import { Order } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -71,28 +71,16 @@ function formatBudget(digits: string): string {
   return isNaN(n) ? '$' : '$' + n.toLocaleString('en-US')
 }
 
-export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendor | null }) {
+export function EditOrderDialog({ order }: { order: Order }) {
   const initialBudgetDigits = order.daily_budget?.toString() ?? ''
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(new Set(order.lead_types))
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set(order.states))
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set(order.availability))
   const [budgetDigits, setBudgetDigits] = useState(initialBudgetDigits)
   const budgetRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const supabase = createClient()
-
-  const vendorLeadTypes = vendor?.lead_types ?? []
-  const leadTypeOptions = Array.from(new Set([...vendorLeadTypes, ...order.lead_types]))
-
-  function toggleLeadType(lt: string) {
-    setSelectedLeadTypes(prev => {
-      const next = new Set(prev)
-      next.has(lt) ? next.delete(lt) : next.add(lt)
-      return next
-    })
-  }
 
   function toggleState(abbr: string) {
     setSelectedStates(prev => {
@@ -140,7 +128,6 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
   }
 
   function reset() {
-    setSelectedLeadTypes(new Set(order.lead_types))
     setSelectedStates(new Set(order.states))
     setSelectedDays(new Set(order.availability))
     setBudgetDigits(initialBudgetDigits)
@@ -155,7 +142,6 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
     e.preventDefault()
     setLoading(true)
     await supabase.from('orders').update({
-      lead_types: Array.from(selectedLeadTypes),
       daily_budget: budgetDigits ? parseInt(budgetDigits) : null,
       states: Array.from(selectedStates),
       availability: Array.from(selectedDays),
@@ -171,7 +157,7 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-700 transition-colors px-1.5 py-1 rounded hover:bg-gray-100"
+        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors px-1.5 py-1 rounded hover:bg-gray-100"
       >
         <Pencil size={14} />
         Edit
@@ -183,40 +169,6 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
             <DialogTitle>Edit Order</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-
-            {/* Lead Types */}
-            <div className="space-y-2">
-              <Label>Lead Types</Label>
-              {leadTypeOptions.length === 0 ? (
-                <p className="text-sm text-gray-400 py-1">No lead types configured for this vendor</p>
-              ) : (
-                <div className="flex gap-2 flex-wrap">
-                  {leadTypeOptions.map(lt => {
-                    const checked = selectedLeadTypes.has(lt)
-                    const cost = vendor?.lead_type_costs?.[lt] ?? vendor?.cost_per_lead
-                    return (
-                      <button
-                        key={lt}
-                        type="button"
-                        onClick={() => toggleLeadType(lt)}
-                        className={`flex flex-col items-center text-sm px-2.5 py-1.5 rounded-sm transition-colors font-medium leading-tight ${
-                          checked
-                            ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        <span>{lt}</span>
-                        {cost != null && (
-                          <span className={`transition-colors text-xs mt-1 font-normal ${checked ? 'text-red-100' : 'text-gray-500'}`}>
-                            ${cost.toLocaleString('en-US')}
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
 
             {/* Daily Budget */}
             <div className="space-y-1.5">
@@ -237,7 +189,7 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-sm text-gray-400 hover:text-red-600 transition-colors"
+                  className="text-xs text-gray-400 hover:text-red-600 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
@@ -251,7 +203,7 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
                         key={abbr}
                         type="button"
                         onClick={() => toggleState(abbr)}
-                        className={`text-sm px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
+                        className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
                             ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -281,7 +233,7 @@ export function EditOrderDialog({ order, vendor }: { order: Order; vendor: Vendo
                       key={d}
                       type="button"
                       onClick={() => toggleDay(d)}
-                      className={`text-sm w-full py-1.5 rounded-sm transition-colors font-medium ${
+                      className={`text-xs w-full py-1.5 rounded-sm transition-colors font-medium ${
                         checked
                           ? 'bg-gray-900 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

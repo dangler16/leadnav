@@ -37,7 +37,7 @@ export function DeleteVendorButton({ vendorId, vendorName }: { vendorId: string;
           <DialogHeader>
             <DialogTitle>Delete Vendor</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Are you sure you want to delete <span className="font-medium text-gray-900">{vendorName}</span>? This cannot be undone.
           </p>
           {error && <p className="text-xs text-red-600">{error}</p>}

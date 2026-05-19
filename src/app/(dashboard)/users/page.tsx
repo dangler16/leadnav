@@ -105,7 +105,7 @@ export default async function UsersPage({
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+        <h1 className="text-xl font-bold text-gray-900">Users</h1>
         <InviteUserDialog
           teams={teams}
           callerRole={myProfile.role as UserRole}
@@ -129,7 +129,7 @@ export default async function UsersPage({
             <tbody>
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={isSuperAdmin ? 6 : 5} className="py-12 text-center text-sm text-gray-400">No users found.</td>
+                  <td colSpan={isSuperAdmin ? 6 : 5} className="py-12 text-center text-xs text-gray-400">No users found.</td>
                 </tr>
               )}
               {sorted.map(p => {
@@ -156,7 +156,7 @@ export default async function UsersPage({
                         <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold">
                           {(p.first_name?.[0] ?? '?').toUpperCase()}
                         </div>
-                        <Link href={`/users/${p.id}`} className="text-sm font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                        <Link href={`/users/${p.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
                           {[p.first_name, p.last_name].filter(Boolean).join(' ') || '—'}
                         </Link>
                       </div>

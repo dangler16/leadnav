@@ -36,7 +36,7 @@ export default function LoginPage() {
           <img src="/leadnav-black-text.svg" alt="LeadNav" width="200" />
         </div>
         <div className="bg-white rounded-[10px] border border-gray-200 p-8 shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-900 mb-[20px]">Sign in</h1>
+          <h1 className="text-lg font-semibold text-gray-900 mb-[20px]">Sign in</h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
@@ -64,7 +64,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-xs text-red-600">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in…' : 'Sign in'}
             </Button>

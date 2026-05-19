@@ -27,13 +27,13 @@ This document defines the visual and interaction standards for LeadNav. Every pa
 
 | Element | Classes |
 |---|---|
-| Page title | `text-2xl font-bold text-gray-900` |
-| Card/section title | `text-sm font-semibold text-gray-900` |
-| Body / table data | `text-sm text-gray-900` |
+| Page title | `text-xl font-bold text-gray-900` |
+| Card/section title | `text-xs font-semibold text-gray-900` |
+| Body / table data | `text-xs text-gray-900` |
 | Form label | `text-xs font-medium text-gray-500` |
 | Muted / hint text | `text-xs text-gray-400` |
 | Column header | `text-xs font-medium text-gray-500 uppercase tracking-wide` |
-| Sidebar nav item | `text-sm font-medium text-gray-300` |
+| Sidebar nav item | `text-xs font-medium text-gray-300` |
 | Sidebar section label | `text-xs font-semibold text-gray-600 uppercase tracking-widest` |
 
 ---
@@ -65,7 +65,7 @@ bg-white border border-gray-200 rounded-lg p-5
 flex items-center gap-2 pb-4 mb-4 border-b border-gray-200
 ```
 - Icon: `w-4 h-4 text-gray-500`
-- Title: `text-sm font-semibold text-gray-900`
+- Title: `text-xs font-semibold text-gray-900`
 
 All cards must have icons in their headers — either all do or none do. Currently: all use icons.
 
@@ -75,17 +75,17 @@ All cards must have icons in their headers — either all do or none do. Current
 
 ### Primary
 ```
-bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-gray-800 transition-colors
+bg-gray-900 text-white text-xs font-medium px-4 py-2 rounded-md hover:bg-gray-800 transition-colors
 ```
 
 ### Secondary
 ```
-bg-white text-gray-900 text-sm font-medium px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors
+bg-white text-gray-900 text-xs font-medium px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors
 ```
 
 ### Ghost / Inline
 ```
-bg-transparent text-gray-500 text-sm px-2 py-1 rounded hover:text-gray-900 hover:bg-gray-100 transition-colors
+bg-transparent text-gray-500 text-xs px-2 py-1 rounded hover:text-gray-900 hover:bg-gray-100 transition-colors
 ```
 
 ### Small (row-level actions)
@@ -104,7 +104,7 @@ bg-white text-gray-900 text-xs font-medium px-3 py-1.5 rounded border border-gra
 ## Form Inputs
 
 ```
-w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white
+w-full border border-gray-200 rounded-md px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white
 ```
 
 Selects and dropdowns use identical classes.
@@ -115,12 +115,12 @@ Selects and dropdowns use identical classes.
 
 ### Active
 ```
-bg-gray-900 text-white text-sm font-medium px-3 py-1.5 rounded-md
+bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-md
 ```
 
 ### Inactive
 ```
-bg-transparent text-gray-500 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors
+bg-transparent text-gray-500 text-xs font-medium px-3 py-1.5 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors
 ```
 
 ### Zero-count tabs
@@ -174,7 +174,7 @@ border-b border-gray-100 hover:bg-gray-50 transition-colors
 
 **Data cell:**
 ```
-px-4 py-3 text-sm text-gray-900
+px-4 py-3 text-xs text-gray-900
 ```
 
 **Empty cell:** render `—` with `text-gray-400`
@@ -194,12 +194,12 @@ w-52 bg-neutral-950 h-screen flex flex-col px-3 py-4
 
 **Nav item:**
 ```
-flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-neutral-800 hover:text-white transition-colors
+flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-gray-300 hover:bg-neutral-800 hover:text-white transition-colors
 ```
 
 **Active nav item:**
 ```
-flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-neutral-800 text-white
+flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium bg-neutral-800 text-white
 ```
 
 **Section label:**
@@ -218,7 +218,7 @@ flex items-center justify-between py-6
 
 Detail pages:
 ```
-[← Back to X]  — text-sm text-gray-500 hover:text-gray-900 mb-2
+[← Back to X]  — text-xs text-gray-500 hover:text-gray-900 mb-2
 
 [h1: Record Name]  [Status Badge]  [Primary Action Button]
 — flex items-center gap-3
@@ -235,7 +235,7 @@ flex flex-col items-center justify-center gap-2 py-8 text-gray-400
 ```
 
 - Icon: `w-6 h-6 text-gray-300`
-- Label: `text-sm text-gray-400`
+- Label: `text-xs text-gray-400`
 
 Example: "No disputes filed", "No calls logged yet"
 
@@ -248,7 +248,7 @@ grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1
 ```
 
 - Label: `text-xs font-medium text-gray-500`
-- Value: `text-sm text-gray-900`
+- Value: `text-xs text-gray-900`
 
 ---
 

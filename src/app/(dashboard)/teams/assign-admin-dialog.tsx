@@ -64,7 +64,7 @@ export function AssignAdminDialog({
 
           <div className="space-y-1 mt-2">
             {assignments.length === 0 && (
-              <p className="text-sm text-gray-400 py-2">No team admins assigned.</p>
+              <p className="text-xs text-gray-400 py-2">No team admins assigned.</p>
             )}
             {assignments.map(a => {
               const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
@@ -73,7 +73,7 @@ export function AssignAdminDialog({
                   <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold flex-shrink-0">
                     {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
                   </div>
-                  <p className="flex-1 text-sm font-medium text-gray-900 truncate">{name}</p>
+                  <p className="flex-1 text-xs font-medium text-gray-900 truncate">{name}</p>
                   <button
                     onClick={() => handleRemove(a.user_id)}
                     disabled={loading === `remove-${a.user_id}`}
