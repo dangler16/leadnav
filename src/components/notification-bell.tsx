@@ -3,16 +3,17 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bell, CheckCheck, X } from 'lucide-react'
+import { Bell, CheckCheck, X, SquareUser, AlertCircle, Package } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-const typeIcon: Record<string, string> = {
-  new_lead: '👤',
-  dispute_update: '⚠️',
-  order_update: '📦',
-  general: '🔔',
+function TypeIcon({ type }: { type: string }) {
+  const cls = 'flex-shrink-0 text-gray-400'
+  if (type === 'new_lead')       return <SquareUser  size={12} strokeWidth={2} className={cls} />
+  if (type === 'dispute_update') return <AlertCircle size={12} strokeWidth={2} className={cls} />
+  if (type === 'order_update')   return <Package     size={12} strokeWidth={2} className={cls} />
+  return <Bell size={12} strokeWidth={2} className={cls} />
 }
 
 function timeAgo(dateStr: string) {
@@ -44,9 +45,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
       if (
         popupRef.current && !popupRef.current.contains(e.target as Node) &&
         buttonRef.current && !buttonRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false)
-      }
+      ) setOpen(false)
     }
     function handleEsc(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false)
@@ -99,15 +98,15 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
         ref={buttonRef}
         onClick={toggle}
         className={cn(
-          'p-2 transition-colors cursor-pointer relative',
-          open ? 'text-white' : 'text-white/35 hover:text-white'
+          'relative p-[7px] rounded transition-colors cursor-pointer flex-shrink-0',
+          open
+            ? 'text-white bg-white/[0.08]'
+            : 'text-white/35 hover:text-white/70 hover:bg-white/[0.05]'
         )}
       >
-        <Bell size={18} strokeWidth={2.5} />
+        <Bell size={14} strokeWidth={2} />
         {unreadCount > 0 && (
-          <span className="py-2 px-1.5 transition-colors cursor-pointer">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
+          <span className="absolute top-[3px] right-[3px] w-[5px] h-[5px] rounded-full bg-gray-400" />
         )}
       </button>
 
@@ -117,14 +116,14 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           data-closed={!open ? '' : undefined}
           onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
           style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="w-80 bg-card rounded-xl shadow-xl border border-border overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-150"
+          className="w-72 bg-white rounded border border-gray-200 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-150"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-foreground">Notifications</p>
+              <span className="text-xs font-semibold text-gray-900">Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-[11px] bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 font-semibold px-1.5 py-0.5 rounded-full">
+                <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full tabular-nums">
                   {unreadCount}
                 </span>
               )}
@@ -134,52 +133,62 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
                 <button
                   onClick={markAllRead}
                   title="Mark all read"
-                  className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+                  className="p-1 text-gray-400 hover:text-gray-700 transition-colors rounded"
                 >
-                  <CheckCheck size={14} />
+                  <CheckCheck size={13} />
                 </button>
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+                className="p-1 text-gray-400 hover:text-gray-700 transition-colors rounded"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             </div>
           </div>
 
           {/* List */}
-          <div className="max-h-[360px] overflow-y-auto divide-y divide-border/30">
+          <div className="max-h-[320px] overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center py-8 text-xs text-gray-400">
                 Loading…
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center py-10 gap-2 text-muted-foreground">
-                <Bell size={24} strokeWidth={1.5} />
-                <p className="text-sm">No notifications yet</p>
+              <div className="flex flex-col items-center py-8 gap-2">
+                <Bell size={18} className="text-gray-200" strokeWidth={1.5} />
+                <p className="text-xs text-gray-400">No notifications yet</p>
               </div>
             ) : (
               notifications.map(n => {
                 const inner = (
-                  <div className={cn('flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted', !n.read && 'bg-accent/30')}>
-                    <span className="text-base mt-0.5 flex-shrink-0">{typeIcon[n.type] ?? '🔔'}</span>
+                  <div className={cn(
+                    'flex items-start gap-2.5 px-3 py-2.5 border-b border-gray-50 hover:bg-gray-50 transition-colors',
+                    !n.read && 'bg-gray-50/80'
+                  )}>
+                    <div className="mt-0.5 w-5 h-5 rounded flex items-center justify-center bg-gray-100 flex-shrink-0">
+                      <TypeIcon type={n.type} />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className={cn('text-xs leading-snug', n.read ? 'text-muted-foreground' : 'font-semibold text-foreground')}>
+                      <div className="flex items-start justify-between gap-1.5">
+                        <p className={cn(
+                          'text-xs leading-snug',
+                          n.read ? 'text-gray-500' : 'font-medium text-gray-900'
+                        )}>
                           {n.title}
                         </p>
-                        {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
+                        {!n.read && (
+                          <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                        )}
                       </div>
-                      {n.body && <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{n.body}</p>}
-                      <p className="text-[10px] text-muted-foreground mt-1">{timeAgo(n.created_at)}</p>
+                      {n.body && (
+                        <p className="text-xs text-gray-400 mt-0.5 truncate">{n.body}</p>
+                      )}
+                      <p className="text-xs text-gray-400 mt-1 tabular-nums">{timeAgo(n.created_at)}</p>
                     </div>
                   </div>
                 )
                 return n.link ? (
-                  <Link key={n.id} href={n.link} onClick={() => setOpen(false)}>
-                    {inner}
-                  </Link>
+                  <Link key={n.id} href={n.link} onClick={() => setOpen(false)}>{inner}</Link>
                 ) : (
                   <div key={n.id}>{inner}</div>
                 )
@@ -188,11 +197,11 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-border/50 px-4 py-2.5">
+          <div className="border-t border-gray-100 px-3 py-2">
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="text-xs font-medium text-red-600 hover:text-red-700 transition-colors"
+              className="text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors"
             >
               View all notifications →
             </Link>

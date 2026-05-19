@@ -4,6 +4,7 @@ import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { CallsFilterTabs } from './calls-filter-tabs'
 import { SortableHeader, SortDir } from '@/components/sortable-header'
+import Link from 'next/link'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('en-US', {
@@ -31,14 +32,14 @@ const outcomeLabels: Record<CallOutcome, string> = {
 }
 
 const outcomeColors: Record<CallOutcome, string> = {
-  no_answer:          'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400',
-  voicemail:          'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400',
-  callback_requested: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-  appointment_set:    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  contacted:          'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  not_interested:     'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-  wrong_number:       'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-  sale:               'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  no_answer:          'bg-gray-100 text-gray-600 border border-gray-200',
+  voicemail:          'bg-gray-100 text-gray-600 border border-gray-200',
+  callback_requested: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+  appointment_set:    'bg-purple-100 text-purple-700 border border-purple-200',
+  contacted:          'bg-green-100 text-green-700 border border-green-200',
+  not_interested:     'bg-orange-100 text-orange-700 border border-orange-200',
+  wrong_number:       'bg-red-100 text-red-700 border border-red-200',
+  sale:               'bg-green-100 text-green-700 border border-green-200',
 }
 
 type CallWithLead = CallLog & { leads: Pick<Lead, 'firstname' | 'lastname' | 'id'> | null }
@@ -105,54 +106,56 @@ export default async function CallsPage({
   }
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
-      <div className="pb-2">
-        <h1 className="text-2xl font-bold text-foreground">Calls</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Your complete call history.</p>
+    <div className="flex flex-col h-full overflow-hidden bg-white">
+
+      <div className="px-8 pt-5 pb-4 shrink-0">
+        <h1 className="text-2xl font-bold text-gray-900">Calls</h1>
       </div>
 
-      <div className="bg-card rounded-lg border border-border">
-        <div className="p-3 border-b border-border/50">
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-gray-100 shrink-0">
           <CallsFilterTabs filter={filter} counts={counts} />
         </div>
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border/50">
-              <th className="text-left px-3 py-2"><SortableHeader column="lead" label="Lead" currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="outcome" label="Outcome" currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="duration" label="Duration" currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="notes" label="Notes" currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="date" label="Date" currentSort={sort} currentDir={sortDir} /></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/50">
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={5} className="py-12 text-center text-sm text-muted-foreground">No calls found</td>
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left px-3 py-2.5"><SortableHeader column="lead"     label="Lead"     currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="outcome"  label="Outcome"  currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="duration" label="Duration" currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="notes"    label="Notes"    currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="date"     label="Date"     currentSort={sort} currentDir={sortDir} /></th>
               </tr>
-            )}
-            {filtered.map(call => (
-              <tr key={call.id} className="hover:bg-muted transition-colors">
-                <td className="px-3 py-2">
-                  {call.leads ? (
-                    <a href={`/leads/${call.leads.id}`} className="font-medium text-foreground hover:text-red-600">
-                      {[call.leads.firstname, call.leads.lastname].filter(Boolean).join(' ') || '—'}
-                    </a>
-                  ) : <span className="text-muted-foreground">—</span>}
-                </td>
-                <td className="px-3 py-2">
-                  <span className={cn(badgeShape, 'border border-transparent', outcomeColors[call.outcome])}>
-                    {outcomeLabels[call.outcome]}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-muted-foreground">{formatDuration(call.duration_seconds)}</td>
-                <td className="px-3 py-2 text-muted-foreground text-xs max-w-[220px] truncate">{call.notes ?? '—'}</td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">{formatDate(call.called_at)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center text-sm text-gray-400">No calls found</td>
+                </tr>
+              )}
+              {filtered.map(call => (
+                <tr key={call.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="px-3 py-2.5">
+                    {call.leads ? (
+                      <Link href={`/leads/${call.leads.id}`} className="text-sm font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                        {[call.leads.firstname, call.leads.lastname].filter(Boolean).join(' ') || '—'}
+                      </Link>
+                    ) : <span className="text-sm text-gray-400">—</span>}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <span className={cn(badgeShape, outcomeColors[call.outcome])}>
+                      {outcomeLabels[call.outcome]}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5 text-sm text-gray-400">{formatDuration(call.duration_seconds)}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400 max-w-[220px] truncate">{call.notes ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(call.called_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

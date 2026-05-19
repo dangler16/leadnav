@@ -13,7 +13,7 @@ function Tabs({
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
-      className={cn("flex gap-2 data-horizontal:flex-col", className)}
+      className={cn("flex data-horizontal:flex-col", className)}
       {...props}
     />
   )
@@ -24,14 +24,14 @@ function TabsList({ className, children, ...props }: TabsPrimitive.List.Props) {
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "relative inline-flex items-center gap-1 rounded-lg bg-transparent border-1 border-black/10 p-0.5 text-muted-foreground w-fit -mb-1",
+        "relative inline-flex items-center gap-0.5 rounded bg-gray-100 border border-gray-200 p-0.5 text-gray-500 w-fit",
         className
       )}
       {...props}
     >
       {children}
       <TabsPrimitive.Indicator
-        className="absolute rounded-sm bg-red-600 border-1 border-black/10 transition-all duration-200 ease-out"
+        className="absolute rounded-sm bg-gray-900 transition-all duration-200 ease-out"
         style={{
           left: "var(--active-tab-left)",
           top: "var(--active-tab-top)",
@@ -48,10 +48,10 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "relative z-10 inline-flex items-center justify-center rounded-sm px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors",
-        "not-data-active:hover:text-foreground",
+        "relative z-10 inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+        "not-data-[active]:text-gray-500 not-data-[active]:hover:bg-gray-100 not-data-[active]:hover:text-gray-900",
         "disabled:pointer-events-none disabled:opacity-50",
-        "data-active:text-white",
+        "data-[active]:text-white",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}

@@ -177,7 +177,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
   return (
     <>
       <Button
-        className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors h-fit"
+        className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-gray-800 transition-colors border-0"
         onClick={() => setOpen(true)}
       >
         Place Order
@@ -220,13 +220,13 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                         onClick={() => toggleLeadType(lt)}
                         className={`flex flex-col items-center text-sm px-2.5 py-1.5 rounded transition-colors font-medium leading-tight ${
                           checked
-                            ? 'bg-red-600 text-white'
+                            ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
                         <span>{lt}</span>
                         {cost != null && (
-                          <span className={`transition-colors text-xs mt-1 font-normal ${checked ? 'text-red-100' : 'text-gray-500'}`}>
+                          <span className={`transition-colors text-xs mt-1 font-normal ${checked ? 'text-gray-300' : 'text-gray-500'}`}>
                             ${cost.toLocaleString('en-US')}
                           </span>
                         )}
@@ -257,7 +257,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-sm text-gray-400 hover:text-red-600 transition-colors"
+                  className="text-sm text-gray-400 hover:text-gray-900 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
@@ -273,7 +273,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                         onClick={() => toggleState(abbr)}
                         className={`text-sm px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-red-600 text-white'
+                            ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
@@ -284,7 +284,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-sm text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-400 leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}
@@ -303,7 +303,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
                       onClick={() => toggleDay(d)}
                       className={`text-sm w-full py-1.5 rounded transition-colors font-medium ${
                         checked
-                          ? 'bg-red-600 text-white'
+                          ? 'bg-gray-900 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >

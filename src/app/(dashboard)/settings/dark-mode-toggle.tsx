@@ -10,7 +10,7 @@ export function DarkModeToggle() {
   return (
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm font-medium text-foreground">Dark Mode</p>
+        <p className="text-sm font-medium text-gray-900">Dark Mode</p>
         <p className="text-xs text-muted-foreground mt-0.5">Switch between light and dark theme</p>
       </div>
       <button

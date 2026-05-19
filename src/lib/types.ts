@@ -5,6 +5,21 @@ export type Profile = {
   first_name: string
   last_name: string
   role: UserRole
+  wallet_balance_cents: number
+  stripe_customer_id: string | null
+  created_at: string
+}
+
+export type WalletTransactionType = 'topup' | 'charge' | 'refund'
+
+export type WalletTransaction = {
+  id: string
+  user_id: string
+  type: WalletTransactionType
+  amount_cents: number
+  stripe_payment_intent_id: string | null
+  lead_id: string | null
+  description: string | null
   created_at: string
 }
 
@@ -115,10 +130,13 @@ export type Dispute = {
   updated_at: string
 }
 
+export type TeamBillingMode = 'team_card' | 'individual'
+
 export type Team = {
   id: string
   name: string
   logo_url: string | null
+  billing_mode: TeamBillingMode
   created_at: string
 }
 

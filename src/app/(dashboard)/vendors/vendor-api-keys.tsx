@@ -63,7 +63,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)} className="text-sm font-medium px-2 py-1 rounded-sm bg-white border-1 border-neutral-300 text-gray-900 transition-colors hover:bg-neutral-200">
+      <Button variant="outline" onClick={() => setOpen(true)} className="text-xs font-medium px-2 py-1 rounded-sm bg-white border border-gray-200 text-gray-700 transition-colors hover:bg-gray-50">
         Keys ({activeKeys.length})
       </Button>
 
@@ -79,7 +79,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
               <p className="text-xs font-medium text-amber-800">Copy this key now — it won&apos;t be shown again.</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs bg-card border border-amber-200 rounded px-2 py-1.5 break-all font-mono text-foreground">
+                <code className="flex-1 text-xs bg-card border border-amber-200 rounded px-2 py-1.5 break-all font-mono text-gray-900">
                   {newKey}
                 </code>
                 <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0 text-xs">
@@ -94,9 +94,9 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
               <p className="text-sm text-muted-foreground py-4 text-center">No API keys yet.</p>
             )}
             {activeKeys.map(k => (
-              <div key={k.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-muted px-3 py-2.5">
+              <div key={k.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-gray-100 px-3 py-2.5">
                 <div>
-                  <code className="text-xs font-mono text-foreground">{k.key_prefix}…</code>
+                  <code className="text-xs font-mono text-gray-900">{k.key_prefix}…</code>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Created {formatDate(k.created_at)}
                     {k.last_used_at && ` · Last used ${formatDate(k.last_used_at)}`}
@@ -107,7 +107,7 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
                   variant="outline"
                   disabled={revokingId === k.id}
                   onClick={() => handleRevoke(k.id)}
-                  className="text-xs text-red-600 border-red-200 hover:bg-red-50 shrink-0"
+                  className="text-xs text-red-600 border-red-200 hover:bg-gray-800 shrink-0"
                 >
                   <Ban size={12} />
                   {revokingId === k.id ? 'Revoking…' : 'Revoke'}

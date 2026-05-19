@@ -143,73 +143,71 @@ export default async function DisputesPage({
   const showAgentColumn = role === 'super_admin' || role === 'team_admin'
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
-      <div className="flex items-start justify-between w-full pb-2">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Disputes</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {canManageStatus ? 'Review and manage lead quality disputes.' : 'File and track lead quality disputes.'}
-          </p>
-        </div>
+    <div className="flex flex-col h-full overflow-hidden bg-white">
+
+      <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
+        <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
         {role === 'user' && <NewDisputeDialog leads={leadsForNew} userId={user.id} />}
       </div>
 
-      <div className="bg-card rounded-lg border border-border">
-        <div className="p-3 border-b border-border/50">
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-gray-100 shrink-0">
           <DisputesFilterTabs filter={filter} counts={counts} />
         </div>
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border/50">
-              {showAgentColumn && <th className="text-left px-3 py-2"><SortableHeader column="agent" label="Filed By" currentSort={sort} currentDir={sortDir} /></th>}
-              <th className="text-left px-3 py-2"><SortableHeader column="lead"   label="Lead"    currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="order"  label="Order ID" currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="vendor" label="Vendor"  currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="reason" label="Reason"  currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="status" label="Status"  currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="notes"  label="Notes"   currentSort={sort} currentDir={sortDir} /></th>
-              <th className="text-left px-3 py-2"><SortableHeader column="date"   label="Filed"   currentSort={sort} currentDir={sortDir} /></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/50">
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={showAgentColumn ? 8 : 7} className="py-12 text-center text-sm text-muted-foreground">No disputes found</td>
+        <div className="flex-1 min-h-0 overflow-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                {showAgentColumn && <th className="text-left px-3 py-2.5"><SortableHeader column="agent"  label="Filed By" currentSort={sort} currentDir={sortDir} /></th>}
+                <th className="text-left px-3 py-2.5"><SortableHeader column="lead"   label="Lead"     currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="order"  label="Order ID" currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="vendor" label="Vendor"   currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="reason" label="Reason"   currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="status" label="Status"   currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="notes"  label="Notes"    currentSort={sort} currentDir={sortDir} /></th>
+                <th className="text-left px-3 py-2.5"><SortableHeader column="date"   label="Filed"    currentSort={sort} currentDir={sortDir} /></th>
               </tr>
-            )}
-            {filtered.map(d => (
-              <tr key={d.id} className="hover:bg-muted transition-colors">
-                {showAgentColumn && (
-                  <td className="px-3 py-2 text-sm text-foreground">
-                    {d.agentProfile
-                      ? [d.agentProfile.first_name, d.agentProfile.last_name].filter(Boolean).join(' ')
-                      : <span className="text-muted-foreground">—</span>}
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={showAgentColumn ? 8 : 7} className="py-12 text-center text-sm text-gray-400">No disputes found</td>
+                </tr>
+              )}
+              {filtered.map(d => (
+                <tr key={d.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  {showAgentColumn && (
+                    <td className="px-3 py-2.5 text-sm text-gray-900">
+                      {d.agentProfile
+                        ? [d.agentProfile.first_name, d.agentProfile.last_name].filter(Boolean).join(' ')
+                        : <span className="text-gray-400">—</span>}
+                    </td>
+                  )}
+                  <td className="px-3 py-2.5 text-sm font-medium">
+                    {d.leads
+                      ? <Link href={`/leads/${d.leads.id}`} className="text-gray-900 hover:text-gray-500 transition-colors">{[d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ')}</Link>
+                      : <span className="text-gray-900">—</span>}
                   </td>
-                )}
-                <td className="px-3 py-2 text-sm font-medium">
-                  {d.leads
-                    ? <Link href={`/leads/${d.leads.id}`} className="text-foreground hover:text-red-600 transition-colors">{[d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ')}</Link>
-                    : <span className="text-foreground">—</span>}
-                </td>
-                <td className="px-3 py-2 font-mono text-xs">
-                  {d.leads?.order_id
-                    ? <Link href={`/orders/${d.leads.order_id}`} className="text-muted-foreground hover:text-red-600 transition-colors">#{d.leads.order_id.slice(0, 8).toUpperCase()}</Link>
-                    : <span className="text-muted-foreground">—</span>}
-                </td>
-                <td className="px-3 py-2 text-sm text-foreground">{d.leads?.vendors?.name ?? '—'}</td>
-                <td className="px-3 py-2 text-sm text-foreground">{formatDisputeReason(d.reason)}</td>
-                <td className="px-3 py-2">
-                  {canManageStatus
-                    ? <DisputeStatusSelect disputeId={d.id} status={d.status} />
-                    : <DisputeStatusBadge status={d.status} className="border border-transparent" />}
-                </td>
-                <td className="px-3 py-2 text-sm text-foreground max-w-[200px] truncate">{d.notes ?? '—'}</td>
-                <td className="px-3 py-2 text-sm text-muted-foreground">{formatDate(d.created_at)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <td className="px-3 py-2.5">
+                    {d.leads?.order_id
+                      ? <Link href={`/orders/${d.leads.order_id}`} className="font-mono text-xs text-gray-400 hover:text-gray-700 transition-colors">#{d.leads.order_id.slice(0, 8).toUpperCase()}</Link>
+                      : <span className="text-gray-400">—</span>}
+                  </td>
+                  <td className="px-3 py-2.5 text-sm text-gray-900">{d.leads?.vendors?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-sm text-gray-900">{formatDisputeReason(d.reason)}</td>
+                  <td className="px-3 py-2.5">
+                    {canManageStatus
+                      ? <DisputeStatusSelect disputeId={d.id} status={d.status} />
+                      : <DisputeStatusBadge status={d.status} />}
+                  </td>
+                  <td className="px-3 py-2.5 text-sm text-gray-900 max-w-[200px] truncate">{d.notes ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(d.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

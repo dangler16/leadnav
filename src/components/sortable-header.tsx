@@ -35,7 +35,7 @@ export function SortableHeader({ column, label, currentSort, currentDir }: Props
   return (
     <button
       onClick={handleClick}
-      className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
     >
       {label}
       {isActive ? (

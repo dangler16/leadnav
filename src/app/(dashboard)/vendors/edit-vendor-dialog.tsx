@@ -235,7 +235,7 @@ export function EditVendorDialog({
                         onClick={() => toggleState(abbr)}
                         className={`text-sm px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-red-600 text-white'
+                            ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
@@ -246,7 +246,7 @@ export function EditVendorDialog({
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-sm text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-400 leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}

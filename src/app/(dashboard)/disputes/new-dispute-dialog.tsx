@@ -69,12 +69,12 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
         autoComplete="off"
       />
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-md border border-border bg-popover shadow-md text-sm">
+        <ul className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded border border-gray-200 bg-white shadow-sm text-sm">
           {filtered.map(l => (
             <li
               key={l.id}
               onMouseDown={() => select(l)}
-              className="cursor-pointer px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="cursor-pointer px-3 py-2 text-gray-900 hover:bg-gray-50 transition-colors"
             >
               {leadLabel(l)}
             </li>
@@ -82,7 +82,7 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
         </ul>
       )}
       {open && query.trim() && filtered.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover px-3 py-2 text-sm text-muted-foreground shadow-md">
+        <div className="absolute z-50 mt-1 w-full rounded border border-gray-200 bg-white px-3 py-2 text-xs text-gray-400 shadow-sm">
           No leads found
         </div>
       )}
@@ -116,7 +116,7 @@ export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userI
 
   return (
     <>
-      <Button className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors h-fit" onClick={() => setOpen(true)}>File Dispute</Button>
+      <Button onClick={() => setOpen(true)}>File Dispute</Button>
       <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

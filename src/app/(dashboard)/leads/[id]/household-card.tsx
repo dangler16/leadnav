@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead } from '@/lib/types'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
-import { DollarSign } from 'lucide-react'
+import { DollarSign, Check } from 'lucide-react'
 
 const LEAD_TYPE_OPTIONS = [
   { value: 'ACA', label: 'ACA' },
@@ -19,19 +20,42 @@ function formatCurrency(raw: string): string {
   return isNaN(n) ? '$' : '$' + n.toLocaleString('en-US')
 }
 
-export function HouseholdCard({ lead }: { lead: Lead }) {
-  const router = useRouter()
-  const supabase = createClient()
-  const incomeRef = useRef<HTMLInputElement>(null)
+type Fields = {
+  lead_type: string
+  household: string
+  income: string
+  birthday: string
+}
 
-  const [vals, setVals] = useState({
+function initFields(lead: Lead): Fields {
+  return {
     lead_type: lead.lead_type ?? '',
     household: lead.household?.toString() ?? '',
     income: lead.income?.toString() ?? '',
     birthday: lead.birthday ?? '',
-  })
+  }
+}
 
-  function handleChange(field: keyof typeof vals) {
+export function HouseholdCard({ lead }: { lead: Lead }) {
+  const router = useRouter()
+  const supabase = createClient()
+  const incomeRef = useRef<HTMLInputElement>(null)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [vals, setVals] = useState<Fields>(() => initFields(lead))
+  const [savedVals, setSavedVals] = useState<Fields>(() => initFields(lead))
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const isDirty = (Object.keys(vals) as (keyof Fields)[]).some(k => vals[k] !== savedVals[k])
+
+  function flashSaved() {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    setSaved(true)
+    saveTimer.current = setTimeout(() => setSaved(false), 2000)
+  }
+
+  function handleChange(field: keyof Fields) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
       setVals(v => ({ ...v, [field]: e.target.value }))
   }
@@ -60,43 +84,37 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
     })
   }
 
-  async function handleBlur(field: keyof typeof vals) {
-    const raw = vals[field]
-    let value: string | number | null
-    if (field === 'lead_type' || field === 'birthday') {
-      value = raw || null
-    } else {
-      value = raw ? parseInt(raw) : null
-    }
-    await supabase.from('leads').update({
-      [field]: value,
-      updated_at: new Date().toISOString(),
-    }).eq('id', lead.id)
-    router.refresh()
+  function handleLeadTypeChange(value: string) {
+    setVals(v => ({ ...v, lead_type: value }))
   }
 
-  async function handleLeadTypeChange(value: string) {
-    setVals(v => ({ ...v, lead_type: value }))
+  async function handleSave() {
+    if (!isDirty || saving) return
+    setSaving(true)
     await supabase.from('leads').update({
-      lead_type: value || null,
+      lead_type: vals.lead_type || null,
+      household: vals.household ? parseInt(vals.household) : null,
+      income: vals.income ? parseInt(vals.income) : null,
+      birthday: vals.birthday || null,
       updated_at: new Date().toISOString(),
     }).eq('id', lead.id)
+    setSavedVals({ ...vals })
+    flashSaved()
+    setSaving(false)
     router.refresh()
   }
 
   return (
-    <div className="bg-card rounded-lg border border-border p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
-          <DollarSign size={18} />
-        </div>
-        <p className="font-semibold text-base text-foreground">Household Details</p>
+    <div className="bg-white border border-gray-200 rounded-lg p-5 h-full flex flex-col">
+      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
+        <DollarSign className="w-4 h-4 text-gray-500" />
+        <p className="text-sm font-semibold text-gray-900">Household Details</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1">
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Lead Type</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Lead Type</p>
             <SelectDropdown
               options={LEAD_TYPE_OPTIONS}
               value={vals.lead_type}
@@ -105,11 +123,10 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
             />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Birthday</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Birthday</p>
             <Input
               value={vals.birthday}
               onChange={handleChange('birthday')}
-              onBlur={() => handleBlur('birthday')}
               type="date"
               className="h-8 text-sm"
             />
@@ -118,26 +135,35 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
 
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Household Size</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Household Size</p>
             <Input
               value={vals.household}
               onChange={handleChange('household')}
-              onBlur={() => handleBlur('household')}
               className="h-8 text-sm"
             />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Annual Income</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Annual Income</p>
             <Input
               ref={incomeRef}
               value={formatCurrency(vals.income)}
               onChange={handleIncomeChange}
-              onBlur={() => handleBlur('income')}
               inputMode="numeric"
               className="h-8 text-sm"
             />
           </div>
         </div>
+      </div>
+
+      <div className="shrink-0 flex items-center justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+        {saved && (
+          <span className="flex items-center gap-1 text-xs font-medium text-gray-500 mr-auto">
+            <Check size={11} strokeWidth={2.5} /> Saved
+          </span>
+        )}
+        <Button onClick={handleSave} disabled={!isDirty || saving} variant="outline" size="sm">
+          {saving ? 'Saving…' : 'Save'}
+        </Button>
       </div>
     </div>
   )

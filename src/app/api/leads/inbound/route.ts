@@ -84,10 +84,10 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'No active orders for this vendor in this state' }, { status: 503 })
   }
 
-  // Fetch vendor to get configured lead type
+  // Fetch vendor to get lead types and pricing
   const { data: vendor } = await supabase
     .from('vendors')
-    .select('lead_types')
+    .select('lead_types, cost_per_lead, lead_type_costs')
     .eq('id', keyRecord.vendor_id)
     .single()
 
@@ -147,6 +147,35 @@ export async function POST(request: NextRequest) {
   if (error) {
     console.error('[inbound lead]', error)
     return Response.json({ error: 'Failed to create lead' }, { status: 500 })
+  }
+
+  // Deduct lead cost from assigned agent's wallet
+  if (assigned_to) {
+    const leadType = vendor?.lead_types?.[0] ?? null
+    const costPerLead: number | null =
+      (leadType && (vendor?.lead_type_costs as Record<string, number> | null)?.[leadType]) ??
+      (vendor?.cost_per_lead as number | null) ??
+      null
+
+    if (costPerLead != null && costPerLead > 0) {
+      const costCents = Math.round(costPerLead * 100)
+      const { data: deducted } = await supabase.rpc('deduct_wallet', {
+        p_user_id: assigned_to,
+        p_amount_cents: costCents,
+        p_lead_id: lead.id,
+        p_description: `Lead delivered — ${leadType ?? 'unknown type'}`,
+      })
+
+      // If deduction failed (insufficient balance), pause the agent's active orders
+      if (!deducted) {
+        console.warn('[inbound lead] insufficient wallet balance for agent', assigned_to)
+        await supabase
+          .from('orders')
+          .update({ status: 'paused' })
+          .eq('account_id', assigned_to)
+          .eq('status', 'active')
+      }
+    }
   }
 
   await supabase

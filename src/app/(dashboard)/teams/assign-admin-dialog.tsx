@@ -73,11 +73,11 @@ export function AssignAdminDialog({
                   <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold flex-shrink-0">
                     {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
                   </div>
-                  <p className="flex-1 text-sm font-medium text-gray-800 truncate">{name}</p>
+                  <p className="flex-1 text-sm font-medium text-gray-900 truncate">{name}</p>
                   <button
                     onClick={() => handleRemove(a.user_id)}
                     disabled={loading === `remove-${a.user_id}`}
-                    className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-gray-800 transition-colors"
                   >
                     <UserMinus size={13} />
                   </button>

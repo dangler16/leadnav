@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, Profile } from '@/lib/types'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { ReassignLead } from './reassign-lead'
-import { User, Store } from 'lucide-react'
+import { User, Check } from 'lucide-react'
 
 const US_STATES = [
   { value: 'AL', label: 'Alabama' },
@@ -96,19 +97,35 @@ function formatPhoneDisplay(raw: string): string {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
 }
 
-export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedName }: Props) {
-  const router = useRouter()
-  const supabase = createClient()
-  const phoneRef = useRef<HTMLInputElement>(null)
-
-  const [vals, setVals] = useState<Fields>({
+function initFields(lead: Lead): Fields {
+  return {
     firstname: lead.firstname ?? '',
     lastname: lead.lastname ?? '',
     phone: lead.phone ?? '',
     email: lead.email ?? '',
     state: normalizeState(lead.state ?? ''),
     zip: lead.zip ?? '',
-  })
+  }
+}
+
+export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedName }: Props) {
+  const router = useRouter()
+  const supabase = createClient()
+  const phoneRef = useRef<HTMLInputElement>(null)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [vals, setVals] = useState<Fields>(() => initFields(lead))
+  const [savedVals, setSavedVals] = useState<Fields>(() => initFields(lead))
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const isDirty = (Object.keys(vals) as (keyof Fields)[]).some(k => vals[k] !== savedVals[k])
+
+  function flashSaved() {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    setSaved(true)
+    saveTimer.current = setTimeout(() => setSaved(false), 2000)
+  }
 
   function handleChange(field: keyof Fields) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -135,20 +152,25 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
     })
   }
 
-  async function handleBlur(field: keyof Fields) {
-    await supabase.from('leads').update({
-      [field]: vals[field] || null,
-      updated_at: new Date().toISOString(),
-    }).eq('id', lead.id)
-    router.refresh()
+  function handleStateChange(value: string) {
+    setVals(v => ({ ...v, state: value }))
   }
 
-  async function handleStateChange(value: string) {
-    setVals(v => ({ ...v, state: value }))
+  async function handleSave() {
+    if (!isDirty || saving) return
+    setSaving(true)
     await supabase.from('leads').update({
-      state: value || null,
+      firstname: vals.firstname || null,
+      lastname: vals.lastname || null,
+      phone: vals.phone || null,
+      email: vals.email || null,
+      state: vals.state || null,
+      zip: vals.zip || null,
       updated_at: new Date().toISOString(),
     }).eq('id', lead.id)
+    setSavedVals({ ...vals })
+    flashSaved()
+    setSaving(false)
     router.refresh()
   }
 
@@ -156,54 +178,50 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
     return {
       value: vals[field],
       onChange: handleChange(field),
-      onBlur: () => handleBlur(field),
       className: 'h-8 text-sm',
       ...extra,
     }
   }
 
   return (
-    <div className="bg-card rounded-lg border border-border p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
-          <User size={18} />
-        </div>
-        <p className="font-semibold text-base text-foreground">Contact Info</p>
+    <div className="bg-white border border-gray-200 rounded-lg p-5 h-full flex flex-col">
+      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
+        <User className="w-4 h-4 text-gray-500" />
+        <p className="text-sm font-semibold text-gray-900">Contact Info</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1">
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">First Name</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">First Name</p>
             <Input {...fieldProps('firstname')} />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Last Name</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Last Name</p>
             <Input {...fieldProps('lastname')} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground mb-1.5">Phone</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Phone</p>
             <Input
               ref={phoneRef}
               value={formatPhoneDisplay(vals.phone)}
               onChange={handlePhoneChange}
-              onBlur={() => handleBlur('phone')}
               className="h-8 text-sm"
               inputMode="numeric"
             />
           </div>
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground mb-1.5">Email</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">Email</p>
             <Input {...fieldProps('email', { type: 'email' })} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground mb-1.5">State</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">State</p>
             <SelectDropdown
               options={US_STATES}
               value={vals.state}
@@ -212,28 +230,35 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
             />
           </div>
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground mb-1.5">ZIP Code</p>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">ZIP Code</p>
             <Input {...fieldProps('zip', { placeholder: 'Zip' })} />
           </div>
         </div>
 
         {vendorName && (
           <div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-0.5">
-              Vendor
-            </p>
-            <p className="text-sm text-foreground font-medium">{vendorName}</p>
+            <p className="text-xs font-medium text-gray-500 mb-0.5">Vendor</p>
+            <p className="text-sm text-gray-900 font-medium">{vendorName}</p>
           </div>
         )}
 
         {isAdmin && (
-          <div className="flex items-start gap-2.5">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1">Assigned To</p>
-              <ReassignLead leadId={lead.id} currentAgentId={lead.assigned_to} agents={agents} />
-            </div>
+          <div>
+            <p className="text-xs font-medium text-gray-500 mb-1">Assigned To</p>
+            <ReassignLead leadId={lead.id} currentAgentId={lead.assigned_to} agents={agents} />
           </div>
         )}
+      </div>
+
+      <div className="shrink-0 flex items-center justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+        {saved && (
+          <span className="flex items-center gap-1 text-xs font-medium text-gray-500 mr-auto">
+            <Check size={11} strokeWidth={2.5} /> Saved
+          </span>
+        )}
+        <Button onClick={handleSave} disabled={!isDirty || saving} variant="outline" size="sm">
+          {saving ? 'Saving…' : 'Save'}
+        </Button>
       </div>
     </div>
   )

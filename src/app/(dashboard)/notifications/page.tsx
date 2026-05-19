@@ -14,13 +14,6 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-const typeIcon: Record<string, string> = {
-  new_lead: '👤',
-  dispute_update: '⚠️',
-  order_update: '📦',
-  general: '🔔',
-}
-
 export default async function NotificationsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,52 +30,50 @@ export default async function NotificationsPage() {
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
-          </p>
-        </div>
+    <div className="flex flex-col h-full overflow-hidden bg-white">
+
+      <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
+        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
         {unreadCount > 0 && <MarkAllRead userId={user.id} />}
       </div>
 
-      <div className="max-w-2xl">
-        <div className="bg-card rounded-lg border border-border divide-y divide-border/50">
-          {notifications.length === 0 ? (
-            <div className="flex flex-col items-center py-16 gap-3 text-muted-foreground">
-              <Bell size={32} strokeWidth={1.5} />
-              <p className="text-sm">No notifications yet</p>
-            </div>
-          ) : (
-            notifications.map(n => {
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center flex-1 gap-3">
+            <Bell size={22} className="text-gray-200" strokeWidth={1.5} />
+            <p className="text-sm text-gray-400">No notifications yet</p>
+          </div>
+        ) : (
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {notifications.map(n => {
               const inner = (
-                <div className={`flex items-start gap-3 p-4 ${!n.read ? 'bg-accent/30' : ''}`}>
-                  <span className="text-lg mt-0.5 flex-shrink-0">{typeIcon[n.type] ?? '🔔'}</span>
+                <div className={`flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-0 ${!n.read ? 'bg-gray-50/60' : ''}`}>
+                  <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-100 flex-shrink-0 mt-0.5">
+                    <Bell size={11} strokeWidth={2} className="text-gray-400" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm ${n.read ? 'text-muted-foreground' : 'font-semibold text-foreground'}`}>
+                      <p className={`text-sm leading-snug ${n.read ? 'text-gray-400' : 'font-semibold text-gray-900'}`}>
                         {n.title}
                       </p>
-                      {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />}
+                      {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-gray-900 flex-shrink-0" />}
                     </div>
-                    {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">{timeAgo(n.created_at)}</p>
+                    {n.body && <p className="text-xs text-gray-400 mt-0.5">{n.body}</p>}
+                    <p className="text-xs text-gray-400 mt-1 tabular-nums">{timeAgo(n.created_at)}</p>
                   </div>
                 </div>
               )
 
               return n.link ? (
-                <Link key={n.id} href={n.link} className="block hover:bg-muted transition-colors">
+                <Link key={n.id} href={n.link} className="block hover:bg-gray-50 transition-colors">
                   {inner}
                 </Link>
               ) : (
                 <div key={n.id}>{inner}</div>
               )
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

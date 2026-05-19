@@ -45,7 +45,9 @@ export function ReassignLead({ leadId, currentAgentId, agents }: {
         <Button
           onClick={handleSave}
           disabled={loading || agentId === (currentAgentId ?? '')}
-          className="px-2 py-1 text-sm font-medium whitespace-nowrap"
+          variant="outline"
+          size="sm"
+          className="font-medium"
         >
           {loading ? 'Saving…' : 'Reassign'}
         </Button>

@@ -75,7 +75,7 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
         ref={triggerRef}
         onClick={handleToggle}
         disabled={saving}
-        className={cn(badgeShape, 'justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50 transition-colors', current.className, open && 'ring-1 ring-red-400')}
+        className={cn(badgeShape, 'justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50 transition-colors', current.className, open && 'ring-1 ring-gray-900')}
       >
         <span className="flex items-center gap-1.5">
           <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', current.dotClass)} />
@@ -88,24 +88,24 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
         <div
           data-closed={!open ? '' : undefined}
           onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
-          className="z-50 bg-card border border-border rounded-3xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
+          className="z-50 bg-white border border-gray-200 rounded shadow-sm overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
           style={dropdownStyle}
         >
           {(Object.entries(triggerStyles) as [TriggerStatus, typeof triggerStyles[TriggerStatus]][]).map(([value, cfg]) => (
             <button
               key={value}
               onClick={() => handleSelect(value)}
-              className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-muted transition-colors cursor-pointer"
+              className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dotClass)} />
               <span className="flex-1 text-foreground">{cfg.label}</span>
-              {value === status && <Check size={13} className="text-red-600 shrink-0" />}
+              {value === status && <Check size={13} className="text-gray-900 shrink-0" />}
             </button>
           ))}
-          <div className="border-t border-border/50" />
+          <div className="border-t border-gray-100" />
           <button
             onClick={() => { setOpen(false); setConfirmOpen(true) }}
-            className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-accent text-red-600 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-gray-50 text-red-600 transition-colors cursor-pointer"
           >
             <X size={13} className="shrink-0" />
             <span className="flex-1">Close Order</span>

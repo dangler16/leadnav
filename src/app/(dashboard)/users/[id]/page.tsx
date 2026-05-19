@@ -5,7 +5,8 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { Lead, Dispute, Profile, UserRole, formatLeadStatusLabel, formatDisputeReason } from '@/lib/types'
 import { ChevronLeft } from 'lucide-react'
 import { badgeShape } from '@/components/ui/badge'
-import { DisputeStatusBadge } from '@/components/status-badge'
+import { LeadStatusBadge, DisputeStatusBadge } from '@/components/status-badge'
+import { cn } from '@/lib/utils'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -20,21 +21,9 @@ function formatPhone(phone: string | null) {
 }
 
 const roleConfig: Record<UserRole, { label: string; className: string }> = {
-  super_admin: { label: 'Super Admin', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
-  team_admin:  { label: 'Team Admin',  className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
-  user:        { label: 'User',        className: 'bg-muted text-muted-foreground' },
-}
-
-const statusColors: Record<string, string> = {
-  new:              'text-blue-600',
-  not_contacted:    'text-gray-500',
-  contacted:        'text-cyan-600',
-  appt_set:         'text-indigo-600',
-  appt_no_show:     'text-yellow-600',
-  appt_no_sale:     'text-orange-600',
-  appt_rescheduled: 'text-purple-600',
-  sale:             'text-green-600',
-  lost:             'text-red-500',
+  super_admin: { label: 'Super Admin', className: 'bg-red-100 text-red-700 border border-red-200' },
+  team_admin:  { label: 'Team Admin',  className: 'bg-purple-100 text-purple-700 border border-purple-200' },
+  user:        { label: 'User',        className: 'bg-gray-100 text-gray-600 border border-gray-200' },
 }
 
 export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -72,69 +61,72 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   const roleStyle = roleConfig[role]
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || '—'
 
+  const colHeader = 'text-left text-xs font-semibold uppercase tracking-[0.08em] text-gray-400 px-3 py-2.5'
+
   return (
-    <div className="flex flex-col gap-6 pt-6 px-7 pb-7 h-full overflow-auto">
+    <div className="flex flex-col h-full overflow-hidden bg-white">
 
-      {/* Back */}
-      <div>
-        <Link href="/users" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
-          <ChevronLeft size={15} />
-          Users
+      {/* Header */}
+      <div className="px-8 pt-5 pb-4 shrink-0 border-b border-gray-100">
+        <Link href="/users" className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-gray-700 transition-colors mb-3">
+          <ChevronLeft size={13} /> Back to Users
         </Link>
-
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 text-sm font-bold shrink-0">
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-[14px] font-bold shrink-0">
             {(profile.first_name?.[0] ?? '?').toUpperCase()}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{fullName}</h1>
-            <div className="flex items-center gap-2 mt-0.5">
-              {email && <span className="text-sm text-muted-foreground">{email}</span>}
-              <span className={`${badgeShape} ${roleStyle.className}`}>{roleStyle.label}</span>
-              {userTeam && <span className={`${badgeShape} bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400`}>{userTeam.name}</span>}
+            <h1 className="text-2xl font-semibold text-gray-900 leading-none ">{fullName}</h1>
+            <div className="flex items-center gap-2 mt-1.5">
+              {email && <span className="text-xs text-gray-400">{email}</span>}
+              <span className={cn(badgeShape, roleStyle.className)}>{roleStyle.label}</span>
+              {userTeam && <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>{userTeam.name}</span>}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Leads */}
-      <div className="flex flex-col bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">Leads</h2>
-          <span className="text-xs text-muted-foreground">{leads.length}</span>
+      {/* Content */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-8 py-5">
+
+      {/* Leads table */}
+      <div className="flex flex-col border border-gray-200 rounded overflow-hidden mb-4">
+        <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-900 ">Leads</h2>
+          <span className="text-xs text-gray-400">{leads.length}</span>
         </div>
         <div className="overflow-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead>
-              <tr className="border-b border-border/50">
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Name</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Status</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Vendor</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Phone</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">State</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Date</th>
+              <tr className="border-b border-gray-100">
+                <th className={colHeader}>Name</th>
+                <th className={colHeader}>Status</th>
+                <th className={colHeader}>Vendor</th>
+                <th className={colHeader}>Phone</th>
+                <th className={colHeader}>State</th>
+                <th className={colHeader}>Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody>
               {leads.length === 0 && (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-gray-400">No leads assigned.</td>
                 </tr>
               )}
               {leads.map(lead => (
-                <tr key={lead.id} className="hover:bg-muted transition-colors">
-                  <td className="px-3 py-2">
-                    <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:text-red-600 transition-colors">
+                <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="px-3 py-2.5">
+                    <Link href={`/leads/${lead.id}`} className="text-sm font-medium text-gray-900 hover:text-gray-500 transition-colors">
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </Link>
                   </td>
-                  <td className={`px-3 py-2 text-sm font-medium ${statusColors[lead.status] ?? 'text-gray-600'}`}>
-                    {formatLeadStatusLabel(lead.status)}
+                  <td className="px-3 py-2.5">
+                    <LeadStatusBadge status={lead.status} variant="raw" />
                   </td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground">{lead.vendors?.name ?? '—'}</td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground">{formatPhone(lead.phone)}</td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground">{lead.state ?? '—'}</td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground">{formatDate(lead.created_at)}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{lead.vendors?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatPhone(lead.phone)}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{lead.state ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(lead.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -142,42 +134,42 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      {/* Disputes */}
-      <div className="flex flex-col bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">Disputes</h2>
+      {/* Disputes table */}
+      <div className="flex flex-col border border-gray-200 rounded overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-900 ">Disputes</h2>
           <span className="text-xs text-gray-400">{disputes.length}</span>
         </div>
         <div className="overflow-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead>
-              <tr className="border-b border-border/50">
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Lead</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Reason</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Status</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Notes</th>
-                <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Date</th>
+              <tr className="border-b border-gray-100">
+                <th className={colHeader}>Lead</th>
+                <th className={colHeader}>Reason</th>
+                <th className={colHeader}>Status</th>
+                <th className={colHeader}>Notes</th>
+                <th className={colHeader}>Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody>
               {disputes.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-sm text-gray-400">No disputes filed.</td>
                 </tr>
               )}
               {disputes.map(dispute => (
-                <tr key={dispute.id} className="hover:bg-muted transition-colors">
-                  <td className="px-3 py-2">
+                <tr key={dispute.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="px-3 py-2.5">
                     {dispute.leads ? (
-                      <Link href={`/leads/${dispute.leads.id}`} className="text-foreground hover:text-red-600 transition-colors">
+                      <Link href={`/leads/${dispute.leads.id}`} className="text-sm text-gray-900 hover:text-gray-500 transition-colors">
                         {[dispute.leads.firstname, dispute.leads.lastname].filter(Boolean).join(' ') || '—'}
                       </Link>
-                    ) : '—'}
+                    ) : <span className="text-sm text-gray-400">—</span>}
                   </td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground">{formatDisputeReason(dispute.reason)}</td>
-                  <td className="px-3 py-2"><DisputeStatusBadge status={dispute.status} /></td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground max-w-[200px] truncate">{dispute.notes ?? '—'}</td>
-                  <td className="px-3 py-2 text-sm text-muted-foreground">{formatDate(dispute.created_at)}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDisputeReason(dispute.reason)}</td>
+                  <td className="px-3 py-2.5"><DisputeStatusBadge status={dispute.status} /></td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400 max-w-[200px] truncate">{dispute.notes ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(dispute.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -185,6 +177,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
+      </div>{/* end scrollable content */}
     </div>
   )
 }

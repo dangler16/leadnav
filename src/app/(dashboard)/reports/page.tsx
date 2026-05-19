@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Lead, CallLog, LeadStatus, getLeadDisplayStatus } from '@/lib/types'
-import { BarChart2, TrendingUp, Phone, Users } from 'lucide-react'
+import { BarChart2, Phone, Users } from 'lucide-react'
 
 export default async function ReportsPage() {
   const supabase = await createClient()
@@ -44,53 +44,52 @@ export default async function ReportsPage() {
     return acc
   }, {} as Record<string, number>)
 
-  return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7 h-full">
-      <div className="pb-2">
-        <h1 className="text-2xl font-bold text-foreground">Reports</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Pipeline performance and sales analytics.</p>
-      </div>
+  const card = 'bg-white border border-gray-200 rounded-lg p-5'
+  const sectionTitle = 'text-sm font-semibold text-gray-900'
 
-      <div className="flex gap-4">
+  return (
+    <div className="flex flex-col bg-white min-h-full px-8 pt-5 pb-8">
+
+      <h1 className="text-2xl font-bold text-gray-900 mb-5">Reports</h1>
+
+      {/* Stat cards */}
+      <div className="flex gap-3 mb-4">
         {[
-          { icon: <Users size={18} />, label: 'Total Leads', value: total },
-          { icon: <TrendingUp size={18} />, label: `Sales (${conversionRate}%)`, value: sales },
-          { icon: <Phone size={18} />, label: 'Contact Rate', value: `${contactRate}%` },
-          { icon: <BarChart2 size={18} />, label: 'Total Calls', value: calls.length },
+          { label: 'total leads',            value: total },
+          { label: `sales (${conversionRate}%)`, value: sales },
+          { label: 'contact rate',           value: `${contactRate}%` },
+          { label: 'total calls',            value: calls.length },
         ].map(s => (
-          <div key={s.label} className="flex-1 bg-card rounded-lg border border-border p-4">
-            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600 mb-3">
-              {s.icon}
-            </div>
-            <p className="text-xs text-muted-foreground">{s.label}</p>
-            <p className="text-2xl font-bold text-foreground mt-0.5">{s.value}</p>
+          <div key={s.label} className={`flex-1 ${card} flex flex-col gap-2`}>
+            <p className="text-3xl font-semibold leading-none tabular-nums tracking-tight text-gray-900" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
+            <p className="text-xs text-gray-400 leading-none lowercase mt-auto">{s.label}</p>
           </div>
         ))}
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-              <Users size={18} />
+
+        {/* Status breakdown */}
+        <div className={card}>
+          <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
+            <div className="w-4 h-4 flex items-center justify-center text-gray-500">
+              <Users size={15} />
             </div>
-            <p className="font-semibold text-base text-foreground">Lead Status Breakdown</p>
+            <p className={sectionTitle}>Lead Status Breakdown</p>
           </div>
           {statusBreakdown.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No leads yet</p>
+            <p className="text-sm text-gray-400 text-center py-6">No leads yet</p>
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {statusBreakdown.map(s => (
                 <div key={s.status}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">{s.label}</span>
-                    <span className="font-medium text-foreground">{s.count} <span className="text-xs text-muted-foreground font-normal">({total > 0 ? ((s.count / total) * 100).toFixed(0) : 0}%)</span></span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-400">{s.label}</span>
+                    <span className="text-xs font-medium text-gray-900">{s.count} <span className="text-gray-400 font-normal">({total > 0 ? ((s.count / total) * 100).toFixed(0) : 0}%)</span></span>
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${s.color}`}
-                      style={{ width: `${total > 0 ? (s.count / total) * 100 : 0}%` }}
-                    />
+                    <div className={`h-full rounded-full ${s.color}`} style={{ width: `${total > 0 ? (s.count / total) * 100 : 0}%` }} />
                   </div>
                 </div>
               ))}
@@ -98,30 +97,28 @@ export default async function ReportsPage() {
           )}
         </div>
 
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-              <Phone size={18} />
+        {/* Call outcomes */}
+        <div className={card}>
+          <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
+            <div className="w-4 h-4 flex items-center justify-center text-gray-500">
+              <Phone size={15} />
             </div>
-            <p className="font-semibold text-base text-foreground">Call Outcomes</p>
+            <p className={sectionTitle}>Call Outcomes</p>
           </div>
           {calls.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No calls yet</p>
+            <p className="text-sm text-gray-400 text-center py-6">No calls yet</p>
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {Object.entries(callOutcomeCounts)
                 .sort(([, a], [, b]) => b - a)
                 .map(([outcome, count]) => (
                   <div key={outcome}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-muted-foreground capitalize">{outcome.replace(/_/g, ' ')}</span>
-                      <span className="font-medium text-foreground">{count}</span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-400 capitalize">{outcome.replace(/_/g, ' ')}</span>
+                      <span className="text-xs font-medium text-gray-900">{count}</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-red-500"
-                        style={{ width: `${(count / calls.length) * 100}%` }}
-                      />
+                      <div className="h-full rounded-full bg-gray-400" style={{ width: `${(count / calls.length) * 100}%` }} />
                     </div>
                   </div>
                 ))}
@@ -129,12 +126,13 @@ export default async function ReportsPage() {
           )}
         </div>
 
-        <div className="col-span-2 bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-sm bg-red-50 flex items-center justify-center text-red-600">
-              <BarChart2 size={18} />
+        {/* Pipeline summary */}
+        <div className={`col-span-2 ${card}`}>
+          <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
+            <div className="w-4 h-4 flex items-center justify-center text-gray-500">
+              <BarChart2 size={15} />
             </div>
-            <p className="font-semibold text-base text-foreground">Pipeline Summary</p>
+            <p className={sectionTitle}>Pipeline Summary</p>
           </div>
           <div className="grid grid-cols-3 gap-6 text-center">
             {[
@@ -143,13 +141,14 @@ export default async function ReportsPage() {
               { label: 'Lost', value: lost, color: 'text-red-600' },
             ].map(s => (
               <div key={s.label}>
-                <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
-                <p className="text-xs text-muted-foreground">{total > 0 ? ((s.value / total) * 100).toFixed(1) : 0}% of total</p>
+                <p className={`text-3xl font-semibold leading-none tabular-nums tracking-tight ${s.color}`} style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
+                <p className="text-sm text-gray-900 mt-1.5">{s.label}</p>
+                <p className="text-xs text-gray-400">{total > 0 ? ((s.value / total) * 100).toFixed(1) : 0}% of total</p>
               </div>
             ))}
           </div>
         </div>
+
       </div>
     </div>
   )

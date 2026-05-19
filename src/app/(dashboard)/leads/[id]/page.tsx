@@ -21,14 +21,14 @@ function formatDate(dateStr: string) {
 }
 
 const outcomeConfig: Record<CallOutcome, { label: string; className: string; dotClass: string }> = {
-  no_answer:          { label: 'No Answer',         className: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',     dotClass: 'bg-gray-400 dark:bg-gray-500' },
-  voicemail:          { label: 'Voicemail',          className: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',     dotClass: 'bg-gray-400 dark:bg-gray-500' },
-  callback_requested: { label: 'Callback Requested', className: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800',     dotClass: 'bg-cyan-500' },
-  appointment_set:    { label: 'Appointment Set',    className: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800', dotClass: 'bg-indigo-500' },
-  contacted:          { label: 'Contacted',          className: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800',     dotClass: 'bg-cyan-500' },
-  not_interested:     { label: 'Not Interested',     className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',           dotClass: 'bg-red-500' },
-  wrong_number:       { label: 'Wrong Number',       className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',           dotClass: 'bg-red-500' },
-  sale:               { label: 'Sale',               className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
+  no_answer:          { label: 'No Answer',         className: 'bg-gray-100 text-gray-600 border-gray-200',     dotClass: 'bg-gray-400' },
+  voicemail:          { label: 'Voicemail',          className: 'bg-gray-100 text-gray-600 border-gray-200',     dotClass: 'bg-gray-400' },
+  callback_requested: { label: 'Callback Requested', className: 'bg-cyan-100 text-cyan-700 border-cyan-200',     dotClass: 'bg-cyan-500' },
+  appointment_set:    { label: 'Appointment Set',    className: 'bg-indigo-100 text-indigo-700 border-indigo-200', dotClass: 'bg-indigo-500' },
+  contacted:          { label: 'Contacted',          className: 'bg-cyan-100 text-cyan-700 border-cyan-200',     dotClass: 'bg-cyan-500' },
+  not_interested:     { label: 'Not Interested',     className: 'bg-red-100 text-red-700 border-red-200',        dotClass: 'bg-red-500' },
+  wrong_number:       { label: 'Wrong Number',       className: 'bg-red-100 text-red-700 border-red-200',        dotClass: 'bg-red-500' },
+  sale:               { label: 'Sale',               className: 'bg-green-100 text-green-700 border-green-200',  dotClass: 'bg-green-500' },
 }
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -69,107 +69,111 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     : null
 
   return (
-    <div className="flex flex-col gap-4 pt-6 px-7 pb-7">
-      <div>
-        <Link href="/leads" className="flex items-center gap-0 text-sm text-muted-foreground hover:text-foreground mb-1 -mt-1 -ml-1">
-          <ChevronLeft size={15} /> Back to Leads
+    <div className="flex flex-col h-full overflow-hidden bg-white">
+
+      {/* Header */}
+      <div className="px-8 pt-5 pb-4 shrink-0 border-b border-gray-100">
+        <Link href="/leads" className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-2">
+          <ChevronLeft size={13} /> Back to Leads
         </Link>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || 'Unknown Lead'}
-            </h1>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-xs text-muted-foreground">{formatDate(lead.created_at)}</span>
-            </div>
-          </div>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || 'Unknown Lead'}
+          </h1>
+          <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
           <LeadActions lead={lead} userId={user.id} />
         </div>
       </div>
 
-      <Tabs defaultValue="details">
-        <div className="flex items-center gap-3">
-          <TabsList>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="calls">Call History ({calls.length})</TabsTrigger>
-          </TabsList>
-          <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
-        </div>
+      {/* Content */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-8 pt-5 pb-5">
+        <Tabs defaultValue="details" className="flex-1 min-h-0">
 
-        <TabsContent value="details">
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <ContactInfoCard
-              lead={lead}
-              vendorName={vendorName}
-              isAdmin={isAdmin}
-              agents={agents}
-              assignedName={assignedName}
-            />
+          <div className="shrink-0 mb-4">
+            <TabsList>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="calls">Call History ({calls.length})</TabsTrigger>
+            </TabsList>
+          </div>
 
-            <HouseholdCard lead={lead} />
+          <TabsContent value="details" className="flex-1 min-h-0 overflow-hidden">
+            <div className="grid grid-cols-3 grid-rows-1 gap-4 h-full">
+              <ContactInfoCard
+                lead={lead}
+                vendorName={vendorName}
+                isAdmin={isAdmin}
+                agents={agents}
+                assignedName={assignedName}
+              />
 
-            <div className="flex flex-col gap-4">
-            <NotesCard lead={lead} />
-            <div className="bg-card rounded-lg border border-border p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-sm bg-accent flex items-center justify-center text-accent-foreground">
-                  <AlertCircle size={18} />
-                </div>
-                <p className="font-semibold text-base text-foreground">Disputes</p>
-              </div>
-              {disputes.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No disputes</p>
-              ) : (
-                <div className="space-y-2">
-                  {disputes.map(d => (
-                    <div key={d.id} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
-                      <div>
-                        <p className="text-sm text-foreground">{formatDisputeReason(d.reason)}</p>
-                        <p className="text-xs text-muted-foreground">{formatDate(d.created_at)}</p>
-                      </div>
-                      <DisputeStatusBadge status={d.status} />
+              <HouseholdCard lead={lead} />
+
+              <div className="flex flex-col gap-4 min-h-0 overflow-hidden">
+                <NotesCard lead={lead} className="flex-1 min-h-0" />
+
+                <div className="bg-white border border-gray-200 rounded-lg p-5 shrink-0">
+                  <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
+                    <AlertCircle className="w-4 h-4 text-gray-500" />
+                    <p className="text-sm font-semibold text-gray-900">Disputes</p>
+                  </div>
+                  {disputes.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-5 gap-2">
+                      <AlertCircle size={20} className="text-gray-200" strokeWidth={1.5} />
+                      <p className="text-xs text-gray-400">No disputes filed</p>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="flex flex-col gap-0">
+                      {disputes.map(d => (
+                        <div key={d.id} className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0">
+                          <div>
+                            <p className="text-sm text-gray-900">{formatDisputeReason(d.reason)}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{formatDate(d.created_at)}</p>
+                          </div>
+                          <DisputeStatusBadge status={d.status} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
-            </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="calls">
-          <div className="mt-4 bg-card border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-md">
-              <thead>
-                <tr className="border-b border-border/50">
-                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Outcome</th>
-                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Notes</th>
-                  <th className="text-left text-sm font-medium text-muted-foreground px-3 py-2">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calls.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="py-12 text-center text-sm text-muted-foreground">No calls logged yet</td>
+          <TabsContent value="calls" className="flex-1 min-h-0 overflow-y-auto">
+            <div className="border border-gray-200 rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Outcome</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Notes</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Date</th>
                   </tr>
-                )}
-                {calls.map(call => (
-                  <tr key={call.id} className="border-b border-border/50 last:border-0">
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <span className={cn(badgeShape, 'gap-1.5 border', outcomeConfig[call.outcome].className)}>
-                        <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', outcomeConfig[call.outcome].dotClass)} />
-                        {outcomeConfig[call.outcome].label}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-sm text-muted-foreground">{call.notes ?? '—'}</td>
-                    <td className="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">{formatDate(call.called_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </TabsContent>
-      </Tabs>
+                </thead>
+                <tbody>
+                  {calls.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="py-12 text-center text-sm text-gray-400">No calls logged yet</td>
+                    </tr>
+                  )}
+                  {calls.map(call => (
+                    <tr key={call.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                      <td className="px-3 py-2.5 whitespace-nowrap">
+                        <span className={cn(badgeShape, 'gap-1.5 border', outcomeConfig[call.outcome].className)}>
+                          <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', outcomeConfig[call.outcome].dotClass)} />
+                          {outcomeConfig[call.outcome].label}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5 text-xs text-gray-400">{call.notes ?? '—'}</td>
+                      <td className="px-3 py-2.5 text-xs text-gray-400 whitespace-nowrap">{formatDate(call.called_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
+
+        </Tabs>
+      </div>
     </div>
   )
 }

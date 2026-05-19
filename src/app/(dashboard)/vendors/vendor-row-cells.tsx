@@ -6,6 +6,8 @@ import { Vendor, VendorApiKey } from '@/lib/types'
 import { EditVendorDialog } from './edit-vendor-dialog'
 import { VendorApiKeys } from './vendor-api-keys'
 import { DeleteVendorButton } from './delete-vendor-button'
+import { badgeShape } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 const STATE_NAMES: Record<string, string> = {
   AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',
@@ -29,51 +31,51 @@ export function VendorRowCells({ vendor, vendorKeys }: { vendor: Vendor; vendorK
 
   return (
     <>
-      <td className="px-3 py-2">
+      <td className="px-3 py-2.5">
         {vendor.lead_types.length > 0 ? (
           <div className="flex gap-1 flex-wrap">
             {vendor.lead_types.map(lt => (
-              <span key={lt} className="text-sm font-medium px-2 py-1 rounded-sm bg-white border-1 border-neutral-300 text-gray-900">{lt}</span>
+              <span key={lt} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>{lt}</span>
             ))}
           </div>
         ) : (
-          <span className="text-muted-foreground/40">—</span>
+          <span className="text-gray-400">—</span>
         )}
       </td>
-      <td className="px-3 py-2">
+      <td className="px-3 py-2.5">
         {locations.length === 0 ? (
-          <span className="text-muted-foreground/40">—</span>
+          <span className="text-gray-400">—</span>
         ) : locations.length > 5 ? (
           <button
             onClick={() => setEditOpen(true)}
-            className="text-sm font-medium px-2 py-1 rounded-sm bg-white border-1 border-neutral-300 text-gray-900 transition-colors hover:bg-neutral-200"
+            className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer')}
           >
             View all ({locations.length})
           </button>
         ) : (
           <div className="flex gap-1 flex-wrap">
             {locations.map(s => (
-              <span key={s} className="text-sm font-medium px-2 py-1 rounded-sm bg-white border-1 border-neutral-300 text-gray-900">
+              <span key={s} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>
                 {STATE_NAMES[s] ?? s}
               </span>
             ))}
           </div>
         )}
       </td>
-      <td className="px-3 py-2 text-sm text-gray-900">
-        {vendor.cost_per_lead != null ? `$${vendor.cost_per_lead}` : <span className="text-muted-foreground/40">—</span>}
+      <td className="px-3 py-2.5 text-sm text-gray-900">
+        {vendor.cost_per_lead != null ? `$${vendor.cost_per_lead}` : <span className="text-gray-400">—</span>}
       </td>
-      <td className="px-3 py-2 text-sm text-gray-900">{formatDate(vendor.created_at)}</td>
-      <td className="px-3 py-2 text-right">
+      <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(vendor.created_at)}</td>
+      <td className="px-3 py-2.5 text-right">
         <div className="flex items-center justify-end gap-1">
           {vendor.type === 'inbound' && (
             <VendorApiKeys vendor={vendor} initialKeys={vendorKeys} />
           )}
           <button
             onClick={() => setEditOpen(true)}
-            className="ml-1 p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="ml-1 p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
           >
-            <Pencil size={18} />
+            <Pencil size={14} />
           </button>
           <DeleteVendorButton vendorId={vendor.id} vendorName={vendor.name} />
         </div>

@@ -72,15 +72,13 @@ export function LeadActions({ lead, userId }: Props) {
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <Button
-          onClick={() => setOpen(true)}
-          variant="outline"
-          className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors"
-        >
-          Log Call
-        </Button>
-      </div>
+      <Button
+        onClick={() => setOpen(true)}
+        size="sm"
+        className="bg-gray-900 text-white hover:bg-gray-800 border-0"
+      >
+        Log Call
+      </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-sm" showCloseButton={false}>
@@ -94,7 +92,7 @@ export function LeadActions({ lead, userId }: Props) {
                 options={outcomeOptions}
                 value={outcome}
                 onChange={v => setOutcome(v as CallOutcome)}
-                buttonClassName="hover:border-red-600"
+                buttonClassName=""
               />
             </div>
             <div className="space-y-1.5">
@@ -105,7 +103,7 @@ export function LeadActions({ lead, userId }: Props) {
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Notes…"
                 rows={3}
-                className="text-sm resize-none hover:border-red-600"
+                className="text-sm resize-none"
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">

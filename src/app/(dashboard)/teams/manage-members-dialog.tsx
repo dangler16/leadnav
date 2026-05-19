@@ -114,7 +114,7 @@ export function ManageMembersDialog({
                               <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold flex-shrink-0">
                                 {(m.profile.first_name?.[0] ?? '?').toUpperCase()}
                               </div>
-                              <p className="text-sm font-medium text-gray-800 truncate">{name}</p>
+                              <p className="text-sm font-medium text-gray-900 truncate">{name}</p>
                             </div>
                           </td>
                           {PERMISSIONS.map(({ key }) => (
@@ -138,7 +138,7 @@ export function ManageMembersDialog({
                             <button
                               onClick={() => handleRemove(m.user_id)}
                               disabled={loading === `remove-${m.user_id}`}
-                              className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                              className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-gray-800 transition-colors"
                             >
                               <UserMinus size={13} />
                             </button>

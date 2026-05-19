@@ -29,22 +29,32 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
   return (
     <TabsPrimitive.Root value={value} onValueChange={handleChange}>
       <TabsPrimitive.List
-        className="relative inline-flex items-center gap-1 rounded-md bg-muted border border-border p-0.5 text-muted-foreground w-fit flex-wrap"
+        className="relative inline-flex items-center gap-0.5 rounded bg-gray-100 border border-gray-200 p-0.5 text-gray-500 w-fit flex-wrap"
       >
-        {tabs.map(tab => (
-          <TabsPrimitive.Tab
-            key={tab.value}
-            value={tab.value}
-            className={cn(
-              'relative z-10 inline-flex items-center justify-center rounded-sm px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors',
-              'text-muted-foreground hover:text-foreground data-[active]:text-white',
-            )}
-          >
-            {tab.label} ({counts[tab.value]})
-          </TabsPrimitive.Tab>
-        ))}
+        {tabs.map(tab => {
+          const count = counts[tab.value]
+          const isEmpty = count === 0
+          return (
+            <TabsPrimitive.Tab
+              key={tab.value}
+              value={tab.value}
+              className={cn(
+                'relative z-10 inline-flex items-center gap-1 justify-center rounded-sm px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
+                'data-[active]:text-white',
+                isEmpty
+                  ? 'text-gray-400 opacity-40'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+              )}
+            >
+              {tab.label}
+              <span className={cn('font-mono tabular-nums', isEmpty ? 'text-gray-400' : 'text-gray-400')}>
+                {count}
+              </span>
+            </TabsPrimitive.Tab>
+          )
+        })}
         <TabsPrimitive.Indicator
-          className="absolute rounded-sm bg-red-600 border-1 border-black/10 transition-all duration-200 ease-out"
+          className="absolute rounded-sm bg-gray-900 transition-all duration-200 ease-out"
           style={{
             left: 'var(--active-tab-left)',
             top: 'var(--active-tab-top)',

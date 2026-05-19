@@ -136,7 +136,7 @@ export function NewVendorDialog() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} className="flex items-center px-2 py-1 rounded-sm bg-red-600 text-white text-sm font-medium whitespace-nowrap overflow-hidden hover:bg-red-800 transition-colors h-fit">
+      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-sm font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
         Add Vendor
       </Button>
       <Dialog open={open} onOpenChange={val => { setOpen(val); if (!val) reset() }}>
@@ -208,7 +208,7 @@ export function NewVendorDialog() {
                         onClick={() => toggleState(abbr)}
                         className={`text-sm px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-red-600 text-white'
+                            ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
@@ -219,7 +219,7 @@ export function NewVendorDialog() {
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-sm text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-400 leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}
