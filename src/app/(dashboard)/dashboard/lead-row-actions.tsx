@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { MoreHorizontal, Phone, Eye, AlertCircle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function LeadRowActions({ leadId }: { leadId: string }) {
   const [open, setOpen] = useState(false)
@@ -20,16 +21,15 @@ export function LeadRowActions({ leadId }: { leadId: string }) {
   return (
     <div ref={ref} className="relative flex items-center justify-center">
       <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(o => !o) }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (open) setOpen(false); else requestAnimationFrame(() => setOpen(true)) }}
         className="p-1 rounded text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-colors"
       >
         <MoreHorizontal size={13} strokeWidth={2} />
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-1 w-32 bg-white border border-gray-200 rounded shadow-sm z-50 py-1 overflow-hidden">
+      <div className={cn('absolute right-0 top-full mt-1 w-32 bg-white border border-gray-200 rounded shadow-sm z-50 py-1 overflow-hidden dropdown-panel', open && 'open')}>
           <Link
-            href="/calls"
+            href={`/leads/${leadId}`}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
           >
@@ -45,7 +45,7 @@ export function LeadRowActions({ leadId }: { leadId: string }) {
             View
           </Link>
           <Link
-            href="/disputes"
+            href={`/leads/${leadId}`}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
           >
@@ -53,7 +53,6 @@ export function LeadRowActions({ leadId }: { leadId: string }) {
             Dispute
           </Link>
         </div>
-      )}
     </div>
   )
 }

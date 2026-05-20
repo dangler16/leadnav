@@ -19,6 +19,7 @@ export function DisputeStatusSelect({ disputeId, status: initialStatus }: { disp
   const [status, setStatus] = useState(initialStatus)
   const [open, setOpen] = useState(false)
   const [rendered, setRendered] = useState(false)
+  const [openUpward, setOpenUpward] = useState(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const [pending, startTransition] = useTransition()
   const ref = useRef<HTMLDivElement>(null)
@@ -42,13 +43,18 @@ export function DisputeStatusSelect({ disputeId, status: initialStatus }: { disp
       const rect = triggerRef.current.getBoundingClientRect()
       const spaceBelow = window.innerHeight - rect.bottom
       const dropdownHeight = Object.keys(statusConfig).length * 36
-      if (spaceBelow < dropdownHeight && rect.top > spaceBelow) {
+      const goUp = spaceBelow < dropdownHeight && rect.top > spaceBelow
+      setOpenUpward(goUp)
+      if (goUp) {
         setDropdownStyle({ position: 'fixed', bottom: window.innerHeight - rect.top + 2, left: rect.left, minWidth: rect.width })
       } else {
         setDropdownStyle({ position: 'fixed', top: rect.bottom + 2, left: rect.left, minWidth: rect.width })
       }
+      setRendered(true)
+      requestAnimationFrame(() => setOpen(true))
+    } else {
+      setOpen(false)
     }
-    setOpen(v => !v)
   }
 
   function handleSelect(newStatus: DisputeStatus) {
@@ -75,14 +81,12 @@ export function DisputeStatusSelect({ disputeId, status: initialStatus }: { disp
           <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', current.dotClass)} />
           <span className="whitespace-nowrap">{current.label}</span>
         </span>
-        <ChevronDown size={13} className={`opacity-60 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={13} className={cn('opacity-60 dropdown-chevron', open && 'open')} />
       </button>
 
       {rendered && (
         <div
-          data-closed={!open ? '' : undefined}
-          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
-          className="z-50 bg-white border border-gray-200 rounded shadow-sm overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
+          className={cn('z-50 bg-white border border-gray-200 rounded shadow-sm overflow-hidden dropdown-panel', openUpward && 'opens-up', open && 'open')}
           style={dropdownStyle}
         >
           {(Object.entries(statusConfig) as [DisputeStatus, typeof statusConfig[DisputeStatus]][]).map(([value, cfg]) => (

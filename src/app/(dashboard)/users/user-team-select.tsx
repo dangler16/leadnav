@@ -6,6 +6,7 @@ import { ChevronDown, Check } from 'lucide-react'
 import { Team } from '@/lib/types'
 import { setUserTeam } from './actions'
 import { badgeShape } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 const TRANSITION = 'background-color 200ms, color 200ms, border-color 200ms'
 
@@ -21,6 +22,7 @@ export function UserTeamSelect({
   const [teamId, setTeamId] = useState(initialTeamId ?? '')
   const [open, setOpen] = useState(false)
   const [rendered, setRendered] = useState(false)
+  const [openUpward, setOpenUpward] = useState(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const [isPending, startTransition] = useTransition()
   const ref = useRef<HTMLDivElement>(null)
@@ -44,13 +46,18 @@ export function UserTeamSelect({
       const rect = triggerRef.current.getBoundingClientRect()
       const spaceBelow = window.innerHeight - rect.bottom
       const dropdownHeight = (teams.length + 1) * 36
-      if (spaceBelow < dropdownHeight && rect.top > spaceBelow) {
+      const goUp = spaceBelow < dropdownHeight && rect.top > spaceBelow
+      setOpenUpward(goUp)
+      if (goUp) {
         setDropdownStyle({ position: 'fixed', bottom: window.innerHeight - rect.top + 2, left: rect.left, minWidth: rect.width })
       } else {
         setDropdownStyle({ position: 'fixed', top: rect.bottom + 2, left: rect.left, minWidth: rect.width })
       }
+      setRendered(true)
+      requestAnimationFrame(() => setOpen(true))
+    } else {
+      setOpen(false)
     }
-    setOpen(v => !v)
   }
 
   function handleSelect(newTeamId: string) {
@@ -81,14 +88,12 @@ export function UserTeamSelect({
         className={`${badgeShape} justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50`}
       >
         <span className="whitespace-nowrap">{selectedTeam?.name ?? 'No team'}</span>
-        <ChevronDown size={13} className={`opacity-60 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={13} className={cn('opacity-60 dropdown-chevron', open && 'open')} />
       </button>
 
       {rendered && (
         <div
-          data-closed={!open ? '' : undefined}
-          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
-          className="z-50 bg-card border border-border rounded-3xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
+          className={cn('z-50 bg-card border border-border rounded-3xl shadow-lg overflow-hidden dropdown-panel', openUpward && 'opens-up', open && 'open')}
           style={dropdownStyle}
         >
           <button

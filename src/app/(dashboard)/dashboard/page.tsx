@@ -87,11 +87,11 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase.from('leads').select('*', { count: 'exact', head: true }).eq('assigned_to', user.id).not('status', 'in', '("lost","sale","appt_no_sale")'),
     supabase.from('orders').select('*', { count: 'exact', head: true }).eq('account_id', user.id).eq('status', 'active'),
-    supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('agent_id', user.id).in('status', ['pending', 'active']),
+    supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('agent_id', user.id).in('status', ['open', 'in_review']),
     supabase.from('call_logs').select('*', { count: 'exact', head: true }).eq('agent_id', user.id),
     supabase.from('leads').select('*', { count: 'exact', head: true }).eq('assigned_to', user.id).eq('status', 'sale'),
     supabase.from('leads').select('*').eq('assigned_to', user.id).order('created_at', { ascending: false }).limit(20),
-    supabase.from('disputes').select('*, leads(firstname, lastname)').eq('agent_id', user.id).in('status', ['pending', 'active']).order('created_at', { ascending: false }).limit(10),
+    supabase.from('disputes').select('*, leads(firstname, lastname)').eq('agent_id', user.id).in('status', ['open', 'in_review']).order('created_at', { ascending: false }).limit(10),
     supabase.from('vendors').select('*'),
     supabase.from('call_logs').select('id, outcome, called_at, leads(firstname, lastname)').eq('agent_id', user.id).order('called_at', { ascending: false }).limit(6),
     supabase.from('orders').select('id, lead_types, created_at').eq('account_id', user.id).order('created_at', { ascending: false }).limit(6),

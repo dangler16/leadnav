@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { Profile } from '@/lib/types'
-import { User, ShieldCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { ProfileForm } from './profile-form'
+import { AvatarUpload } from './avatar-upload'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -33,9 +33,10 @@ export default async function ProfilePage() {
         {/* Profile card */}
         <div className="bg-white border border-gray-200 rounded-lg p-5">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-base font-bold flex-shrink-0">
-              {(profile?.first_name?.[0] ?? '?').toUpperCase()}
-            </div>
+            <AvatarUpload
+              currentUrl={profile?.avatar_url ?? null}
+              initials={(profile?.first_name?.[0] ?? '?').toUpperCase()}
+            />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-900 truncate">
                 {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '—'}
@@ -68,15 +69,6 @@ export default async function ProfilePage() {
           <p className="text-xs text-gray-400 border-t border-gray-200 pt-4 mt-4">
             Member since {formatDate(profile?.created_at ?? '')}
           </p>
-        </div>
-
-        {/* Edit name card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5">
-          <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200">
-            <User className="w-4 h-4 text-gray-500" />
-            <p className="text-xs font-semibold text-gray-900">Edit Name</p>
-          </div>
-          <ProfileForm profile={profile} />
         </div>
 
       </div>

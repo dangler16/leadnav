@@ -15,6 +15,7 @@ type SidebarPermissions = Pick<TeamMember, 'can_order' | 'can_view_leads' | 'can
 
 interface SidebarProps {
   role?: UserRole
+  userId?: string
   notificationCount?: number
   permissions?: SidebarPermissions
 }
@@ -46,7 +47,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function Sidebar({ role = 'user', notificationCount = 0, permissions }: SidebarProps) {
+export function Sidebar({ role = 'user', userId, notificationCount = 0, permissions }: SidebarProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -70,7 +71,7 @@ export function Sidebar({ role = 'user', notificationCount = 0, permissions }: S
       {/* Logo */}
       <div className="flex items-center justify-between h-12 px-4 border-b border-white/10">
         <img src="/leadnav-white-text.svg" alt="LeadNav" width="100" />
-        <NotificationBell initialCount={notificationCount} />
+        <NotificationBell userId={userId} initialCount={notificationCount} />
       </div>
 
       {/* Main nav */}

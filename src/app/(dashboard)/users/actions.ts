@@ -108,18 +108,16 @@ export async function inviteUser(fields: {
     if (fields.teamId && !myTeamIds.has(fields.teamId)) throw new Error('Unauthorized')
   }
 
-  const { data: inviteData, error: inviteError } = await service.auth.admin.inviteUserByEmail(fields.email)
+  const { data: inviteData, error: inviteError } = await service.auth.admin.inviteUserByEmail(fields.email, {
+    data: {
+      first_name: fields.firstName,
+      last_name: fields.lastName,
+      role: fields.role,
+    },
+  })
   if (inviteError || !inviteData?.user) throw new Error('Failed to send invite')
 
   const newUserId = inviteData.user.id
-
-  const { error: profileError } = await service.from('profiles').insert({
-    id: newUserId,
-    first_name: fields.firstName,
-    last_name: fields.lastName,
-    role: fields.role,
-  })
-  if (profileError) throw new Error('Failed to create profile')
 
   if (fields.role === 'user' && fields.teamId) {
     await service.from('team_members').insert({

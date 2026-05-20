@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bell, CheckCheck, X, SquareUser, AlertCircle, Package } from 'lucide-react'
+import { Bell, CheckCheck, X, SquareUser, AlertCircle, Package, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -26,7 +26,7 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-export function NotificationBell({ initialCount }: { initialCount: number }) {
+export function NotificationBell({ userId, initialCount }: { userId?: string; initialCount: number }) {
   const [open, setOpen] = useState(false)
   const [rendered, setRendered] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
@@ -39,6 +39,28 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
   const supabase = createClient()
 
   useEffect(() => { if (open) setRendered(true) }, [open])
+
+  // Real-time subscription for incoming notifications
+  useEffect(() => {
+    if (!userId) return
+
+    const channel = supabase
+      .channel('notification-bell')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`,
+      }, (payload) => {
+        const n = payload.new as Notification
+        setUnreadCount(c => c + 1)
+        setNotifications(prev => [n, ...prev].slice(0, 8))
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
@@ -60,20 +82,19 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
 
   async function toggle() {
     if (open) { setOpen(false); return }
+    if (!userId) return
 
     const rect = buttonRef.current?.getBoundingClientRect()
     if (rect) setPos({ top: rect.top, left: rect.right + 8 })
 
-    setOpen(true)
+    setRendered(true)
     setLoading(true)
-
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setLoading(false); return }
+    requestAnimationFrame(() => setOpen(true))
 
     const { data } = await supabase
       .from('notifications')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(8)
 
@@ -84,12 +105,23 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
   }
 
   async function markAllRead() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    await supabase.from('notifications').update({ read: true }).eq('user_id', user.id).eq('read', false)
+    if (!userId) return
+    await supabase.from('notifications').update({ read: true }).eq('user_id', userId).eq('read', false)
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
     setUnreadCount(0)
     router.refresh()
+  }
+
+  async function markRead(id: string) {
+    await supabase.from('notifications').update({ read: true }).eq('id', id)
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+    setUnreadCount(prev => Math.max(0, prev - 1))
+  }
+
+  async function deleteNotification(id: string, wasUnread: boolean) {
+    await supabase.from('notifications').delete().eq('id', id)
+    setNotifications(prev => prev.filter(n => n.id !== id))
+    if (wasUnread) setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
   return (
@@ -113,10 +145,8 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
       {rendered && (
         <div
           ref={popupRef}
-          data-closed={!open ? '' : undefined}
-          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
           style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="w-72 bg-white rounded border border-gray-200 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-150"
+          className={cn('w-72 bg-white rounded border border-gray-200 shadow-sm overflow-hidden dropdown-panel origin-top-left', open && 'open')}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100">
@@ -162,7 +192,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
               notifications.map(n => {
                 const inner = (
                   <div className={cn(
-                    'flex items-start gap-2.5 px-3 py-2.5 border-b border-gray-50 hover:bg-gray-50 transition-colors',
+                    'group flex items-start gap-2.5 px-3 py-2.5 border-b border-gray-50 hover:bg-gray-50 transition-colors',
                     !n.read && 'bg-gray-50/80'
                   )}>
                     <div className="mt-0.5 w-5 h-5 rounded flex items-center justify-center bg-gray-100 flex-shrink-0">
@@ -171,26 +201,37 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-1.5">
                         <p className={cn(
-                          'text-xs leading-snug',
-                          n.read ? 'text-gray-500' : 'font-medium text-gray-900'
+                          'text-xs font-semibold leading-snug',
+                          n.read ? 'text-gray-400' : 'text-gray-900'
                         )}>
                           {n.title}
                         </p>
-                        {!n.read && (
-                          <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
-                        )}
+                        <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
+                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />}
+                          <button
+                            onClick={e => { e.preventDefault(); e.stopPropagation(); deleteNotification(n.id, !n.read) }}
+                            className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-300 hover:text-red-400 transition-all rounded"
+                            title="Delete"
+                          >
+                            <Trash2 size={11} />
+                          </button>
+                        </div>
                       </div>
                       {n.body && (
-                        <p className="text-xs text-gray-400 mt-0.5 truncate">{n.body}</p>
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">{n.body}</p>
                       )}
-                      <p className="text-xs text-gray-400 mt-1 tabular-nums">{timeAgo(n.created_at)}</p>
+                      <p className="text-[11px] text-gray-400 mt-1 tabular-nums">{timeAgo(n.created_at)}</p>
                     </div>
                   </div>
                 )
+                const handleClick = () => {
+                  setOpen(false)
+                  if (!n.read) markRead(n.id)
+                }
                 return n.link ? (
-                  <Link key={n.id} href={n.link} onClick={() => setOpen(false)}>{inner}</Link>
+                  <Link key={n.id} href={n.link} onClick={handleClick}>{inner}</Link>
                 ) : (
-                  <div key={n.id}>{inner}</div>
+                  <div key={n.id} className="w-full text-left cursor-pointer" onClick={handleClick} role="button" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}>{inner}</div>
                 )
               })
             )}

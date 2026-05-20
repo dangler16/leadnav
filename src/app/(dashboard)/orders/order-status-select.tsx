@@ -23,6 +23,7 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
   const [status, setStatus] = useState<TriggerStatus>(initialStatus)
   const [open, setOpen] = useState(false)
   const [rendered, setRendered] = useState(false)
+  const [openUpward, setOpenUpward] = useState(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const [saving, setSaving] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -48,23 +49,30 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
       const rect = triggerRef.current.getBoundingClientRect()
       const spaceBelow = window.innerHeight - rect.bottom
       const dropdownHeight = 3 * 36
-      if (spaceBelow < dropdownHeight && rect.top > spaceBelow) {
+      const goUp = spaceBelow < dropdownHeight && rect.top > spaceBelow
+      setOpenUpward(goUp)
+      if (goUp) {
         setDropdownStyle({ position: 'fixed', bottom: window.innerHeight - rect.top + 2, left: rect.left, minWidth: rect.width })
       } else {
         setDropdownStyle({ position: 'fixed', top: rect.bottom + 2, left: rect.left, minWidth: rect.width })
       }
+      setRendered(true)
+      requestAnimationFrame(() => setOpen(true))
+    } else {
+      setOpen(false)
     }
-    setOpen(v => !v)
   }
 
   async function handleSelect(newStatus: TriggerStatus | 'completed') {
     setOpen(false)
     if (newStatus === status) return
+    const previous = status
     setSaving(true)
     if (newStatus !== 'completed') setStatus(newStatus)
-    await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
+    const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
+    if (error) setStatus(previous)
     setSaving(false)
-    router.refresh()
+    if (!error) router.refresh()
   }
 
   const current = triggerStyles[status]
@@ -81,14 +89,12 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
           <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', current.dotClass)} />
           <span className="whitespace-nowrap">{current.label}</span>
         </span>
-        <ChevronDown size={13} className={`opacity-60 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={13} className={cn('opacity-60 dropdown-chevron', open && 'open')} />
       </button>
 
       {rendered && (
         <div
-          data-closed={!open ? '' : undefined}
-          onAnimationEnd={(e) => { if (e.currentTarget === e.target && !open) setRendered(false) }}
-          className="z-50 bg-white border border-gray-200 rounded shadow-sm overflow-hidden animate-in fade-in zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 duration-100"
+          className={cn('z-50 bg-white border border-gray-200 rounded shadow-sm overflow-hidden dropdown-panel', openUpward && 'opens-up', open && 'open')}
           style={dropdownStyle}
         >
           {(Object.entries(triggerStyles) as [TriggerStatus, typeof triggerStyles[TriggerStatus]][]).map(([value, cfg]) => (

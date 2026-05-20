@@ -7,6 +7,7 @@ export type Profile = {
   role: UserRole
   wallet_balance_cents: number
   stripe_customer_id: string | null
+  avatar_url: string | null
   created_at: string
 }
 

@@ -72,8 +72,12 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           <ChevronLeft size={13} /> Back to Users
         </Link>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-[14px] font-bold shrink-0">
-            {(profile.first_name?.[0] ?? '?').toUpperCase()}
+          <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-600 text-[14px] font-bold shrink-0">
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              (profile.first_name?.[0] ?? '?').toUpperCase()
+            )}
           </div>
           <div>
             <h1 className="text-xl font-semibold text-gray-900 leading-none ">{fullName}</h1>

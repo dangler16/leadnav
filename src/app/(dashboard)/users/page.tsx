@@ -153,8 +153,12 @@ export default async function UsersPage({
                   <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold">
-                          {(p.first_name?.[0] ?? '?').toUpperCase()}
+                        <div className="w-7 h-7 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
+                          {p.avatar_url ? (
+                            <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            (p.first_name?.[0] ?? '?').toUpperCase()
+                          )}
                         </div>
                         <Link href={`/users/${p.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
                           {[p.first_name, p.last_name].filter(Boolean).join(' ') || '—'}

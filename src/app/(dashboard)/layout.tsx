@@ -28,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
-      <Sidebar role={role} notificationCount={notificationCount ?? 0} permissions={permissions} />
+      <Sidebar role={role} userId={user.id} notificationCount={notificationCount ?? 0} permissions={permissions} />
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
