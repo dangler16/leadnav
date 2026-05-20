@@ -77,7 +77,7 @@ export function AssignAdminDialog({
                   <button
                     onClick={() => handleRemove(a.user_id)}
                     disabled={loading === `remove-${a.user_id}`}
-                    className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-gray-800 transition-colors"
+                    className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <UserMinus size={13} />
                   </button>

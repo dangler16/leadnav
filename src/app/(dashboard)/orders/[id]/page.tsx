@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Order, Vendor, Lead, LeadStatus } from '@/lib/types'
+import { createServiceClient } from '@/lib/supabase/service'
+import { Order, OrderAgent, Profile, UserRole, Vendor, Lead, LeadStatus } from '@/lib/types'
 import { OrderStatusSelect } from '../order-status-select'
 import { OrderLeadsFilterTabs } from './order-leads-filter-tabs'
 import { EditOrderDialog } from './edit-order-dialog'
@@ -53,6 +54,7 @@ function formatPhone(phone: string | null) {
 }
 
 type LeadStatusFilter = 'all' | LeadStatus
+type AgentWithProfile = OrderAgent & { profile: Profile }
 
 const leadTabs: { value: LeadStatusFilter; label: string }[] = [
   { value: 'all',               label: 'All' },
@@ -77,28 +79,94 @@ export default async function OrderDetailPage({
   const { id } = await params
   const { filter: filterParam } = await searchParams
   const filter = (filterParam as LeadStatusFilter) ?? 'all'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const [{ data: orderData }, { data: leadsData }] = await Promise.all([
-    supabase.from('orders').select('*').eq('id', id).eq('account_id', user.id).single(),
-    supabase.from('leads').select('*').eq('order_id', id).order('created_at', { ascending: false }),
+  const { data: myProfileData } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const role = (myProfileData?.role ?? 'user') as UserRole
+  const isSuperAdmin = role === 'super_admin'
+  const isTeamAdmin = role === 'team_admin'
+  const isAdmin = isSuperAdmin || isTeamAdmin
+
+  const service = createServiceClient()
+
+  // Fetch the order — admins can see any order, users only their own
+  const orderQuery = isAdmin
+    ? service.from('orders').select('*').eq('id', id).single()
+    : supabase.from('orders').select('*').eq('id', id).eq('account_id', user.id).single()
+
+  const [{ data: orderData }, { data: leadsData }, { data: agentsData }] = await Promise.all([
+    orderQuery,
+    service.from('leads').select('*').eq('order_id', id).order('created_at', { ascending: false }),
+    service.from('order_agents').select('*').eq('order_id', id),
   ])
 
   if (!orderData) notFound()
   const order = orderData as Order
   const leads = (leadsData ?? []) as Lead[]
+  const rawAgents = (agentsData ?? []) as OrderAgent[]
+
+  // Fetch profiles for agents and for the orderable pool
+  let agentProfiles: Profile[] = []
+  let orderableProfiles: Profile[] = []
+  let memberIds: string[] = []
+
+  if (rawAgents.length > 0) {
+    const agentUserIds = rawAgents.map(a => a.user_id)
+    const { data } = await service.from('profiles').select('*').in('id', agentUserIds)
+    agentProfiles = (data ?? []) as Profile[]
+  }
+
+  if (isSuperAdmin) {
+    const { data } = await service.from('profiles').select('*').neq('id', user.id).order('first_name')
+    orderableProfiles = (data ?? []) as Profile[]
+  } else if (isTeamAdmin) {
+    const { data: assignments } = await supabase
+      .from('team_admin_assignments').select('team_id').eq('user_id', user.id)
+    const teamIds = (assignments ?? []).map((a: { team_id: string }) => a.team_id)
+    if (teamIds.length > 0) {
+      const { data: membersData } = await service.from('team_members').select('user_id').in('team_id', teamIds)
+      memberIds = (membersData ?? []).map((m: { user_id: string }) => m.user_id)
+      if (memberIds.length > 0) {
+        const { data } = await service.from('profiles').select('*').in('id', memberIds).order('first_name')
+        orderableProfiles = (data ?? []) as Profile[]
+      }
+    }
+  }
+
+  const profileById = Object.fromEntries(agentProfiles.map(p => [p.id, p]))
+  const agents: AgentWithProfile[] = rawAgents.map(a => ({
+    ...a,
+    profile: profileById[a.user_id] ?? { id: a.user_id, first_name: '?', last_name: '', role: 'user' as const, wallet_balance_cents: 0, stripe_customer_id: null, created_at: '' },
+  }))
 
   let vendor: Vendor | null = null
   if (order.vendor_id) {
-    const { data } = await supabase.from('vendors').select('*').eq('id', order.vendor_id).single()
+    const { data } = await service.from('vendors').select('*').eq('id', order.vendor_id).single()
     vendor = data as Vendor | null
   }
 
   const isEditable = order.status === 'active' || order.status === 'paused'
-  const leadCost = vendor?.cost_per_lead ?? 0
-  const totalSpend = leadCost * leads.length
+
+  function leadEffectiveCost(leadType: string | null): number {
+    if (!vendor) return 0
+    if (leadType && vendor.lead_type_costs[leadType] != null) return vendor.lead_type_costs[leadType]
+    return vendor.cost_per_lead ?? 0
+  }
+
+  const orderLeadTypes = order.lead_types.length > 0 ? order.lead_types : (order.lead_type ? [order.lead_type] : [])
+  const orderCosts = orderLeadTypes.map(lt => leadEffectiveCost(lt)).filter(c => c > 0)
+  const minCost = orderCosts.length ? Math.min(...orderCosts) : 0
+  const maxCost = orderCosts.length ? Math.max(...orderCosts) : 0
+  const costDisplay = orderCosts.length === 0
+    ? '—'
+    : minCost === maxCost
+      ? `$${minCost.toLocaleString('en-US')}`
+      : `$${minCost.toLocaleString('en-US')}–$${maxCost.toLocaleString('en-US')}`
+
+  const totalSpend = leads.reduce((sum, lead) => sum + leadEffectiveCost(lead.lead_type), 0)
 
   const counts = leadTabs.reduce((acc, tab) => {
     acc[tab.value] = tab.value === 'all' ? leads.length : leads.filter(l => l.status === tab.value).length
@@ -138,7 +206,13 @@ export default async function OrderDetailPage({
           <div className="bg-white border border-gray-200 rounded-lg col-span-1 overflow-auto flex flex-col">
             <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between">
               <p className="text-xs font-semibold text-gray-900">Order Details</p>
-              <EditOrderDialog order={order} />
+              {isEditable && (
+                <EditOrderDialog
+                  order={order}
+                  agents={agents}
+                  orderableProfiles={orderableProfiles}
+                />
+              )}
             </div>
 
             <div className="grid grid-cols-3 border-b border-gray-100 shrink-0">
@@ -148,7 +222,7 @@ export default async function OrderDetailPage({
               </div>
               <div className="px-4 py-3 border-r border-gray-100">
                 <p className="text-xs text-gray-400 mb-1">Cost</p>
-                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${leadCost.toLocaleString('en-US')}</p>
+                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{costDisplay}</p>
               </div>
               <div className="px-4 py-3">
                 <p className="text-xs text-gray-400 mb-1">Spend</p>
@@ -199,7 +273,7 @@ export default async function OrderDetailPage({
                   )}
                 </dd>
               </div>
-              <div className="px-4 py-3 space-y-2">
+              <div className="px-4 py-3 border-b border-gray-100 space-y-2">
                 <dt className={dt}>Availability</dt>
                 <dd className="flex gap-1">
                   {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => {
@@ -213,6 +287,29 @@ export default async function OrderDetailPage({
                       </span>
                     )
                   })}
+                </dd>
+              </div>
+              {/* Agents */}
+              <div className="px-4 py-3 space-y-2">
+                <dt className={dt}>Agents</dt>
+                <dd>
+                  {agents.length === 0 ? (
+                    <span className="text-xs text-gray-300">None assigned</span>
+                  ) : (
+                    <div className="flex flex-col gap-1.5">
+                      {agents.map(a => {
+                        const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
+                        return (
+                          <div key={a.user_id} className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-[10px] font-bold flex-shrink-0">
+                              {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
+                            </div>
+                            <span className="text-xs text-gray-700">{name}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </dd>
               </div>
             </dl>

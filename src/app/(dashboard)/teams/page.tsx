@@ -77,7 +77,7 @@ export default async function TeamsPage({
   const allAssignments = (assignmentsData ?? []) as TeamAdminAssignment[]
 
   const profileById = Object.fromEntries(allProfiles.map(p => [p.id, p]))
-  const teamAdmins = allProfiles.filter(p => p.role === 'team_admin')
+  const teamAdmins = allProfiles.filter(p => p.role === 'team_admin' || p.role === 'super_admin')
 
   const sorted = sortTeams(teams, allMembers, allAssignments, profileById, sort, sortDir)
 

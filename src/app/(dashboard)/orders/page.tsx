@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Order, Vendor } from '@/lib/types'
+import { createServiceClient } from '@/lib/supabase/service'
+import { Order, Profile, UserRole, Vendor } from '@/lib/types'
 import { NewOrderDialog } from './new-order-dialog'
 import { OrderStatusSelect } from './order-status-select'
 import { EditOrderDialog } from './[id]/edit-order-dialog'
@@ -15,6 +16,25 @@ function formatDate(dateStr: string) {
 
 type StatusFilter = 'all' | Order['status']
 
+function orderLeadTypes(order: Order): string[] {
+  return order.lead_types.length > 0 ? order.lead_types : (order.lead_type ? [order.lead_type] : [])
+}
+
+function effectiveCosts(order: Order, vendor: Vendor | null): number[] {
+  if (!vendor) return []
+  const types = orderLeadTypes(order)
+  if (types.length === 0) return vendor.cost_per_lead != null ? [vendor.cost_per_lead] : []
+  return types.map(lt => vendor.lead_type_costs[lt] ?? vendor.cost_per_lead).filter((c): c is number => c != null)
+}
+
+function formatCostRange(costs: number[]): string {
+  if (costs.length === 0) return '—'
+  const min = Math.min(...costs)
+  const max = Math.max(...costs)
+  if (min === max) return `$${min.toLocaleString('en-US')}`
+  return `$${min.toLocaleString('en-US')}–$${max.toLocaleString('en-US')}`
+}
+
 function sortOrders(data: (Order & { _vendor: Vendor | null })[], col: string | null, dir: SortDir | null): (Order & { _vendor: Vendor | null })[] {
   if (!col || !dir) return data
   return [...data].sort((a, b) => {
@@ -23,7 +43,10 @@ function sortOrders(data: (Order & { _vendor: Vendor | null })[], col: string | 
     else if (col === 'vendor') { av = a._vendor?.name ?? null; bv = b._vendor?.name ?? null }
     else if (col === 'lead_type') { av = a.lead_types.join(', ') || a.lead_type; bv = b.lead_types.join(', ') || b.lead_type }
     else if (col === 'daily_budget') { av = a.daily_budget ?? null; bv = b.daily_budget ?? null }
-    else if (col === 'cost_per_lead') { av = a._vendor?.cost_per_lead ?? null; bv = b._vendor?.cost_per_lead ?? null }
+    else if (col === 'cost_per_lead') {
+      const ac = effectiveCosts(a, a._vendor); const bc = effectiveCosts(b, b._vendor)
+      av = ac.length ? Math.min(...ac) : null; bv = bc.length ? Math.min(...bc) : null
+    }
     else if (col === 'status') { av = a.status; bv = b.status }
     else { av = a.created_at; bv = b.created_at }
     if (av == null && bv == null) return 0
@@ -49,15 +72,69 @@ export default async function OrdersPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const [{ data: ordersData }, { data: vendorsData }] = await Promise.all([
-    supabase.from('orders').select('*').eq('account_id', user.id).order('created_at', { ascending: false }),
+  const [{ data: myProfileData }, { data: vendorsData }] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
     supabase.from('vendors').select('*').order('name'),
   ])
 
-  const orders = (ordersData ?? []) as Order[]
-  const vendors = (vendorsData ?? []) as Vendor[]
-  const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
+  const myProfile = myProfileData as Profile | null
+  const role = (myProfile?.role ?? 'user') as UserRole
+  const isSuperAdmin = role === 'super_admin'
+  const isTeamAdmin = role === 'team_admin'
+  const isAdmin = isSuperAdmin || isTeamAdmin
 
+  const vendors = (vendorsData ?? []) as Vendor[]
+  const service = createServiceClient()
+
+  // Fetch users this caller can place orders on behalf of, and determine which orders to show
+  let orderableProfiles: Profile[] = []
+  let memberIds: string[] = []
+
+  if (isSuperAdmin) {
+    const { data } = await service.from('profiles').select('*').neq('id', user.id).order('first_name')
+    orderableProfiles = (data ?? []) as Profile[]
+  } else if (isTeamAdmin) {
+    const { data: assignments } = await supabase
+      .from('team_admin_assignments')
+      .select('team_id')
+      .eq('user_id', user.id)
+    const teamIds = (assignments ?? []).map((a: { team_id: string }) => a.team_id)
+    if (teamIds.length > 0) {
+      const { data: membersData } = await service
+        .from('team_members')
+        .select('user_id')
+        .in('team_id', teamIds)
+      memberIds = (membersData ?? []).map((m: { user_id: string }) => m.user_id)
+      if (memberIds.length > 0) {
+        const { data } = await service
+          .from('profiles')
+          .select('*')
+          .in('id', memberIds)
+          .order('first_name')
+        orderableProfiles = (data ?? []) as Profile[]
+      }
+    }
+  }
+
+  // Build a profile lookup for the "For" column
+  const profileById: Record<string, Profile> = {}
+  if (myProfile) profileById[user.id] = myProfile
+  for (const p of orderableProfiles) profileById[p.id] = p
+
+  // Fetch orders with role-appropriate scope
+  let ordersQuery = service.from('orders').select('*').order('created_at', { ascending: false })
+  if (isSuperAdmin) {
+    // no filter — see all orders
+  } else if (isTeamAdmin) {
+    const accountIds = [user.id, ...memberIds]
+    ordersQuery = ordersQuery.in('account_id', accountIds)
+  } else {
+    ordersQuery = ordersQuery.eq('account_id', user.id)
+  }
+  const { data: ordersData } = await ordersQuery
+
+  const orders = (ordersData ?? []) as Order[]
+  const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
   const ordersWithVendor = orders.map(o => ({ ...o, _vendor: o.vendor_id ? (vendorMap[o.vendor_id] ?? null) : null }))
 
   const counts: Record<StatusFilter, number> = {
@@ -72,12 +149,16 @@ export default async function OrdersPage({
     sort, sortDir,
   )
 
+  // Show a "For" column when admin can see multiple users' orders
+  const showForColumn = isAdmin && orderableProfiles.length > 0
+  const colSpan = 8 + (showForColumn ? 1 : 0)
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-white">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
         <h1 className="text-xl font-bold text-gray-900">Orders</h1>
-        <NewOrderDialog vendors={vendors} userId={user.id} />
+        <NewOrderDialog vendors={vendors} userId={user.id} orderableProfiles={orderableProfiles} />
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
@@ -89,6 +170,7 @@ export default async function OrdersPage({
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left px-3 py-2.5"><SortableHeader column="id"           label="Order #"       currentSort={sort} currentDir={sortDir} /></th>
+                {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Agent</th>}
                 <th className="text-left px-3 py-2.5"><SortableHeader column="vendor"        label="Vendor"        currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="lead_type"     label="Lead Type"     currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="daily_budget"  label="Daily Budget"  currentSort={sort} currentDir={sortDir} /></th>
@@ -101,11 +183,15 @@ export default async function OrdersPage({
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-xs text-gray-400">No orders yet. Place your first order to get started.</td>
+                  <td colSpan={colSpan} className="py-12 text-center text-xs text-gray-400">No orders yet. Place your first order to get started.</td>
                 </tr>
               )}
               {filtered.map(order => {
                 const isEditable = order.status === 'active' || order.status === 'paused'
+                const accountProfile = order.account_id ? profileById[order.account_id] : null
+                const accountName = accountProfile
+                  ? [accountProfile.first_name, accountProfile.last_name].filter(Boolean).join(' ')
+                  : null
                 return (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-3 py-2.5">
@@ -113,12 +199,20 @@ export default async function OrdersPage({
                         #{order.id.slice(0, 8).toUpperCase()}
                       </Link>
                     </td>
+                    {showForColumn && (
+                      <td className="px-3 py-2.5 text-xs text-gray-500">
+                        {order.account_id === user.id
+                          ? <span className="text-gray-400">—</span>
+                          : (accountName ?? <span className="text-gray-300 font-mono text-[10px]">{order.account_id?.slice(0, 8)}</span>)
+                        }
+                      </td>
+                    )}
                     <td className="px-3 py-2.5 text-xs text-gray-900">{order._vendor?.name ?? '—'}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-900">
                       {order.lead_types.length > 0 ? order.lead_types.join(', ') : (order.lead_type ?? '—')}
                     </td>
                     <td className="px-3 py-2.5 text-xs text-gray-900">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
-                    <td className="px-3 py-2.5 text-xs text-gray-900">{order._vendor?.cost_per_lead ? `$${order._vendor.cost_per_lead}` : '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-gray-900">{formatCostRange(effectiveCosts(order, order._vendor))}</td>
                     <td className="px-3 py-2.5">
                       {isEditable ? (
                         <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
@@ -130,7 +224,7 @@ export default async function OrdersPage({
                     </td>
                     <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(order.created_at)}</td>
                     <td className="px-3 py-2.5">
-                      {isEditable && <EditOrderDialog order={order} />}
+                      {isEditable && <EditOrderDialog order={order} orderableProfiles={orderableProfiles} />}
                     </td>
                   </tr>
                 )

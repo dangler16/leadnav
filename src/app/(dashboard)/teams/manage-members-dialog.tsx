@@ -33,7 +33,7 @@ export function ManageMembersDialog({
   const router = useRouter()
 
   const memberIds = new Set(members.map(m => m.user_id))
-  const available = allProfiles.filter(p => !memberIds.has(p.id) && p.role === 'user')
+  const available = allProfiles.filter(p => !memberIds.has(p.id) && p.role !== 'super_admin')
 
   async function handleAdd() {
     if (!addUserId) return
@@ -127,7 +127,7 @@ export function ManageMembersDialog({
                                     m[key] ? 'bg-red-500' : 'bg-gray-200'
                                   }`}
                                 >
-                                  <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
+                                  <span className={`absolute top-0.5 left-0 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
                                     m[key] ? 'translate-x-4' : 'translate-x-0.5'
                                   }`} />
                                 </button>
@@ -138,7 +138,7 @@ export function ManageMembersDialog({
                             <button
                               onClick={() => handleRemove(m.user_id)}
                               disabled={loading === `remove-${m.user_id}`}
-                              className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-gray-800 transition-colors"
+                              className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                             >
                               <UserMinus size={13} />
                             </button>

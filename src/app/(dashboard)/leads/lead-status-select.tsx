@@ -9,15 +9,15 @@ import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 const statusConfig: Record<LeadStatus, { label: string; className: string; dotClass: string }> = {
-  new:              { label: 'New',           className: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',       dotClass: 'bg-blue-500' },
-  not_contacted:    { label: 'Not Contacted', className: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',       dotClass: 'bg-gray-400 dark:bg-gray-500' },
-  contacted:        { label: 'Contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800',       dotClass: 'bg-cyan-500' },
-  appt_set:         { label: 'Appt Set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800', dotClass: 'bg-indigo-500' },
-  appt_no_show:     { label: 'No Show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', dotClass: 'bg-yellow-500' },
-  appt_no_sale:     { label: 'No Sale',       className: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', dotClass: 'bg-orange-500' },
-  appt_rescheduled: { label: 'Rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800', dotClass: 'bg-purple-500' },
-  sale:             { label: 'Sale',          className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
-  lost:             { label: 'Lost',          className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',             dotClass: 'bg-red-500' },
+  new:              { label: 'new',           className: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',       dotClass: 'bg-blue-500' },
+  not_contacted:    { label: 'not contacted', className: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',       dotClass: 'bg-gray-400 dark:bg-gray-500' },
+  contacted:        { label: 'contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800',       dotClass: 'bg-cyan-500' },
+  appt_set:         { label: 'appt set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800', dotClass: 'bg-indigo-500' },
+  appt_no_show:     { label: 'no show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', dotClass: 'bg-yellow-500' },
+  appt_no_sale:     { label: 'no sale',       className: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', dotClass: 'bg-orange-500' },
+  appt_rescheduled: { label: 'rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800', dotClass: 'bg-purple-500' },
+  sale:             { label: 'sale',          className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
+  lost:             { label: 'lost',          className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',             dotClass: 'bg-red-500' },
 }
 
 export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; initialStatus: LeadStatus }) {

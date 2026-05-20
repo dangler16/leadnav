@@ -135,7 +135,7 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-xs font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
+      <Button onClick={() => setOpen(true)}>
         New Team
       </Button>
       <Dialog open={open} onOpenChange={handleClose}>

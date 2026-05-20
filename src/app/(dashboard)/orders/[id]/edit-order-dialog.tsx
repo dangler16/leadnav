@@ -3,12 +3,14 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Order } from '@/lib/types'
+import { Order, OrderAgent, Profile } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Pencil } from 'lucide-react'
+import { SelectDropdown } from '@/components/ui/select-dropdown'
+import { Pencil, UserMinus } from 'lucide-react'
+import { addOrderAgent, removeOrderAgent } from '../actions'
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' },
@@ -71,16 +73,31 @@ function formatBudget(digits: string): string {
   return isNaN(n) ? '$' : '$' + n.toLocaleString('en-US')
 }
 
-export function EditOrderDialog({ order }: { order: Order }) {
+type AgentWithProfile = OrderAgent & { profile: Profile }
+
+export function EditOrderDialog({
+  order,
+  agents = [],
+  orderableProfiles = [],
+}: {
+  order: Order
+  agents?: AgentWithProfile[]
+  orderableProfiles?: Profile[]
+}) {
   const initialBudgetDigits = order.daily_budget?.toString() ?? ''
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [agentLoading, setAgentLoading] = useState<string | null>(null)
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set(order.states))
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set(order.availability))
   const [budgetDigits, setBudgetDigits] = useState(initialBudgetDigits)
+  const [addAgentId, setAddAgentId] = useState('')
   const budgetRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const supabase = createClient()
+
+  const assignedIds = new Set(agents.map(a => a.user_id))
+  const availableToAdd = orderableProfiles.filter(p => !assignedIds.has(p.id))
 
   function toggleState(abbr: string) {
     setSelectedStates(prev => {
@@ -131,6 +148,7 @@ export function EditOrderDialog({ order }: { order: Order }) {
     setSelectedStates(new Set(order.states))
     setSelectedDays(new Set(order.availability))
     setBudgetDigits(initialBudgetDigits)
+    setAddAgentId('')
   }
 
   function handleOpenChange(val: boolean) {
@@ -141,17 +159,43 @@ export function EditOrderDialog({ order }: { order: Order }) {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
-    await supabase.from('orders').update({
-      daily_budget: budgetDigits ? parseInt(budgetDigits) : null,
-      states: Array.from(selectedStates),
-      availability: Array.from(selectedDays),
-    }).eq('id', order.id)
-    setLoading(false)
-    setOpen(false)
-    router.refresh()
+    try {
+      await supabase.from('orders').update({
+        daily_budget: budgetDigits ? parseInt(budgetDigits) : null,
+        states: Array.from(selectedStates),
+        availability: Array.from(selectedDays),
+      }).eq('id', order.id)
+      setOpen(false)
+      router.refresh()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleAddAgent() {
+    if (!addAgentId) return
+    setAgentLoading(`add-${addAgentId}`)
+    try {
+      await addOrderAgent(order.id, addAgentId)
+      setAddAgentId('')
+      router.refresh()
+    } finally {
+      setAgentLoading(null)
+    }
+  }
+
+  async function handleRemoveAgent(userId: string) {
+    setAgentLoading(`remove-${userId}`)
+    try {
+      await removeOrderAgent(order.id, userId)
+      router.refresh()
+    } finally {
+      setAgentLoading(null)
+    }
   }
 
   const allSelected = selectedStates.size === US_STATES.length
+  const showAgents = orderableProfiles.length > 0
 
   return (
     <>
@@ -169,6 +213,58 @@ export function EditOrderDialog({ order }: { order: Order }) {
             <DialogTitle>Edit Order</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+
+            {/* Agents */}
+            {showAgents && (
+              <div className="space-y-2">
+                <Label>Agents</Label>
+                {agents.length > 0 && (
+                  <div className="space-y-1">
+                    {agents.map(a => {
+                      const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
+                      return (
+                        <div key={a.user_id} className="flex items-center gap-2 py-1.5 px-2 rounded border border-gray-100 bg-gray-50">
+                          <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-[10px] font-bold flex-shrink-0">
+                            {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
+                          </div>
+                          <span className="flex-1 text-xs text-gray-700">{name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAgent(a.user_id)}
+                            disabled={agentLoading === `remove-${a.user_id}`}
+                            className="p-0.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                          >
+                            <UserMinus size={13} />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                {availableToAdd.length > 0 && (
+                  <div className="flex gap-2">
+                    <SelectDropdown
+                      options={availableToAdd.map(p => ({
+                        value: p.id,
+                        label: [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id,
+                      }))}
+                      value={addAgentId}
+                      onChange={setAddAgentId}
+                      placeholder="Add agent…"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleAddAgent}
+                      disabled={!addAgentId || !!agentLoading}
+                    >
+                      {agentLoading?.startsWith('add') ? '…' : 'Add'}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Daily Budget */}
             <div className="space-y-1.5">

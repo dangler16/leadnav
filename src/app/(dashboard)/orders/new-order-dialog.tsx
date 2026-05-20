@@ -2,13 +2,13 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Vendor } from '@/lib/types'
+import { Profile, Vendor } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
+import { placeOrder } from './actions'
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' },
@@ -71,7 +71,15 @@ function formatBudget(digits: string): string {
   return isNaN(n) ? '$' : '$' + n.toLocaleString('en-US')
 }
 
-export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId: string }) {
+export function NewOrderDialog({
+  vendors,
+  userId,
+  orderableProfiles = [],
+}: {
+  vendors: Vendor[]
+  userId: string
+  orderableProfiles?: Profile[]
+}) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedVendorId, setSelectedVendorId] = useState('')
@@ -79,9 +87,9 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set())
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set())
   const [budgetDigits, setBudgetDigits] = useState('')
+  const [targetUserId, setTargetUserId] = useState(userId)
   const budgetRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const selectedVendor = vendors.find(v => v.id === selectedVendorId) ?? null
 
@@ -141,20 +149,20 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
-    const fd = new FormData(e.currentTarget)
-    await supabase.from('orders').insert({
-      account_id: userId,
-      vendor_id: fd.get('vendor_id') || null,
-      lead_types: Array.from(selectedLeadTypes),
-      daily_budget: budgetDigits ? parseInt(budgetDigits) : null,
-      states: Array.from(selectedStates),
-      availability: Array.from(selectedDays),
-      status: 'active',
-    })
-    setLoading(false)
-    setOpen(false)
-    reset()
-    router.refresh()
+    try {
+      await placeOrder(targetUserId, {
+        vendorId: selectedVendorId || null,
+        leadTypes: Array.from(selectedLeadTypes),
+        dailyBudget: budgetDigits ? parseInt(budgetDigits) : null,
+        states: Array.from(selectedStates),
+        availability: Array.from(selectedDays),
+      })
+      setOpen(false)
+      reset()
+      router.refresh()
+    } finally {
+      setLoading(false)
+    }
   }
 
   function reset() {
@@ -163,6 +171,7 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
     setSelectedStates(new Set())
     setSelectedDays(new Set())
     setBudgetDigits('')
+    setTargetUserId(userId)
   }
 
   function handleOpenChange(val: boolean) {
@@ -188,6 +197,25 @@ export function NewOrderDialog({ vendors, userId }: { vendors: Vendor[]; userId:
             <DialogTitle>Place New Order</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+
+            {/* Placing for (admins only) */}
+            {orderableProfiles.length > 0 && (
+              <div className="space-y-1.5">
+                <Label>Agent</Label>
+                <SelectDropdown
+                  options={[
+                    { value: userId, label: 'Yourself' },
+                    ...orderableProfiles.map(p => ({
+                      value: p.id,
+                      label: [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id,
+                    })),
+                  ]}
+                  value={targetUserId}
+                  onChange={setTargetUserId}
+                  placeholder="Select user…"
+                />
+              </div>
+            )}
 
             {/* Vendor */}
             <div className="space-y-1.5">

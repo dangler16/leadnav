@@ -18,8 +18,6 @@ function sortVendors(vendors: Vendor[], col: string | null, dir: SortDir | null)
       av = a.is_active ? '1' : '0'; bv = b.is_active ? '1' : '0'
     } else if (col === 'type') {
       av = a.type; bv = b.type
-    } else if (col === 'cost') {
-      av = a.cost_per_lead ?? null; bv = b.cost_per_lead ?? null
     } else {
       av = a.created_at; bv = b.created_at
     }
@@ -74,7 +72,6 @@ export default async function VendorsPage({
                 <th className="text-left px-3 py-2.5"><SortableHeader column="type"   label="Type"       currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Lead Types</th>
                 <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Locations</th>
-                <th className="text-left px-3 py-2.5"><SortableHeader column="cost"  label="Cost/Lead"  currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="added" label="Added"      currentSort={sort} currentDir={sortDir} /></th>
                 <th className="px-3 py-2.5 text-right" />
               </tr>
@@ -82,7 +79,7 @@ export default async function VendorsPage({
             <tbody>
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-3 py-12 text-center text-xs text-gray-400">No vendors yet.</td>
+                  <td colSpan={7} className="px-3 py-12 text-center text-xs text-gray-400">No vendors yet.</td>
                 </tr>
               )}
               {sorted.map(v => {

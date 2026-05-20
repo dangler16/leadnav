@@ -34,9 +34,14 @@ export function VendorRowCells({ vendor, vendorKeys }: { vendor: Vendor; vendorK
       <td className="px-3 py-2.5">
         {vendor.lead_types.length > 0 ? (
           <div className="flex gap-1 flex-wrap">
-            {vendor.lead_types.map(lt => (
-              <span key={lt} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>{lt}</span>
-            ))}
+            {vendor.lead_types.map(lt => {
+              const cost = vendor.lead_type_costs[lt]
+              return (
+                <span key={lt} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>
+                  {cost != null ? `${lt} $${cost.toLocaleString('en-US')}` : lt}
+                </span>
+              )
+            })}
           </div>
         ) : (
           <span className="text-gray-400">—</span>
@@ -61,9 +66,6 @@ export function VendorRowCells({ vendor, vendorKeys }: { vendor: Vendor; vendorK
             ))}
           </div>
         )}
-      </td>
-      <td className="px-3 py-2.5 text-xs text-gray-900">
-        {vendor.cost_per_lead != null ? `$${vendor.cost_per_lead}` : <span className="text-gray-400">—</span>}
       </td>
       <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(vendor.created_at)}</td>
       <td className="px-3 py-2.5 text-right">

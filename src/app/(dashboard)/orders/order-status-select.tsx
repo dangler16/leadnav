@@ -108,7 +108,7 @@ export function OrderStatusSelect({ orderId, initialStatus }: { orderId: string;
             className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-gray-50 text-red-600 transition-colors cursor-pointer"
           >
             <X size={13} className="shrink-0" />
-            <span className="flex-1">Close Order</span>
+            <span className="flex-1">close order</span>
           </button>
         </div>
       )}

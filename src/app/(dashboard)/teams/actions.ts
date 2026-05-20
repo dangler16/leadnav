@@ -92,7 +92,10 @@ export async function updateMemberPermissions(
 
 export async function assignTeamAdminAndPromote(teamId: string, userId: string) {
   const service = await requireSuperAdminService()
-  await service.from('profiles').update({ role: 'team_admin' }).eq('id', userId)
+  const { data: profile } = await service.from('profiles').select('role').eq('id', userId).single()
+  if (profile?.role !== 'super_admin') {
+    await service.from('profiles').update({ role: 'team_admin' }).eq('id', userId)
+  }
   const { error } = await service.from('team_admin_assignments').upsert({ team_id: teamId, user_id: userId })
   if (error) throw new Error('Failed to assign team admin')
   revalidatePath('/teams')
