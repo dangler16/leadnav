@@ -108,14 +108,16 @@ export default async function OrderDetailPage({
   const leads = (leadsData ?? []) as Lead[]
   const rawAgents = (agentsData ?? []) as OrderAgent[]
 
-  // Fetch profiles for agents and for the orderable pool
+  // Fetch profiles for agents, account owner, placed_by, and for the orderable pool
   let agentProfiles: Profile[] = []
   let orderableProfiles: Profile[] = []
   let memberIds: string[] = []
 
-  if (rawAgents.length > 0) {
-    const agentUserIds = rawAgents.map(a => a.user_id)
-    const { data } = await service.from('profiles').select('*').in('id', agentUserIds)
+  const extraProfileIds = [order.account_id, order.placed_by].filter((id): id is string => !!id)
+  const agentUserIds = rawAgents.map(a => a.user_id)
+  const allProfileIds = [...new Set([...agentUserIds, ...extraProfileIds])]
+  if (allProfileIds.length > 0) {
+    const { data } = await service.from('profiles').select('*').in('id', allProfileIds)
     agentProfiles = (data ?? []) as Profile[]
   }
 
@@ -141,6 +143,15 @@ export default async function OrderDetailPage({
     ...a,
     profile: profileById[a.user_id] ?? { id: a.user_id, first_name: '?', last_name: '', role: 'user' as const, wallet_balance_cents: 0, stripe_customer_id: null, created_at: '' },
   }))
+
+  const accountProfile = order.account_id ? profileById[order.account_id] : null
+  const accountName = accountProfile
+    ? [accountProfile.first_name, accountProfile.last_name].filter(Boolean).join(' ') || '—'
+    : null
+  const placedByProfile = order.placed_by ? profileById[order.placed_by] : null
+  const placedByName = placedByProfile
+    ? [placedByProfile.first_name, placedByProfile.last_name].filter(Boolean).join(' ') || '—'
+    : null
 
   let vendor: Vendor | null = null
   if (order.vendor_id) {
@@ -241,6 +252,18 @@ export default async function OrderDetailPage({
                   )}
                 </dd>
               </div>
+              {isAdmin && (
+                <div className={detailRow}>
+                  <dt className={dt}>For</dt>
+                  <dd className={dd}>{accountName ?? '—'}</dd>
+                </div>
+              )}
+              {isAdmin && (
+                <div className={detailRow}>
+                  <dt className={dt}>Placed by</dt>
+                  <dd className={dd}>{placedByName ?? '—'}</dd>
+                </div>
+              )}
               <div className={detailRow}>
                 <dt className={dt}>Vendor</dt>
                 <dd className={dd}>{vendor?.name ?? '—'}</dd>

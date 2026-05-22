@@ -64,6 +64,7 @@ export type Lead = {
 export type Order = {
   id: string
   account_id: string | null
+  placed_by: string | null
   vendor_id: string | null
   lead_type: string | null
   lead_types: string[]

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Pencil, UserMinus } from 'lucide-react'
-import { addOrderAgent, removeOrderAgent } from '../actions'
+import { addOrderAgent, removeOrderAgent, transferOrder } from '../actions'
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' },
@@ -88,6 +88,8 @@ export function EditOrderDialog({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [agentLoading, setAgentLoading] = useState<string | null>(null)
+  const [transferId, setTransferId] = useState('')
+  const [transferLoading, setTransferLoading] = useState(false)
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set(order.states))
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set(order.availability))
   const [budgetDigits, setBudgetDigits] = useState(initialBudgetDigits)
@@ -149,6 +151,7 @@ export function EditOrderDialog({
     setSelectedDays(new Set(order.availability))
     setBudgetDigits(initialBudgetDigits)
     setAddAgentId('')
+    setTransferId('')
   }
 
   function handleOpenChange(val: boolean) {
@@ -184,6 +187,19 @@ export function EditOrderDialog({
     }
   }
 
+  async function handleTransfer() {
+    if (!transferId) return
+    setTransferLoading(true)
+    try {
+      await transferOrder(order.id, transferId)
+      setTransferId('')
+      setOpen(false)
+      router.refresh()
+    } finally {
+      setTransferLoading(false)
+    }
+  }
+
   async function handleRemoveAgent(userId: string) {
     setAgentLoading(`remove-${userId}`)
     try {
@@ -196,6 +212,7 @@ export function EditOrderDialog({
 
   const allSelected = selectedStates.size === US_STATES.length
   const showAgents = orderableProfiles.length > 0
+  const transferOptions = orderableProfiles.filter(p => p.id !== order.account_id)
 
   return (
     <>
@@ -263,6 +280,33 @@ export function EditOrderDialog({
                     </Button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Transfer */}
+            {transferOptions.length > 0 && (
+              <div className="space-y-2">
+                <Label>Transfer Order</Label>
+                <div className="flex gap-2">
+                  <SelectDropdown
+                    options={transferOptions.map(p => ({
+                      value: p.id,
+                      label: [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id,
+                    }))}
+                    value={transferId}
+                    onChange={setTransferId}
+                    placeholder="Select agent…"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleTransfer}
+                    disabled={!transferId || transferLoading}
+                  >
+                    {transferLoading ? '…' : 'Transfer'}
+                  </Button>
+                </div>
               </div>
             )}
 

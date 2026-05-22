@@ -20,20 +20,6 @@ function orderLeadTypes(order: Order): string[] {
   return order.lead_types.length > 0 ? order.lead_types : (order.lead_type ? [order.lead_type] : [])
 }
 
-function effectiveCosts(order: Order, vendor: Vendor | null): number[] {
-  if (!vendor) return []
-  const types = orderLeadTypes(order)
-  if (types.length === 0) return vendor.cost_per_lead != null ? [vendor.cost_per_lead] : []
-  return types.map(lt => vendor.lead_type_costs[lt] ?? vendor.cost_per_lead).filter((c): c is number => c != null)
-}
-
-function formatCostRange(costs: number[]): string {
-  if (costs.length === 0) return '—'
-  const min = Math.min(...costs)
-  const max = Math.max(...costs)
-  if (min === max) return `$${min.toLocaleString('en-US')}`
-  return `$${min.toLocaleString('en-US')}–$${max.toLocaleString('en-US')}`
-}
 
 function sortOrders(data: (Order & { _vendor: Vendor | null })[], col: string | null, dir: SortDir | null): (Order & { _vendor: Vendor | null })[] {
   if (!col || !dir) return data
@@ -43,10 +29,6 @@ function sortOrders(data: (Order & { _vendor: Vendor | null })[], col: string | 
     else if (col === 'vendor') { av = a._vendor?.name ?? null; bv = b._vendor?.name ?? null }
     else if (col === 'lead_type') { av = a.lead_types.join(', ') || a.lead_type; bv = b.lead_types.join(', ') || b.lead_type }
     else if (col === 'daily_budget') { av = a.daily_budget ?? null; bv = b.daily_budget ?? null }
-    else if (col === 'cost_per_lead') {
-      const ac = effectiveCosts(a, a._vendor); const bc = effectiveCosts(b, b._vendor)
-      av = ac.length ? Math.min(...ac) : null; bv = bc.length ? Math.min(...bc) : null
-    }
     else if (col === 'status') { av = a.status; bv = b.status }
     else { av = a.created_at; bv = b.created_at }
     if (av == null && bv == null) return 0
@@ -149,9 +131,18 @@ export default async function OrdersPage({
     sort, sortDir,
   )
 
-  // Show a "For" column when admin can see multiple users' orders
+  // Fetch any placed_by profiles not already in profileById
+  const missingPlacedByIds = [...new Set(
+    orders.map(o => o.placed_by).filter((id): id is string => !!id && !(id in profileById))
+  )]
+  if (missingPlacedByIds.length > 0) {
+    const { data } = await service.from('profiles').select('*').in('id', missingPlacedByIds)
+    for (const p of (data ?? []) as Profile[]) profileById[p.id] = p
+  }
+
+  // Show admin columns when admin can see multiple users' orders
   const showForColumn = isAdmin && orderableProfiles.length > 0
-  const colSpan = 8 + (showForColumn ? 1 : 0)
+  const colSpan = 7 + (showForColumn ? 2 : 0)
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-white">
@@ -171,10 +162,10 @@ export default async function OrdersPage({
               <tr className="border-b border-gray-100">
                 <th className="text-left px-3 py-2.5"><SortableHeader column="id"           label="Order #"       currentSort={sort} currentDir={sortDir} /></th>
                 {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Agent</th>}
+                {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Placed by</th>}
                 <th className="text-left px-3 py-2.5"><SortableHeader column="vendor"        label="Vendor"        currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="lead_type"     label="Lead Type"     currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="daily_budget"  label="Daily Budget"  currentSort={sort} currentDir={sortDir} /></th>
-                <th className="text-left px-3 py-2.5"><SortableHeader column="cost_per_lead" label="Cost/Lead"     currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="status"        label="Status"        currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="date"          label="Date"          currentSort={sort} currentDir={sortDir} /></th>
                 <th className="px-3 py-2.5" />
@@ -192,6 +183,10 @@ export default async function OrdersPage({
                 const accountName = accountProfile
                   ? [accountProfile.first_name, accountProfile.last_name].filter(Boolean).join(' ')
                   : null
+                const placedByProfile = order.placed_by ? profileById[order.placed_by] : null
+                const placedByName = placedByProfile
+                  ? [placedByProfile.first_name, placedByProfile.last_name].filter(Boolean).join(' ')
+                  : null
                 return (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-3 py-2.5">
@@ -201,18 +196,36 @@ export default async function OrdersPage({
                     </td>
                     {showForColumn && (
                       <td className="px-3 py-2.5 text-xs text-gray-500">
-                        {order.account_id === user.id
-                          ? <span className="text-gray-400">—</span>
-                          : (accountName ?? <span className="text-gray-300 font-mono text-[10px]">{order.account_id?.slice(0, 8)}</span>)
-                        }
+                        {accountName ?? <span className="text-gray-300 font-mono text-[10px]">{order.account_id?.slice(0, 8)}</span>}
+                      </td>
+                    )}
+                    {showForColumn && (
+                      <td className="px-3 py-2.5 text-xs text-gray-500">
+                        {placedByName ?? (order.placed_by ? <span className="text-gray-300 font-mono text-[10px]">{order.placed_by.slice(0, 8)}</span> : <span className="text-gray-300">—</span>)}
                       </td>
                     )}
                     <td className="px-3 py-2.5 text-xs text-gray-900">{order._vendor?.name ?? '—'}</td>
-                    <td className="px-3 py-2.5 text-xs text-gray-900">
-                      {order.lead_types.length > 0 ? order.lead_types.join(', ') : (order.lead_type ?? '—')}
+                    <td className="px-3 py-2.5">
+                      {(() => {
+                        const types = orderLeadTypes(order)
+                        if (types.length === 0) return <span className="text-gray-400">—</span>
+                        return (
+                          <div className="flex gap-1 flex-wrap">
+                            {types.map(lt => {
+                              const cost = order._vendor
+                                ? (order._vendor.lead_type_costs[lt] ?? order._vendor.cost_per_lead)
+                                : null
+                              return (
+                                <span key={lt} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>
+                                  {cost != null ? `${lt} $${cost.toLocaleString('en-US')}` : lt}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        )
+                      })()}
                     </td>
                     <td className="px-3 py-2.5 text-xs text-gray-900">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
-                    <td className="px-3 py-2.5 text-xs text-gray-900">{formatCostRange(effectiveCosts(order, order._vendor))}</td>
                     <td className="px-3 py-2.5">
                       {isEditable ? (
                         <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />

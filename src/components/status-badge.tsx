@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { LeadStatus, DisputeStatus, getLeadDisplayStatus } from '@/lib/types'
 
-const pill = 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap'
+const pill = 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap'
 
 type LeadBadgeProps = { status: LeadStatus; variant?: 'display' | 'raw'; className?: string }
 type DisputeBadgeProps = { status: DisputeStatus; className?: string }
