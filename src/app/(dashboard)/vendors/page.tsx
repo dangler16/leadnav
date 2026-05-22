@@ -88,9 +88,13 @@ export default async function VendorsPage({
                   <tr key={v.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold">
-                          {v.name[0].toUpperCase()}
-                        </div>
+                        {v.logo_url ? (
+                          <img src={v.logo_url} alt={v.name} className="w-7 h-7 rounded object-cover border border-gray-200 shrink-0" />
+                        ) : (
+                          <div className="w-7 h-7 rounded bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
+                            {v.name[0].toUpperCase()}
+                          </div>
+                        )}
                         <p className="text-xs font-medium text-gray-900">{v.name}</p>
                       </div>
                     </td>

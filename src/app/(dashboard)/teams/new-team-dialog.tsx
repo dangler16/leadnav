@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ImagePlus } from 'lucide-react'
 import { Profile } from '@/lib/types'
 import { createTeam, uploadTeamLogo, assignTeamAdminAndPromote } from './actions'
+import { LogoCropUpload } from './logo-crop-upload'
 
 function adminLabel(p: Profile) {
   return [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id
@@ -80,24 +80,9 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [logoBlob, setLogoBlob] = useState<Blob | null>(null)
   const [selectedAdminId, setSelectedAdminId] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-
-  const ALLOWED_TYPES = ['image/png', 'image/webp', 'image/svg+xml']
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Logo must be a PNG, WebP, or SVG.')
-      e.target.value = ''
-      return
-    }
-    setError(null)
-    setPreview(URL.createObjectURL(file))
-  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -106,10 +91,10 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
     const fd = new FormData(e.currentTarget)
     try {
       let logoUrl: string | null = null
-      const file = fileRef.current?.files?.[0]
-      if (file) {
+      if (logoBlob) {
+        const ext = logoBlob.type === 'image/svg+xml' ? 'svg' : 'png'
         const uploadFd = new FormData()
-        uploadFd.set('file', file)
+        uploadFd.set('file', new File([logoBlob], `logo.${ext}`, { type: logoBlob.type }))
         logoUrl = await uploadTeamLogo(uploadFd)
       }
       const teamId = await createTeam(fd.get('name') as string, logoUrl)
@@ -117,7 +102,7 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
         await assignTeamAdminAndPromote(teamId, selectedAdminId)
       }
       setOpen(false)
-      setPreview(null)
+      setLogoBlob(null)
       setSelectedAdminId('')
       router.refresh()
     } catch (err) {
@@ -130,7 +115,7 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
   function handleClose(val: boolean) {
     setOpen(val)
     setError(null)
-    if (!val) { setPreview(null); setSelectedAdminId('') }
+    if (!val) { setLogoBlob(null); setSelectedAdminId('') }
   }
 
   return (
@@ -154,23 +139,10 @@ export function NewTeamDialog({ allUsers }: { allUsers: Profile[] }) {
             </div>
             <div className="space-y-1.5">
               <Label>Logo</Label>
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="flex items-center justify-center w-16 h-16 rounded-md border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors overflow-hidden"
-              >
-                {preview ? (
-                  <img src={preview} alt="Logo preview" className="w-full h-full object-cover" />
-                ) : (
-                  <ImagePlus size={20} className="text-gray-400" />
-                )}
-              </button>
-              <input ref={fileRef} type="file" accept="image/png,image/webp,image/svg+xml" className="hidden" onChange={handleFileChange} />
-              {preview && (
-                <button type="button" className="text-xs text-gray-400 hover:text-gray-600" onClick={() => { setPreview(null); if (fileRef.current) fileRef.current.value = '' }}>
-                  Remove
-                </button>
-              )}
+              <LogoCropUpload
+                currentUrl={null}
+                onBlobChange={blob => setLogoBlob(blob)}
+              />
             </div>
             {error && <p className="text-xs text-red-600">{error}</p>}
             <div className="flex justify-end gap-2 pt-2">

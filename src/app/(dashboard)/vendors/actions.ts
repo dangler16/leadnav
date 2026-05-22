@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { createHash, randomBytes } from 'crypto'
 import { revalidatePath } from 'next/cache'
 
@@ -11,6 +12,31 @@ async function requireAdmin() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (!profile || profile.role !== 'super_admin') throw new Error('Unauthorized')
   return supabase
+}
+
+async function requireAdminService() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (!profile || profile.role !== 'super_admin') throw new Error('Unauthorized')
+  return createServiceClient()
+}
+
+const ALLOWED_LOGO_TYPES = ['image/png', 'image/webp', 'image/svg+xml']
+
+export async function uploadVendorLogo(formData: FormData): Promise<string> {
+  const service = await requireAdminService()
+  const file = formData.get('file') as File
+  if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
+    throw new Error('Logo must be a PNG, WebP, or SVG.')
+  }
+  const ext = file.name.split('.').pop()
+  const path = `${crypto.randomUUID()}.${ext}`
+  const { error } = await service.storage.from('vendor-logos').upload(path, file, { contentType: file.type })
+  if (error) throw new Error('Failed to upload logo. Please try again.')
+  const { data } = service.storage.from('vendor-logos').getPublicUrl(path)
+  return data.publicUrl
 }
 
 export async function generateApiKey(vendor_id: string): Promise<string> {

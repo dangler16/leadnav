@@ -1,33 +1,24 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Pencil, Trash2, ImagePlus } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { Team } from '@/lib/types'
 import { updateTeam, deleteTeam, uploadTeamLogo } from './actions'
+import { LogoCropUpload } from './logo-crop-upload'
 
 export function EditTeamDialog({ team }: { team: Team }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-  const [logoCleared, setLogoCleared] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
+  // undefined = no change, null = cleared, Blob = new logo
+  const [logoBlob, setLogoBlob] = useState<Blob | null | undefined>(undefined)
   const router = useRouter()
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setPreview(URL.createObjectURL(file))
-    setLogoCleared(false)
-  }
-
-  const currentLogo = preview ?? (logoCleared ? null : team.logo_url)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -36,22 +27,17 @@ export function EditTeamDialog({ team }: { team: Team }) {
     const fd = new FormData(e.currentTarget)
     try {
       let logoUrl = team.logo_url
-      const file = fileRef.current?.files?.[0]
-      if (file) {
+      if (logoBlob instanceof Blob) {
+        const ext = logoBlob.type === 'image/svg+xml' ? 'svg' : 'png'
         const uploadFd = new FormData()
-        uploadFd.set('file', file)
+        uploadFd.set('file', new File([logoBlob], `logo.${ext}`, { type: logoBlob.type }))
         logoUrl = await uploadTeamLogo(uploadFd)
-      } else if (logoCleared) {
+      } else if (logoBlob === null) {
         logoUrl = null
       }
-      await updateTeam(
-        team.id,
-        fd.get('name') as string,
-        logoUrl,
-      )
+      await updateTeam(team.id, fd.get('name') as string, logoUrl)
       setOpen(false)
-      setPreview(null)
-      setLogoCleared(false)
+      setLogoBlob(undefined)
       router.refresh()
     } catch {
       setError('Failed to save. Please try again.')
@@ -77,7 +63,7 @@ export function EditTeamDialog({ team }: { team: Team }) {
   function handleClose(val: boolean) {
     setOpen(val)
     setError(null)
-    if (!val) { setPreview(null); setLogoCleared(false) }
+    if (!val) { setLogoBlob(undefined) }
   }
 
   return (
@@ -100,23 +86,10 @@ export function EditTeamDialog({ team }: { team: Team }) {
             </div>
             <div className="space-y-1.5">
               <Label>Logo</Label>
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="flex items-center justify-center w-16 h-16 rounded-md border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors overflow-hidden"
-              >
-                {currentLogo ? (
-                  <img src={currentLogo} alt="Logo preview" className="w-full h-full object-cover" />
-                ) : (
-                  <ImagePlus size={20} className="text-gray-400" />
-                )}
-              </button>
-              <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFileChange} />
-              {currentLogo && (
-                <button type="button" className="text-xs text-gray-400 hover:text-gray-600" onClick={() => { setPreview(null); setLogoCleared(true); if (fileRef.current) fileRef.current.value = '' }}>
-                  Remove
-                </button>
-              )}
+              <LogoCropUpload
+                currentUrl={team.logo_url}
+                onBlobChange={setLogoBlob}
+              />
             </div>
             {error && <p className="text-xs text-red-600">{error}</p>}
             <div className="flex items-center justify-between pt-2">

@@ -56,10 +56,10 @@ export async function addTeamMember(teamId: string, userId: string) {
   const { error } = await service.from('team_members').upsert({
     team_id: teamId,
     user_id: userId,
-    can_order: false,
-    can_view_leads: false,
-    can_make_calls: false,
-    can_file_disputes: false,
+    can_order: true,
+    can_view_leads: true,
+    can_make_calls: true,
+    can_file_disputes: true,
   })
   if (error) throw new Error('Failed to add member')
   revalidatePath('/teams')

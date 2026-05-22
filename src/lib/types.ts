@@ -83,6 +83,7 @@ export type OrderAgent = {
 export type Vendor = {
   id: string
   name: string
+  logo_url: string | null
   type: 'inbound' | 'manual'
   lead_types: string[]
   lead_type_costs: Record<string, number>

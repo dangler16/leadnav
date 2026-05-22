@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Pencil } from 'lucide-react'
+import { uploadVendorLogo } from './actions'
+import { LogoCropUpload } from '../teams/logo-crop-upload'
 
 const LEAD_TYPES = ['ACA', 'Medicare']
 
@@ -61,9 +63,17 @@ export function EditVendorDialog({
   const [checkedTypes, setCheckedTypes] = useState<Set<string>>(new Set(vendor.lead_types))
   const [typeCosts, setTypeCosts] = useState<Record<string, string>>(costsToDigits(vendor.lead_type_costs))
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set(vendor.locations))
+  const [logoBlob, setLogoBlob] = useState<Blob | null>(null)
+  const [logoChanged, setLogoChanged] = useState(false)
+  const [cropKey, setCropKey] = useState(0)
   const costRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const router = useRouter()
   const supabase = createClient()
+
+  function handleBlobChange(blob: Blob | null) {
+    setLogoBlob(blob)
+    setLogoChanged(true)
+  }
 
   function toggleType(lt: string) {
     setCheckedTypes(prev => {
@@ -124,6 +134,9 @@ export function EditVendorDialog({
       setCheckedTypes(new Set(vendor.lead_types))
       setTypeCosts(costsToDigits(vendor.lead_type_costs))
       setSelectedStates(new Set(vendor.locations))
+      setLogoBlob(null)
+      setLogoChanged(false)
+      setCropKey(k => k + 1)
     }
   }
 
@@ -140,18 +153,36 @@ export function EditVendorDialog({
       if (val) lead_type_costs[lt] = parseInt(val)
     }
 
-    const { error: err } = await supabase.from('vendors').update({
-      name: fd.get('name') as string,
-      type: fd.get('type') as 'inbound' | 'manual',
-      lead_types,
-      lead_type_costs,
-      locations: Array.from(selectedStates),
-    }).eq('id', vendor.id)
+    try {
+      let logo_url = vendor.logo_url
+      if (logoChanged) {
+        if (logoBlob) {
+          const ext = logoBlob.type === 'image/svg+xml' ? 'svg' : 'png'
+          const uploadFd = new FormData()
+          uploadFd.set('file', new File([logoBlob], `logo.${ext}`, { type: logoBlob.type }))
+          logo_url = await uploadVendorLogo(uploadFd)
+        } else {
+          logo_url = null
+        }
+      }
 
-    setLoading(false)
-    if (err) { setError('Failed to save. Please try again.'); return }
-    setOpen(false)
-    router.refresh()
+      const { error: err } = await supabase.from('vendors').update({
+        name: fd.get('name') as string,
+        type: fd.get('type') as 'inbound' | 'manual',
+        lead_types,
+        lead_type_costs,
+        locations: Array.from(selectedStates),
+        logo_url,
+      }).eq('id', vendor.id)
+
+      if (err) { setError('Failed to save. Please try again.'); return }
+      setOpen(false)
+      router.refresh()
+    } catch {
+      setError('Failed to save. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const allSelected = selectedStates.size === US_STATES.length
@@ -175,6 +206,10 @@ export function EditVendorDialog({
             <div className="space-y-1.5">
               <Label htmlFor={`name-${vendor.id}`}>Name</Label>
               <Input id={`name-${vendor.id}`} name="name" defaultValue={vendor.name} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Logo</Label>
+              <LogoCropUpload key={cropKey} currentUrl={vendor.logo_url} onBlobChange={handleBlobChange} />
             </div>
             <div className="space-y-1.5">
               <Label>Type</Label>

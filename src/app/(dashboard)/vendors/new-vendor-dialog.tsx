@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
+import { uploadVendorLogo } from './actions'
+import { LogoCropUpload } from '../teams/logo-crop-upload'
 
 const LEAD_TYPES = ['ACA', 'Medicare']
 
@@ -45,6 +47,8 @@ export function NewVendorDialog() {
   const [checkedTypes, setCheckedTypes] = useState<Set<string>>(new Set())
   const [typeCosts, setTypeCosts] = useState<Record<string, string>>({})
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set())
+  const [logoBlob, setLogoBlob] = useState<Blob | null>(null)
+  const [cropKey, setCropKey] = useState(0)
   const costRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const router = useRouter()
   const supabase = createClient()
@@ -100,6 +104,8 @@ export function NewVendorDialog() {
     setCheckedTypes(new Set())
     setTypeCosts({})
     setSelectedStates(new Set())
+    setLogoBlob(null)
+    setCropKey(k => k + 1)
     setError(null)
   }
 
@@ -116,20 +122,34 @@ export function NewVendorDialog() {
       if (val) lead_type_costs[lt] = parseInt(val)
     }
 
-    const { error: err } = await supabase.from('vendors').insert({
-      name: fd.get('name') as string,
-      type: fd.get('type') as 'inbound' | 'manual',
-      lead_types,
-      lead_type_costs,
-      locations: Array.from(selectedStates),
-      cost_per_lead: null,
-    })
+    try {
+      let logo_url: string | null = null
+      if (logoBlob) {
+        const ext = logoBlob.type === 'image/svg+xml' ? 'svg' : 'png'
+        const uploadFd = new FormData()
+        uploadFd.set('file', new File([logoBlob], `logo.${ext}`, { type: logoBlob.type }))
+        logo_url = await uploadVendorLogo(uploadFd)
+      }
 
-    setLoading(false)
-    if (err) { setError('Failed to add vendor. Please try again.'); return }
-    setOpen(false)
-    reset()
-    router.refresh()
+      const { error: err } = await supabase.from('vendors').insert({
+        name: fd.get('name') as string,
+        type: fd.get('type') as 'inbound' | 'manual',
+        lead_types,
+        lead_type_costs,
+        locations: Array.from(selectedStates),
+        cost_per_lead: null,
+        logo_url,
+      })
+
+      if (err) { setError('Failed to add vendor. Please try again.'); return }
+      setOpen(false)
+      reset()
+      router.refresh()
+    } catch {
+      setError('Failed to add vendor. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const allSelected = selectedStates.size === US_STATES.length
@@ -148,6 +168,10 @@ export function NewVendorDialog() {
             <div className="space-y-1.5">
               <Label htmlFor="name">Name</Label>
               <Input id="name" name="name" placeholder="e.g. MediaAlpha" required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Logo</Label>
+              <LogoCropUpload key={cropKey} currentUrl={null} onBlobChange={setLogoBlob} />
             </div>
             <div className="space-y-1.5">
               <Label>Type</Label>

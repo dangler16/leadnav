@@ -127,7 +127,7 @@ export default async function TeamsPage({
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
                         {team.logo_url ? (
-                          <img src={team.logo_url} alt={team.name} className="w-7 h-7 rounded object-cover border border-gray-200 shrink-0" />
+                          <img src={team.logo_url} alt={team.name} className="w-7 h-7 rounded object-contain border border-gray-200 shrink-0" />
                         ) : (
                           <div className="w-7 h-7 rounded bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
                             {team.name[0].toUpperCase()}
