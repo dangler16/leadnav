@@ -3,21 +3,19 @@ import { createHash } from 'crypto'
 import type { NextRequest } from 'next/server'
 
 async function nextAgentId(supabase: ReturnType<typeof createServiceClient>): Promise<string | null> {
-  const { data: activeOrders, error: ordersError } = await supabase
+  const { data: activeOrders } = await supabase
     .from('orders')
     .select('account_id')
     .eq('status', 'active')
-  console.log('[nextAgentId] activeOrders:', activeOrders, 'error:', ordersError)
 
   const accountIds = [...new Set((activeOrders ?? []).map(o => o.account_id).filter(Boolean))]
   if (accountIds.length === 0) return null
 
-  const { data: agents, error: agentsError } = await supabase
+  const { data: agents } = await supabase
     .from('profiles')
     .select('id')
     .in('id', accountIds)
     .order('created_at')
-  console.log('[nextAgentId] agents:', agents, 'error:', agentsError)
 
   if (!agents || agents.length === 0) return null
 
@@ -30,9 +28,7 @@ async function nextAgentId(supabase: ReturnType<typeof createServiceClient>): Pr
     .maybeSingle()
 
   const lastIndex = agents.findIndex(a => a.id === lastLead?.assigned_to)
-  const result = agents[(lastIndex + 1) % agents.length].id
-  console.log('[nextAgentId] lastLead:', lastLead, 'lastIndex:', lastIndex, 'result:', result)
-  return result
+  return agents[(lastIndex + 1) % agents.length].id
 }
 
 export async function POST(request: NextRequest) {
