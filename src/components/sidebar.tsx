@@ -81,8 +81,8 @@ export function Sidebar({ role = 'user', userId, notificationCount = 0, permissi
         {showLeads    && <NavLink href="/leads"    label="Leads"    icon={SquareUser} />}
         {showOrders   && <NavLink href="/orders"   label="Orders"   icon={Package} />}
         {showDisputes && <NavLink href="/disputes" label="Disputes" icon={AlertCircle} />}
-        {showCalls    && <NavLink href="/calls"    label="Calls"    icon={Phone} />}
-        {(isSuperAdmin || isTeamAdmin) && <NavLink href="/reports" label="Reports" icon={ChartColumnBig} />}
+        {showCalls    && <NavLink href="/dials"    label="Dials"    icon={Phone} />}
+        <NavLink href="/reports" label="Reports" icon={ChartColumnBig} />
 
         {isSuperAdmin && (
           <>

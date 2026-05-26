@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { ReassignLead } from './reassign-lead'
-import { User, Check } from 'lucide-react'
+import { User, Check, Phone } from 'lucide-react'
+import { buildDialerUrl } from '@/lib/dialer'
 
 const US_STATES = [
   { value: 'AL', label: 'Alabama' },
@@ -69,6 +70,7 @@ type Props = {
   isAdmin: boolean
   agents: Profile[]
   assignedName: string | null
+  dialerPreference: string
 }
 
 type Fields = {
@@ -108,7 +110,7 @@ function initFields(lead: Lead): Fields {
   }
 }
 
-export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedName }: Props) {
+export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedName, dialerPreference }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const phoneRef = useRef<HTMLInputElement>(null)
@@ -205,13 +207,24 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-1.5">Phone</p>
-            <Input
-              ref={phoneRef}
-              value={formatPhoneDisplay(vals.phone)}
-              onChange={handlePhoneChange}
-              className="h-8 text-xs"
-              inputMode="numeric"
-            />
+            <div className="flex gap-1.5">
+              <Input
+                ref={phoneRef}
+                value={formatPhoneDisplay(vals.phone)}
+                onChange={handlePhoneChange}
+                className="h-8 text-xs"
+                inputMode="numeric"
+              />
+              {vals.phone && (
+                <a
+                  href={buildDialerUrl(vals.phone, dialerPreference)}
+                  className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded border border-border bg-card hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                  title="Dial"
+                >
+                  <Phone size={13} strokeWidth={2} />
+                </a>
+              )}
+            </div>
           </div>
           <div className="flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-1.5">Email</p>

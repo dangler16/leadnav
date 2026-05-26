@@ -151,7 +151,7 @@ export default async function DashboardPage() {
         <StatCard label="active leads"  value={activeLeadCount  ?? 0} href="/leads"    />
         <StatCard label="active orders" value={activeOrderCount ?? 0} href="/orders"   />
         <StatCard label="open disputes" value={openDisputeCount ?? 0} href="/disputes" />
-        <StatCard label="calls logged"  value={callCount        ?? 0} href="/calls"    />
+        <StatCard label="dials logged"  value={callCount        ?? 0} href="/dials"    />
         <StatCard label="total sales"   value={conversionCount  ?? 0} href="/reports"  />
       </div>
 

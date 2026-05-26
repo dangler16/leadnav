@@ -70,8 +70,9 @@ export default async function LeadsPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('role, dialer_preference').eq('id', user.id).single()
   const isAdmin = profile?.role === 'super_admin' || profile?.role === 'team_admin'
+  const dialerPreference = (profile as { dialer_preference?: string } | null)?.dialer_preference ?? 'default'
 
   let q = supabase.from('leads').select('*, vendors(name, cost_per_lead)').order('created_at', { ascending: false })
   if (!isAdmin) q = q.eq('assigned_to', user.id)
@@ -149,7 +150,7 @@ export default async function LeadsPage({
         </div>
 
         {/* Table — owns its own scroll container and bulk action bar */}
-        <LeadsTable leads={formattedLeads} sort={sort} sortDir={sortDir} isAdmin={isAdmin} agents={agents} />
+        <LeadsTable leads={formattedLeads} sort={sort} sortDir={sortDir} isAdmin={isAdmin} agents={agents} dialerPreference={dialerPreference} />
 
       </div>
     </div>

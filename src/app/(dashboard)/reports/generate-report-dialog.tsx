@@ -21,13 +21,30 @@ export type ReportData = {
   callOutcomes: OutcomeRow[]
   generatedAt: string
   agentName: string
+  apptSet: number
+  apptNoShow: number
+  apptRescheduled: number
+  closes: number
+  avgCallDuration: number
+  callsEndedByLead: number
+  callsEndedByAgent: number
+  scopeLabel: string
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds <= 0) return '—'
+  if (seconds < 60) return `${seconds}s`
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return s > 0 ? `${m}m ${s}s` : `${m}m`
 }
 
 const SECTIONS = [
-  { id: 'summary',   label: 'Summary Statistics',    description: 'Total leads, sales, conversion rate, contact rate, total calls' },
-  { id: 'pipeline',  label: 'Pipeline Summary',       description: 'Active, closed, and lost lead counts' },
-  { id: 'statuses',  label: 'Lead Status Breakdown',  description: 'Count per lead status' },
-  { id: 'outcomes',  label: 'Call Outcomes',           description: 'Count per call outcome' },
+  { id: 'summary',    label: 'Summary Statistics',   description: 'Total leads, appts, no-shows, reschedules, closes, lost, contact rate' },
+  { id: 'calls',      label: 'Call Metrics',          description: 'Total calls, avg duration, ended by lead/agent' },
+  { id: 'pipeline',   label: 'Pipeline Summary',      description: 'Active, closed, and lost lead counts' },
+  { id: 'statuses',   label: 'Lead Status Breakdown', description: 'Count per lead status' },
+  { id: 'outcomes',   label: 'Call Outcomes',          description: 'Count per call outcome' },
 ] as const
 
 type SectionId = typeof SECTIONS[number]['id']
@@ -104,7 +121,6 @@ export function GenerateReportDialog({ data }: { data: ReportData }) {
       doc.setTextColor(20, 20, 20)
       doc.text(`${count}  (${pct.toFixed(0)}%)`, margin + contentW * 0.65, y)
       y += 4
-      // bar track
       doc.setFillColor(230, 230, 230)
       doc.rect(margin + 4, y, contentW - 8, 2, 'F')
       if (pct > 0) {
@@ -117,8 +133,8 @@ export function GenerateReportDialog({ data }: { data: ReportData }) {
     // Title
     addLine('LeadNav Report', { size: 18, bold: true, color: [20, 20, 20] })
     addSpacer(1)
-    addLine(`${data.generatedAt}`, { size: 9, color: [120, 120, 120] })
-    addLine(`${data.agentName}`, { size: 9, color: [120, 120, 120] })
+    addLine(data.generatedAt, { size: 9, color: [120, 120, 120] })
+    addLine(data.agentName, { size: 9, color: [120, 120, 120] })
     addSpacer(3)
     doc.setDrawColor(210, 210, 210)
     doc.line(margin, y, margin + contentW, y)
@@ -127,9 +143,23 @@ export function GenerateReportDialog({ data }: { data: ReportData }) {
     if (selected.has('summary')) {
       sectionHeader('Summary Statistics')
       row('Total Leads', String(data.total))
-      row('Sales', `${data.sales}  (${data.conversionRate}%)`)
+      row('Appts Set', String(data.apptSet))
+      row('No-Shows', String(data.apptNoShow))
+      row('Reschedules', String(data.apptRescheduled))
+      row('Total Closes', `${data.closes}  (${data.conversionRate}%)`)
+      row('Total Lost', String(data.lost))
       row('Contact Rate', `${data.contactRate}%`)
+      addSpacer(4)
+    }
+
+    if (selected.has('calls')) {
+      sectionHeader('Call Metrics')
       row('Total Calls', String(data.totalCalls))
+      row('Avg Call Duration', formatDuration(data.avgCallDuration))
+      const endedByLeadPct = data.totalCalls > 0 ? ((data.callsEndedByLead / data.totalCalls) * 100).toFixed(1) : '0.0'
+      const endedByAgentPct = data.totalCalls > 0 ? ((data.callsEndedByAgent / data.totalCalls) * 100).toFixed(1) : '0.0'
+      row('Ended by Lead', `${data.callsEndedByLead}  (${endedByLeadPct}%)`)
+      row('Ended by Agent', `${data.callsEndedByAgent}  (${endedByAgentPct}%)`)
       addSpacer(4)
     }
 
@@ -165,8 +195,6 @@ export function GenerateReportDialog({ data }: { data: ReportData }) {
     setOpen(false)
   }
 
-  const anySelected = selected.size > 0
-
   return (
     <>
       <Button onClick={() => setOpen(true)} className="gap-2">
@@ -186,7 +214,7 @@ export function GenerateReportDialog({ data }: { data: ReportData }) {
             {SECTIONS.map(s => (
               <label
                 key={s.id}
-                className="flex items-start gap-3 rounded-md px-3 py-2.5 cursor-pointer hover:bg-muted transition-colors group"
+                className="flex items-start gap-3 rounded-md px-3 py-2.5 cursor-pointer hover:bg-muted transition-colors"
               >
                 <input
                   type="checkbox"
@@ -204,7 +232,7 @@ export function GenerateReportDialog({ data }: { data: ReportData }) {
 
           <div className="flex justify-end gap-2 pt-3 border-t border-border">
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleExport} disabled={!anySelected || loading} className="gap-2">
+            <Button onClick={handleExport} disabled={selected.size === 0 || loading} className="gap-2">
               <FileDown size={14} />
               {loading ? 'Exporting…' : 'Export PDF'}
             </Button>

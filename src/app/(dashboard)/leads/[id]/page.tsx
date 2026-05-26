@@ -8,7 +8,7 @@ import { ContactInfoCard } from './contact-info-card'
 import { HouseholdCard } from './household-card'
 import { NotesCard } from './notes-card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { ChevronLeft, AlertCircle } from 'lucide-react'
+import { ChevronLeft, AlertCircle, Play } from 'lucide-react'
 import { DisputeStatusBadge } from '@/components/status-badge'
 import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -41,7 +41,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     supabase.from('leads').select('*').eq('id', id).single(),
     supabase.from('call_logs').select('*').eq('lead_id', id).order('called_at', { ascending: false }),
     supabase.from('disputes').select('*').eq('lead_id', id).order('created_at', { ascending: false }),
-    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    supabase.from('profiles').select('role, dialer_preference').eq('id', user.id).single(),
   ])
 
   if (!leadData) notFound()
@@ -49,6 +49,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const calls = (callLogs ?? []) as CallLog[]
   const disputes = (leadDisputes ?? []) as Dispute[]
   const isAdmin = myProfile?.role === 'super_admin' || myProfile?.role === 'team_admin'
+  const dialerPreference = (myProfile as { dialer_preference?: string } | null)?.dialer_preference ?? 'default'
 
   const [vendorResult, agentsResult, assignedResult] = await Promise.all([
     lead.vendor_id
@@ -81,7 +82,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || 'Unknown Lead'}
           </h1>
           <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
-          <LeadActions lead={lead} userId={user.id} />
+          <LeadActions lead={lead} userId={user.id} dialerPreference={dialerPreference} />
         </div>
       </div>
 
@@ -92,7 +93,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <div className="shrink-0 mb-4">
             <TabsList>
               <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="calls">Call History ({calls.length})</TabsTrigger>
+              <TabsTrigger value="calls">Dial History ({calls.length})</TabsTrigger>
             </TabsList>
           </div>
 
@@ -104,6 +105,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 isAdmin={isAdmin}
                 agents={agents}
                 assignedName={assignedName}
+                dialerPreference={dialerPreference}
               />
 
               <HouseholdCard lead={lead} />
@@ -145,14 +147,17 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Outcome</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Duration</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Ended By</th>
                     <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Notes</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Recording</th>
                     <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {calls.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="py-12 text-center text-xs text-muted-foreground">No calls logged yet</td>
+                      <td colSpan={6} className="py-12 text-center text-xs text-muted-foreground">No dials logged yet</td>
                     </tr>
                   )}
                   {calls.map(call => (
@@ -163,7 +168,28 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                           {outcomeConfig[call.outcome].label}
                         </span>
                       </td>
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                        {call.duration_seconds != null
+                          ? `${Math.floor(call.duration_seconds / 60)}:${String(call.duration_seconds % 60).padStart(2, '0')}`
+                          : '—'}
+                      </td>
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                        {call.ended_by === 'agent' ? 'Agent' : call.ended_by === 'lead' ? 'Lead' : '—'}
+                      </td>
                       <td className="px-3 py-2.5 text-xs text-muted-foreground">{call.notes ?? '—'}</td>
+                      <td className="px-3 py-2.5">
+                        {call.recording_url ? (
+                          <a
+                            href={call.recording_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-foreground hover:text-muted-foreground transition-colors"
+                          >
+                            <Play size={11} strokeWidth={2} />
+                            Play
+                          </a>
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </td>
                       <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{formatDate(call.called_at)}</td>
                     </tr>
                   ))}

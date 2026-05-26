@@ -12,11 +12,11 @@ const tabs: { value: FilterTab; label: string }[] = [
   { value: 'No Answer',       label: 'No Answer' },
 ]
 
-interface CallsFilterTabsProps {
+interface DialsFilterTabsProps {
   filter: FilterTab
   counts: Record<FilterTab, number>
 }
 
-export function CallsFilterTabs({ filter, counts }: CallsFilterTabsProps) {
-  return <FilterTabs tabs={tabs} counts={counts} value={filter} basePath="/calls" />
+export function DialsFilterTabs({ filter, counts }: DialsFilterTabsProps) {
+  return <FilterTabs tabs={tabs} counts={counts} value={filter} basePath="/dials" />
 }

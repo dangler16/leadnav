@@ -16,7 +16,14 @@ const outcomeToStatus: Partial<Record<CallOutcome, LeadStatus>> = {
   sale: 'sale',
 }
 
-export async function logCall(leadId: string, outcome: CallOutcome, notes: string | null) {
+export async function logCall(
+  leadId: string,
+  outcome: CallOutcome,
+  notes: string | null,
+  durationSeconds?: number | null,
+  endedBy?: string | null,
+  recordingUrl?: string | null,
+) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -30,6 +37,9 @@ export async function logCall(leadId: string, outcome: CallOutcome, notes: strin
       agent_id: user.id,
       outcome,
       notes: notes || null,
+      duration_seconds: durationSeconds ?? null,
+      ended_by: endedBy ?? null,
+      recording_url: recordingUrl ?? null,
       called_at: new Date().toISOString(),
     }),
     newStatus
@@ -38,5 +48,5 @@ export async function logCall(leadId: string, outcome: CallOutcome, notes: strin
   ])
 
   revalidatePath(`/leads/${leadId}`)
-  revalidatePath('/calls')
+  revalidatePath('/dials')
 }

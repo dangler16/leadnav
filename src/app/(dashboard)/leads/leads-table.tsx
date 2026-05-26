@@ -7,6 +7,7 @@ import { SquareUser, Phone } from 'lucide-react'
 import { LeadStatusSelect } from './lead-status-select'
 import { SortableHeader, SortDir } from '@/components/sortable-header'
 import { LeadStatus, Profile } from '@/lib/types'
+import { buildDialerUrl } from '@/lib/dialer'
 import { reassignLeads } from './actions'
 import { Button } from '@/components/ui/button'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
@@ -42,12 +43,14 @@ export function LeadsTable({
   sortDir,
   isAdmin,
   agents,
+  dialerPreference,
 }: {
   leads: FormattedLead[]
   sort: string | null
   sortDir: SortDir | null
   isAdmin: boolean
   agents: Profile[]
+  dialerPreference: string
 }) {
   const router = useRouter()
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -247,13 +250,20 @@ export function LeadsTable({
                       {lead.dateShort}
                     </td>
                     <td className="px-3 py-1.5 text-right">
-                      <Link
-                        href="/calls"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground border border-border bg-card rounded px-3 py-1.5 whitespace-nowrap opacity-0 group-hover:opacity-100 hover:bg-muted transition-colors"
-                      >
-                        <Phone size={11} strokeWidth={2} />
-                        Call Lead
-                      </Link>
+                      {lead.phone ? (
+                        <a
+                          href={buildDialerUrl(lead.phone, dialerPreference)}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground border border-border bg-card rounded px-3 py-1.5 whitespace-nowrap opacity-0 group-hover:opacity-100 hover:bg-muted transition-colors"
+                        >
+                          <Phone size={11} strokeWidth={2} />
+                          Call Lead
+                        </a>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border bg-card rounded px-3 py-1.5 whitespace-nowrap opacity-0 group-hover:opacity-100 cursor-not-allowed">
+                          <Phone size={11} strokeWidth={2} />
+                          No Phone
+                        </span>
+                      )}
                     </td>
                   </tr>
                 )

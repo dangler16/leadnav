@@ -9,6 +9,7 @@ export type Profile = {
   stripe_customer_id: string | null
   avatar_url: string | null
   dark_mode: boolean
+  dialer_preference: string
   created_at: string
 }
 
@@ -122,6 +123,8 @@ export type CallLog = {
   called_at: string
   outcome: CallOutcome
   duration_seconds: number | null
+  ended_by: string | null
+  recording_url: string | null
   notes: string | null
   created_at: string
 }

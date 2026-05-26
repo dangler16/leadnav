@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Lead, CallOutcome } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -8,6 +8,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { logCall as logCallAction } from './actions'
+import { createClient } from '@/lib/supabase/client'
+import { Upload } from 'lucide-react'
+import { CallTimer } from '@/app/(dashboard)/dials/call-timer'
+import { buildDialerUrl } from '@/lib/dialer'
 
 const outcomeOptions: { value: CallOutcome; label: string }[] = [
   { value: 'no_answer', label: 'No Answer' },
@@ -20,43 +24,83 @@ const outcomeOptions: { value: CallOutcome; label: string }[] = [
   { value: 'sale', label: 'Sale' },
 ]
 
+const endedByOptions = [
+  { value: '', label: 'Not specified' },
+  { value: 'agent', label: 'I ended the call' },
+  { value: 'lead', label: 'They hung up' },
+]
+
 type Props = {
   lead: Lead
   userId: string
+  dialerPreference: string
 }
 
-export function LeadActions({ lead, userId: _userId }: Props) {
+export function LeadActions({ lead, userId, dialerPreference }: Props) {
+  const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [outcome, setOutcome] = useState<CallOutcome>('no_answer')
   const [notes, setNotes] = useState('')
+  const [duration, setDuration] = useState(0)
+  const [endedBy, setEndedBy] = useState('')
+  const [recordingFile, setRecordingFile] = useState<File | null>(null)
 
-  async function logCall(e: React.FormEvent<HTMLFormElement>) {
+  const handleDurationChange = useCallback((s: number) => setDuration(s), [])
+
+  function handleDial() {
+    if (lead.phone) {
+      window.location.href = buildDialerUrl(lead.phone, dialerPreference)
+    }
+    setOpen(true)
+  }
+
+  async function handleLogDial(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
     const loggedOutcome = outcome
     const loggedNotes = notes
+    const loggedEndedBy = endedBy || null
+    const loggedDuration = duration > 0 ? duration : null
+    const fileToUpload = recordingFile
 
     setNotes('')
     setOutcome('no_answer')
+    setEndedBy('')
+    setDuration(0)
+    setRecordingFile(null)
     setOpen(false)
-    await logCallAction(lead.id, loggedOutcome, loggedNotes || null)
+
+    let recordingUrl: string | null = null
+    if (fileToUpload) {
+      const ext = fileToUpload.name.split('.').pop() ?? 'mp3'
+      const path = `${userId}/${Date.now()}.${ext}`
+      const { data } = await supabase.storage.from('call-recordings').upload(path, fileToUpload)
+      if (data) {
+        recordingUrl = supabase.storage.from('call-recordings').getPublicUrl(data.path).data.publicUrl
+      }
+    }
+
+    await logCallAction(lead.id, loggedOutcome, loggedNotes || null, loggedDuration, loggedEndedBy, recordingUrl)
   }
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        size="sm"
-        className="border-0"
-      >
-        Log Call
+      <Button onClick={handleDial} size="sm" className="border-0">
+        Dial
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-sm" showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>Log a Call</DialogTitle>
+            <DialogTitle>Log a Dial</DialogTitle>
           </DialogHeader>
-          <form onSubmit={logCall} className="space-y-4 mt-2">
+          <form onSubmit={handleLogDial} className="space-y-4 mt-2">
+
+            <div className="space-y-1.5">
+              <Label>Duration</Label>
+              <CallTimer onDurationChange={handleDurationChange} />
+            </div>
+
             <div className="space-y-1.5">
               <Label>Outcome</Label>
               <SelectDropdown
@@ -66,10 +110,20 @@ export function LeadActions({ lead, userId: _userId }: Props) {
                 buttonClassName=""
               />
             </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor="call-notes">Notes</Label>
+              <Label>Who ended the call?</Label>
+              <SelectDropdown
+                options={endedByOptions}
+                value={endedBy}
+                onChange={setEndedBy}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="dial-notes">Notes</Label>
               <Textarea
-                id="call-notes"
+                id="dial-notes"
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Notes…"
@@ -77,11 +131,37 @@ export function LeadActions({ lead, userId: _userId }: Props) {
                 className="text-xs resize-none"
               />
             </div>
+
+            <div className="space-y-1.5">
+              <Label>Recording</Label>
+              <div className="flex items-center gap-2">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="audio/*,.mp3,.wav,.m4a,.ogg"
+                    className="hidden"
+                    onChange={e => setRecordingFile(e.target.files?.[0] ?? null)}
+                  />
+                  <span className="inline-flex items-center gap-1.5 text-xs border border-border bg-card hover:bg-muted rounded px-3 py-1.5 transition-colors">
+                    <Upload size={12} />
+                    {recordingFile ? recordingFile.name : 'Upload recording'}
+                  </span>
+                </label>
+                {recordingFile && (
+                  <button
+                    type="button"
+                    onClick={() => setRecordingFile(null)}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" className="flex items-center gap-2">
-                Log Call
-              </Button>
+              <Button type="submit">Log Dial</Button>
             </div>
           </form>
         </DialogContent>

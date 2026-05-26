@@ -20,6 +20,14 @@ export async function updateDarkMode(dark: boolean) {
   })
 }
 
+export async function updateDialerPreference(preference: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase.from('profiles').update({ dialer_preference: preference }).eq('id', user.id)
+}
+
 export async function updateTeamBillingMode(teamId: string, mode: TeamBillingMode) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
