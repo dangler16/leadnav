@@ -82,6 +82,7 @@ export default async function LeadsPage({
     isAdmin ? supabase.from('profiles').select('*').order('first_name') : Promise.resolve({ data: [] }),
   ])
   const agents = (agentsData ?? []) as Profile[]
+  const profileById = Object.fromEntries(agents.map(a => [a.id, a]))
   type LeadWithVendor = Lead & { vendors: { name: string; cost_per_lead: number | null } | null }
   const leads = (leadsData ?? []) as LeadWithVendor[]
 
@@ -105,10 +106,15 @@ export default async function LeadsPage({
 
   const formattedLeads: FormattedLead[] = filtered.map(lead => {
     const { short, full } = formatDate(lead.created_at)
+    const agentProfile = lead.assigned_to ? profileById[lead.assigned_to] : null
+    const agentName = agentProfile
+      ? [agentProfile.first_name, agentProfile.last_name].filter(Boolean).join(' ') || null
+      : null
     return {
       id: lead.id,
       name: [lead.firstname, lead.lastname].filter(Boolean).join(' ') || null,
       status: lead.status,
+      agent: agentName ? { name: agentName, initial: (agentProfile!.first_name?.[0] ?? '?').toUpperCase() } : null,
       vendor: lead.vendors?.name ?? null,
       phone: formatPhone(lead.phone),
       email: lead.email,
@@ -120,25 +126,25 @@ export default async function LeadsPage({
   })
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       <div className="flex items-center px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-xl font-bold text-gray-900">Leads</h1>
+        <h1 className="text-xl font-bold text-foreground">Leads</h1>
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-border rounded overflow-hidden">
 
         {/* Unified toolbar */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b border-gray-200 shrink-0 flex-wrap">
+        <div className="flex items-center gap-2 px-3 py-2 bg-muted border-b border-border shrink-0 flex-wrap">
           <SearchInput defaultValue={search} />
-          <div className="h-4 w-px bg-gray-200 shrink-0" />
+          <div className="h-4 w-px bg-border shrink-0" />
           <LeadsFilterTabs filter={filter} counts={counts} search={search} />
         </div>
 
         {/* Count */}
-        <div className="px-3 py-1.5 border-b border-gray-100 bg-white shrink-0">
-          <p className="text-xs text-gray-400">
-            Showing <span className="font-medium text-gray-600">{filtered.length}</span> of <span className="font-medium text-gray-600">{leads.length}</span> leads
+        <div className="px-3 py-1.5 border-b border-border bg-card shrink-0">
+          <p className="text-xs text-muted-foreground">
+            Showing <span className="font-medium text-foreground">{filtered.length}</span> of <span className="font-medium text-foreground">{leads.length}</span> leads
           </p>
         </div>
 

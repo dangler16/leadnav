@@ -44,19 +44,19 @@ export function BillingModeToggle({ teamId, initialMode }: { teamId: string; ini
           className={cn(
             'flex items-start gap-3 rounded border p-3 text-left transition-colors cursor-pointer disabled:opacity-60',
             mode === opt.value
-              ? 'border-gray-900 bg-gray-50'
-              : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+              ? 'border-foreground bg-muted'
+              : 'border-border bg-card hover:border-border/80 hover:bg-muted'
           )}
         >
           <div className={cn(
             'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border',
-            mode === opt.value ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-300 text-gray-400'
+            mode === opt.value ? 'border-foreground bg-foreground text-background' : 'border-border text-muted-foreground'
           )}>
             {opt.icon}
           </div>
           <div>
-            <p className={cn('text-xs font-medium', mode === opt.value ? 'text-gray-900' : 'text-gray-600')}>{opt.label}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{opt.description}</p>
+            <p className={cn('text-xs font-medium', mode === opt.value ? 'text-foreground' : 'text-muted-foreground')}>{opt.label}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
           </div>
         </button>
       ))}

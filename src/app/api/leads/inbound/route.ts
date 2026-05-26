@@ -3,11 +3,21 @@ import { createHash } from 'crypto'
 import type { NextRequest } from 'next/server'
 
 async function nextAgentId(supabase: ReturnType<typeof createServiceClient>): Promise<string | null> {
-  const { data: agents } = await supabase
+  const { data: activeOrders, error: ordersError } = await supabase
+    .from('orders')
+    .select('account_id')
+    .eq('status', 'active')
+  console.log('[nextAgentId] activeOrders:', activeOrders, 'error:', ordersError)
+
+  const accountIds = [...new Set((activeOrders ?? []).map(o => o.account_id).filter(Boolean))]
+  if (accountIds.length === 0) return null
+
+  const { data: agents, error: agentsError } = await supabase
     .from('profiles')
     .select('id')
-    .eq('role', 'agent')
+    .in('id', accountIds)
     .order('created_at')
+  console.log('[nextAgentId] agents:', agents, 'error:', agentsError)
 
   if (!agents || agents.length === 0) return null
 
@@ -20,7 +30,9 @@ async function nextAgentId(supabase: ReturnType<typeof createServiceClient>): Pr
     .maybeSingle()
 
   const lastIndex = agents.findIndex(a => a.id === lastLead?.assigned_to)
-  return agents[(lastIndex + 1) % agents.length].id
+  const result = agents[(lastIndex + 1) % agents.length].id
+  console.log('[nextAgentId] lastLead:', lastLead, 'lastIndex:', lastIndex, 'result:', result)
+  return result
 }
 
 export async function POST(request: NextRequest) {
@@ -62,11 +74,16 @@ export async function POST(request: NextRequest) {
     'south dakota': 'SD', tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT',
     virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY',
   }
-  const rawState = body.state ? String(body.state) : null
-  const state = rawState
+  const ABBR_TO_STATE_NAME: Record<string, string> = Object.fromEntries(
+    Object.entries(STATE_NAME_TO_ABBR).map(([name, abbr]) => [abbr, name.replace(/\b\w/g, c => c.toUpperCase())])
+  )
+  const rawState = body.state ? String(body.state).trim() : null
+  // Normalize to abbreviation for order matching; store the full name
+  const stateAbbr = rawState
     ? (STATE_NAME_TO_ABBR[rawState.toLowerCase()] ?? rawState.toUpperCase())
     : null
-  if (!state) {
+  const stateFull = stateAbbr ? (ABBR_TO_STATE_NAME[stateAbbr] ?? rawState) : null
+  if (!stateAbbr) {
     return Response.json({ error: 'Missing required field: state' }, { status: 400 })
   }
 
@@ -76,7 +93,7 @@ export async function POST(request: NextRequest) {
     .select('id')
     .eq('vendor_id', keyRecord.vendor_id)
     .eq('status', 'active')
-    .contains('states', [state])
+    .contains('states', [stateAbbr])
     .limit(1)
     .maybeSingle()
 
@@ -130,7 +147,7 @@ export async function POST(request: NextRequest) {
       birthday: body.birthday ?? null,
       email,
       phone,
-      state,
+      state: stateFull,
       zip: body.zip ?? null,
       plan_for: body.plan_for ?? null,
       looking_for: body.looking_for ?? null,

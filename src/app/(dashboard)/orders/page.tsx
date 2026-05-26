@@ -145,24 +145,24 @@ export default async function OrdersPage({
   const colSpan = 7 + (showForColumn ? 2 : 0)
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-xl font-bold text-foreground">Orders</h1>
         <NewOrderDialog vendors={vendors} userId={user.id} orderableProfiles={orderableProfiles} />
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
-        <div className="px-3 py-2.5 border-b border-gray-100 shrink-0">
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-border rounded-lg overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-border shrink-0">
           <OrdersFilterTabs filter={filter} counts={counts} />
         </div>
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-border">
                 <th className="text-left px-3 py-2.5"><SortableHeader column="id"           label="Order #"       currentSort={sort} currentDir={sortDir} /></th>
-                {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Agent</th>}
-                {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Placed by</th>}
+                {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Agent</th>}
+                {showForColumn && <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Placed by</th>}
                 <th className="text-left px-3 py-2.5"><SortableHeader column="vendor"        label="Vendor"        currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="lead_type"     label="Lead Type"     currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="daily_budget"  label="Daily Budget"  currentSort={sort} currentDir={sortDir} /></th>
@@ -174,7 +174,7 @@ export default async function OrdersPage({
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={colSpan} className="py-12 text-center text-xs text-gray-400">No orders yet. Place your first order to get started.</td>
+                  <td colSpan={colSpan} className="py-12 text-center text-xs text-muted-foreground">No orders yet. Place your first order to get started.</td>
                 </tr>
               )}
               {filtered.map(order => {
@@ -188,27 +188,27 @@ export default async function OrdersPage({
                   ? [placedByProfile.first_name, placedByProfile.last_name].filter(Boolean).join(' ')
                   : null
                 return (
-                  <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <tr key={order.id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-3 py-2.5">
-                      <Link href={`/orders/${order.id}`} className="font-mono text-xs text-gray-400 hover:text-gray-700 transition-colors">
+                      <Link href={`/orders/${order.id}`} className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors">
                         #{order.id.slice(0, 8).toUpperCase()}
                       </Link>
                     </td>
                     {showForColumn && (
-                      <td className="px-3 py-2.5 text-xs text-gray-500">
-                        {accountName ?? <span className="text-gray-300 font-mono text-[10px]">{order.account_id?.slice(0, 8)}</span>}
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                        {accountName ?? <span className="text-border font-mono text-[10px]">{order.account_id?.slice(0, 8)}</span>}
                       </td>
                     )}
                     {showForColumn && (
-                      <td className="px-3 py-2.5 text-xs text-gray-500">
-                        {placedByName ?? (order.placed_by ? <span className="text-gray-300 font-mono text-[10px]">{order.placed_by.slice(0, 8)}</span> : <span className="text-gray-300">—</span>)}
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                        {placedByName ?? (order.placed_by ? <span className="text-border font-mono text-[10px]">{order.placed_by.slice(0, 8)}</span> : <span className="text-border">—</span>)}
                       </td>
                     )}
-                    <td className="px-3 py-2.5 text-xs text-gray-900">{order._vendor?.name ?? '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-foreground">{order._vendor?.name ?? '—'}</td>
                     <td className="px-3 py-2.5">
                       {(() => {
                         const types = orderLeadTypes(order)
-                        if (types.length === 0) return <span className="text-gray-400">—</span>
+                        if (types.length === 0) return <span className="text-muted-foreground">—</span>
                         return (
                           <div className="flex gap-1 flex-wrap">
                             {types.map(lt => {
@@ -216,7 +216,7 @@ export default async function OrdersPage({
                                 ? (order._vendor.lead_type_costs[lt] ?? order._vendor.cost_per_lead)
                                 : null
                               return (
-                                <span key={lt} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>
+                                <span key={lt} className={cn(badgeShape, 'bg-muted text-muted-foreground border border-border')}>
                                   {cost != null ? `${lt} $${cost.toLocaleString('en-US')}` : lt}
                                 </span>
                               )
@@ -225,7 +225,7 @@ export default async function OrdersPage({
                         )
                       })()}
                     </td>
-                    <td className="px-3 py-2.5 text-xs text-gray-900">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-foreground">{order.daily_budget ? `$${order.daily_budget}` : '—'}</td>
                     <td className="px-3 py-2.5">
                       {isEditable ? (
                         <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
@@ -235,7 +235,7 @@ export default async function OrdersPage({
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(order.created_at)}</td>
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(order.created_at)}</td>
                     <td className="px-3 py-2.5">
                       {isEditable && <EditOrderDialog order={order} orderableProfiles={orderableProfiles} />}
                     </td>

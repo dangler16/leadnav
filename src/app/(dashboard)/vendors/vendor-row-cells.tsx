@@ -37,37 +37,37 @@ export function VendorRowCells({ vendor, vendorKeys }: { vendor: Vendor; vendorK
             {vendor.lead_types.map(lt => {
               const cost = vendor.lead_type_costs[lt]
               return (
-                <span key={lt} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>
+                <span key={lt} className={cn(badgeShape, 'bg-muted text-muted-foreground border border-border')}>
                   {cost != null ? `${lt} $${cost.toLocaleString('en-US')}` : lt}
                 </span>
               )
             })}
           </div>
         ) : (
-          <span className="text-gray-400">—</span>
+          <span className="text-muted-foreground">—</span>
         )}
       </td>
       <td className="px-3 py-2.5">
         {locations.length === 0 ? (
-          <span className="text-gray-400">—</span>
+          <span className="text-muted-foreground">—</span>
         ) : locations.length > 5 ? (
           <button
             onClick={() => setEditOpen(true)}
-            className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer')}
+            className={cn(badgeShape, 'bg-muted text-muted-foreground border border-border hover:bg-muted/80 transition-colors cursor-pointer')}
           >
             View all ({locations.length})
           </button>
         ) : (
           <div className="flex gap-1 flex-wrap">
             {locations.map(s => (
-              <span key={s} className={cn(badgeShape, 'bg-gray-100 text-gray-600 border border-gray-200')}>
+              <span key={s} className={cn(badgeShape, 'bg-muted text-muted-foreground border border-border')}>
                 {STATE_NAMES[s] ?? s}
               </span>
             ))}
           </div>
         )}
       </td>
-      <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(vendor.created_at)}</td>
+      <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(vendor.created_at)}</td>
       <td className="px-3 py-2.5 text-right">
         <div className="flex items-center justify-end gap-1">
           {vendor.type === 'inbound' && (
@@ -75,7 +75,7 @@ export function VendorRowCells({ vendor, vendorKeys }: { vendor: Vendor; vendorK
           )}
           <button
             onClick={() => setEditOpen(true)}
-            className="ml-1 p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="ml-1 p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <Pencil size={14} />
           </button>

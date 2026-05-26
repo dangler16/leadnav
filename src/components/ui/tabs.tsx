@@ -24,14 +24,14 @@ function TabsList({ className, children, ...props }: TabsPrimitive.List.Props) {
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "relative inline-flex items-center gap-0.5 rounded bg-gray-100 border border-gray-200 p-0.5 text-gray-500 w-fit",
+        "relative inline-flex items-center gap-0.5 rounded bg-muted border border-border p-0.5 text-muted-foreground w-fit",
         className
       )}
       {...props}
     >
       {children}
       <TabsPrimitive.Indicator
-        className="absolute rounded-sm bg-gray-900 transition-all duration-200 ease-out"
+        className="absolute rounded-sm bg-foreground transition-all duration-200 ease-out"
         style={{
           left: "var(--active-tab-left)",
           top: "var(--active-tab-top)",
@@ -49,9 +49,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       data-slot="tabs-trigger"
       className={cn(
         "relative z-10 inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors",
-        "not-data-[active]:text-gray-500 not-data-[active]:bg-gray-100 not-data-[active]:hover:text-gray-900",
+        "not-data-[active]:text-muted-foreground not-data-[active]:bg-muted not-data-[active]:hover:text-foreground",
         "disabled:pointer-events-none disabled:opacity-50",
-        "data-[active]:text-white",
+        "data-[active]:text-background",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}

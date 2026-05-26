@@ -89,7 +89,7 @@ export function ManageMembersDialog({
 
           <div className="mt-2">
             {members.length === 0 && (
-              <p className="text-xs text-gray-400 py-2">No members yet.</p>
+              <p className="text-xs text-muted-foreground py-2">No members yet.</p>
             )}
 
             {members.length > 0 && (
@@ -97,9 +97,9 @@ export function ManageMembersDialog({
                 <table className="w-full">
                   <thead>
                     <tr>
-                      <th className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-1.5 px-1">User</th>
+                      <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide pb-1.5 px-1">User</th>
                       {PERMISSIONS.map(p => (
-                        <th key={p.key} className="text-center text-xs font-medium text-gray-400 uppercase tracking-wide pb-1.5 px-2">{p.label}</th>
+                        <th key={p.key} className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide pb-1.5 px-2">{p.label}</th>
                       ))}
                       <th />
                     </tr>
@@ -108,13 +108,13 @@ export function ManageMembersDialog({
                     {members.map(m => {
                       const name = [m.profile.first_name, m.profile.last_name].filter(Boolean).join(' ') || '—'
                       return (
-                        <tr key={m.user_id} className="border-t border-gray-50">
+                        <tr key={m.user_id} className="border-t border-border">
                           <td className="py-2 px-1">
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold flex-shrink-0">
                                 {(m.profile.first_name?.[0] ?? '?').toUpperCase()}
                               </div>
-                              <p className="text-xs font-medium text-gray-900 truncate">{name}</p>
+                              <p className="text-xs font-medium text-foreground truncate">{name}</p>
                             </div>
                           </td>
                           {PERMISSIONS.map(({ key }) => (
@@ -124,7 +124,7 @@ export function ManageMembersDialog({
                                   onClick={() => handleTogglePermission(m, key)}
                                   disabled={!!loading}
                                   className={`w-8 h-4 rounded-full transition-colors relative ${
-                                    m[key] ? 'bg-red-500' : 'bg-gray-200'
+                                    m[key] ? 'bg-red-500' : 'bg-muted'
                                   }`}
                                 >
                                   <span className={`absolute top-0.5 left-0 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
@@ -138,7 +138,7 @@ export function ManageMembersDialog({
                             <button
                               onClick={() => handleRemove(m.user_id)}
                               disabled={loading === `remove-${m.user_id}`}
-                              className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                              className="p-1 rounded-md text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             >
                               <UserMinus size={13} />
                             </button>
@@ -152,8 +152,8 @@ export function ManageMembersDialog({
             )}
 
             {available.length > 0 && (
-              <div className="pt-2 border-t border-gray-100 space-y-2">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Add Member</p>
+              <div className="pt-2 border-t border-border space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Add Member</p>
                 <div className="flex gap-2">
                   <SelectDropdown
                     options={available.map(p => ({ value: p.id, label: [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id }))}

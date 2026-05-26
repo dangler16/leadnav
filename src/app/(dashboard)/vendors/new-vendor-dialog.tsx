@@ -156,7 +156,7 @@ export function NewVendorDialog() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-xs font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none">
+      <Button onClick={() => setOpen(true)}>
         Add Vendor
       </Button>
       <Dialog open={open} onOpenChange={val => { setOpen(val); if (!val) reset() }}>
@@ -216,12 +216,12 @@ export function NewVendorDialog() {
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                  className="text-xs text-muted-foreground hover:text-red-600 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
               </div>
-              <div className="border border-gray-200 rounded-md p-2 max-h-40 overflow-y-auto">
+              <div className="border border-border rounded-md p-2 max-h-40 overflow-y-auto">
                 <div className="grid grid-cols-3 gap-1">
                   {US_STATES.map(({ abbr, name }) => {
                     const checked = selectedStates.has(abbr)
@@ -232,8 +232,8 @@ export function NewVendorDialog() {
                         onClick={() => toggleState(abbr)}
                         className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-foreground text-background'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                       >
                         {name}
@@ -243,7 +243,7 @@ export function NewVendorDialog() {
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}

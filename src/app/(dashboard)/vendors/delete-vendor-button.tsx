@@ -28,7 +28,7 @@ export function DeleteVendorButton({ vendorId, vendorName }: { vendorId: string;
     <>
       <button
         onClick={() => setOpen(true)}
-        className="p-1.5 rounded-md text-gray-400 hover:text-red-600 transition-colors"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-red-600 transition-colors"
       >
         <Trash2 size={18} />
       </button>
@@ -38,7 +38,7 @@ export function DeleteVendorButton({ vendorId, vendorName }: { vendorId: string;
             <DialogTitle>Delete Vendor</DialogTitle>
           </DialogHeader>
           <p className="text-xs text-muted-foreground">
-            Are you sure you want to delete <span className="font-medium text-gray-900">{vendorName}</span>? This cannot be undone.
+            Are you sure you want to delete <span className="font-medium text-foreground">{vendorName}</span>? This cannot be undone.
           </p>
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex justify-end gap-2 pt-2">
@@ -47,7 +47,7 @@ export function DeleteVendorButton({ vendorId, vendorName }: { vendorId: string;
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="bg-gray-900 hover:bg-gray-800 text-white"
+              className=""
             >
               {loading ? 'Deleting…' : 'Delete'}
             </Button>

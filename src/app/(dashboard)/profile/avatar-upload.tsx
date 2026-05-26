@@ -133,10 +133,10 @@ export function AvatarUpload({ currentUrl, initials }: {
 
       {crop && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-xl p-6 flex flex-col items-center gap-4 shadow-xl">
-            <p className="text-sm font-medium text-gray-900">Drag to reposition</p>
+          <div className="bg-card rounded-xl p-6 flex flex-col items-center gap-4 shadow-xl">
+            <p className="text-sm font-medium text-foreground">Drag to reposition</p>
             <div
-              className="rounded-full overflow-hidden cursor-grab active:cursor-grabbing border-2 border-gray-200 select-none"
+              className="rounded-full overflow-hidden cursor-grab active:cursor-grabbing border-2 border-border select-none"
               style={{ width: CROP_SIZE, height: CROP_SIZE, position: 'relative' }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
@@ -158,13 +158,13 @@ export function AvatarUpload({ currentUrl, initials }: {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCancel}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
               >
                 <X size={13} /> Cancel
               </button>
               <button
                 onClick={handleConfirm}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-background bg-foreground rounded-lg hover:bg-foreground/90 transition-colors"
               >
                 <Check size={13} /> Apply
               </button>
@@ -177,7 +177,7 @@ export function AvatarUpload({ currentUrl, initials }: {
         className="relative group cursor-pointer"
         onClick={() => inputRef.current?.click()}
       >
-        <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-600 text-base font-bold flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center text-muted-foreground text-base font-bold flex-shrink-0">
           {displayUrl ? (
             <img src={displayUrl} alt="Profile picture" className="w-full h-full object-cover" />
           ) : (

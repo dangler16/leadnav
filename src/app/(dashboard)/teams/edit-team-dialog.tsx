@@ -70,7 +70,7 @@ export function EditTeamDialog({ team }: { team: Team }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       >
         <Pencil size={14} />
       </button>

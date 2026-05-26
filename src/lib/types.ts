@@ -8,6 +8,7 @@ export type Profile = {
   wallet_balance_cents: number
   stripe_customer_id: string | null
   avatar_url: string | null
+  dark_mode: boolean
   created_at: string
 }
 

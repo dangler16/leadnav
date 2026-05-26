@@ -2,19 +2,26 @@
 
 import { useTheme } from '@/components/theme-provider'
 import { Moon, Sun } from 'lucide-react'
+import { updateDarkMode } from './actions'
 
-export function DarkModeToggle() {
+export function DarkModeToggle({ initialDark }: { initialDark: boolean }) {
   const { theme, setTheme } = useTheme()
   const dark = theme === 'dark'
+
+  function handleToggle() {
+    const next = dark ? 'light' : 'dark'
+    setTheme(next)
+    updateDarkMode(next === 'dark')
+  }
 
   return (
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-xs font-medium text-gray-900">Dark Mode</p>
+        <p className="text-xs font-medium text-foreground">Dark Mode</p>
         <p className="text-xs text-muted-foreground mt-0.5">Switch between light and dark theme</p>
       </div>
       <button
-        onClick={() => setTheme(dark ? 'light' : 'dark')}
+        onClick={handleToggle}
         role="switch"
         aria-checked={dark}
         className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"

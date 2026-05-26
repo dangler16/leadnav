@@ -15,7 +15,7 @@ export function LeadStatusBadge({ status, variant = 'display', className }: Lead
       Lost:   'bg-red-50 text-red-700',
     }
     return (
-      <span className={cn(pill, displayColors[display] ?? 'bg-gray-100 text-gray-500', className)}>
+      <span className={cn(pill, displayColors[display] ?? 'bg-muted text-muted-foreground', className)}>
         <span className="w-1.5 h-1.5 rounded-full bg-current" />
         {display.toLowerCase()}
       </span>
@@ -24,7 +24,7 @@ export function LeadStatusBadge({ status, variant = 'display', className }: Lead
 
   const rawColors: Record<LeadStatus, string> = {
     new:              'bg-blue-50 text-blue-700',
-    not_contacted:    'bg-gray-100 text-gray-500',
+    not_contacted:    'bg-muted text-muted-foreground',
     contacted:        'bg-green-50 text-green-700',
     appt_set:         'bg-teal-50 text-teal-700',
     appt_no_show:     'bg-yellow-50 text-yellow-700',

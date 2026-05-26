@@ -218,7 +218,7 @@ export function EditOrderDialog({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors px-1.5 py-1 rounded hover:bg-gray-100"
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 py-1 rounded hover:bg-muted"
       >
         <Pencil size={14} />
         Edit
@@ -240,16 +240,16 @@ export function EditOrderDialog({
                     {agents.map(a => {
                       const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
                       return (
-                        <div key={a.user_id} className="flex items-center gap-2 py-1.5 px-2 rounded border border-gray-100 bg-gray-50">
-                          <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-[10px] font-bold flex-shrink-0">
+                        <div key={a.user_id} className="flex items-center gap-2 py-1.5 px-2 rounded border border-border bg-muted">
+                          <div className="w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center text-muted-foreground text-[10px] font-bold flex-shrink-0">
                             {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
                           </div>
-                          <span className="flex-1 text-xs text-gray-700">{name}</span>
+                          <span className="flex-1 text-xs text-foreground">{name}</span>
                           <button
                             type="button"
                             onClick={() => handleRemoveAgent(a.user_id)}
                             disabled={agentLoading === `remove-${a.user_id}`}
-                            className="p-0.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                            className="p-0.5 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                           >
                             <UserMinus size={13} />
                           </button>
@@ -329,12 +329,12 @@ export function EditOrderDialog({
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                  className="text-xs text-muted-foreground hover:text-red-600 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
               </div>
-              <div className="border border-gray-200 rounded-md p-2 max-h-40 overflow-y-auto">
+              <div className="border border-border rounded-md p-2 max-h-40 overflow-y-auto">
                 <div className="grid grid-cols-3 gap-1">
                   {US_STATES.map(({ abbr, name }) => {
                     const checked = selectedStates.has(abbr)
@@ -345,8 +345,8 @@ export function EditOrderDialog({
                         onClick={() => toggleState(abbr)}
                         className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-foreground text-background'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                       >
                         {name}
@@ -356,7 +356,7 @@ export function EditOrderDialog({
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}
@@ -375,8 +375,8 @@ export function EditOrderDialog({
                       onClick={() => toggleDay(d)}
                       className={`text-xs w-full py-1.5 rounded-sm transition-colors font-medium ${
                         checked
-                          ? 'bg-gray-900 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-foreground text-background'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
                       }`}
                     >
                       {d}

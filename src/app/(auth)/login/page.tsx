@@ -30,13 +30,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-8">
           <img src="/leadnav-black-text.svg" alt="LeadNav" width="200" />
         </div>
-        <div className="bg-white rounded-[10px] border border-gray-200 p-8 shadow-sm">
-          <h1 className="text-lg font-semibold text-gray-900 mb-[20px]">Sign in</h1>
+        <div className="bg-card rounded-[10px] border border-border p-8 shadow-sm">
+          <h1 className="text-lg font-semibold text-foreground mb-[20px]">Sign in</h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>

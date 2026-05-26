@@ -29,7 +29,7 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
   return (
     <TabsPrimitive.Root value={value} onValueChange={handleChange}>
       <TabsPrimitive.List
-        className="relative inline-flex items-center gap-0.5 rounded bg-gray-100 border border-gray-200 p-0.5 text-gray-500 w-fit flex-wrap"
+        className="relative inline-flex items-center gap-0.5 rounded bg-muted border border-border p-0.5 text-muted-foreground w-fit flex-wrap"
       >
         {tabs.map(tab => {
           const count = counts[tab.value]
@@ -40,21 +40,21 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
               value={tab.value}
               className={cn(
                 'relative z-10 inline-flex items-center gap-1 justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
-                'data-[active]:text-white',
+                'data-[active]:text-background',
                 isEmpty
-                  ? 'text-gray-400 opacity-40'
-                  : 'text-gray-500 hover:text-gray-900',
+                  ? 'text-muted-foreground opacity-40'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {tab.label}
-              <span className={cn('font-mono tabular-nums', isEmpty ? 'text-gray-400' : 'text-gray-400')}>
+              <span className={cn('font-mono tabular-nums', isEmpty ? 'text-muted-foreground' : 'text-muted-foreground')}>
                 {count}
               </span>
             </TabsPrimitive.Tab>
           )
         })}
         <TabsPrimitive.Indicator
-          className="absolute rounded-sm bg-gray-900 transition-all duration-200 ease-out"
+          className="absolute rounded-sm bg-foreground transition-all duration-200 ease-out"
           style={{
             left: 'var(--active-tab-left)',
             top: 'var(--active-tab-top)',

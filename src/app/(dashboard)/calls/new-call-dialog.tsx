@@ -1,23 +1,24 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Lead, DisputeReason } from '@/lib/types'
+import { Lead, CallOutcome } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
+import { logCall } from '../leads/[id]/actions'
 
-const reasonOptions: { value: DisputeReason; label: string }[] = [
-  { value: 'bad_phone', label: 'Bad Phone' },
-  { value: 'bad_email', label: 'Bad Email' },
-  { value: 'bad_address', label: 'Bad Address' },
-  { value: 'duplicate', label: 'Duplicate Lead' },
+const outcomeOptions: { value: CallOutcome; label: string }[] = [
+  { value: 'no_answer', label: 'No Answer' },
+  { value: 'voicemail', label: 'Voicemail' },
+  { value: 'callback_requested', label: 'Callback Requested' },
+  { value: 'appointment_set', label: 'Appointment Set' },
+  { value: 'contacted', label: 'Contacted' },
   { value: 'not_interested', label: 'Not Interested' },
-  { value: 'other', label: 'Other' },
+  { value: 'wrong_number', label: 'Wrong Number' },
+  { value: 'sale', label: 'Sale' },
 ]
 
 type LeadOption = Pick<Lead, 'id' | 'firstname' | 'lastname'>
@@ -40,7 +41,6 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
     function handleClick(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
-        // If nothing valid selected, reset query
         if (!value) setQuery('')
       }
     }
@@ -90,64 +90,67 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
   )
 }
 
-export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userId: string }) {
+export function NewCallDialog({ leads }: { leads: LeadOption[] }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedLeadId, setSelectedLeadId] = useState('')
-  const [reason, setReason] = useState<DisputeReason>('bad_phone')
-  const router = useRouter()
-  const supabase = createClient()
+  const [outcome, setOutcome] = useState<CallOutcome>('no_answer')
+  const [notes, setNotes] = useState('')
 
-  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!selectedLeadId) return
     setLoading(true)
-    const fd = new FormData(e.currentTarget)
-    await supabase.from('disputes').insert({
-      lead_id: fd.get('lead_id') as string,
-      agent_id: userId,
-      reason: fd.get('reason') as DisputeReason,
-      notes: fd.get('notes') || null,
-      status: 'pending',
-    })
+    await logCall(selectedLeadId, outcome, notes || null)
     setLoading(false)
+    setSelectedLeadId('')
+    setOutcome('no_answer')
+    setNotes('')
     setOpen(false)
-    router.refresh()
   }
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>File Dispute</Button>
+      <Button onClick={() => setOpen(true)}>Log Call</Button>
       <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>File a Dispute</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="space-y-1.5">
-            <Label>Lead</Label>
-            <input type="hidden" name="lead_id" value={selectedLeadId} />
-            <LeadSearch leads={leads} value={selectedLeadId} onChange={setSelectedLeadId} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Reason</Label>
-            <SelectDropdown
-              options={reasonOptions.map(r => ({ value: r.value, label: r.label }))}
-              value={reason}
-              onChange={v => setReason(v as DisputeReason)}
-              name="reason"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" placeholder="Describe the issue…" rows={3} className="text-xs resize-none" />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading || !selectedLeadId}>{loading ? 'Filing…' : 'File Dispute'}</Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Log a Call</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label>Lead</Label>
+              <LeadSearch leads={leads} value={selectedLeadId} onChange={setSelectedLeadId} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Outcome</Label>
+              <SelectDropdown
+                options={outcomeOptions}
+                value={outcome}
+                onChange={v => setOutcome(v as CallOutcome)}
+                name="outcome"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="call-notes">Notes</Label>
+              <Textarea
+                id="call-notes"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="Notes…"
+                rows={3}
+                className="text-xs resize-none"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={loading || !selectedLeadId}>
+                {loading ? 'Logging…' : 'Log Call'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

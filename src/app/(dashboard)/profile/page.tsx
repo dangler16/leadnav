@@ -24,49 +24,49 @@ export default async function ProfilePage() {
   const profile = profileData as Profile
 
   return (
-    <div className="flex flex-col bg-white min-h-full px-8 pt-5 pb-8">
+    <div className="flex flex-col bg-background min-h-full px-8 pt-5 pb-8">
 
-      <h1 className="text-xl font-bold text-gray-900 mb-5">My Profile</h1>
+      <h1 className="text-xl font-bold text-foreground mb-5">My Profile</h1>
 
       <div className="max-w-lg flex flex-col gap-4">
 
         {/* Profile card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5">
+        <div className="bg-card border border-border rounded-lg p-5">
           <div className="flex items-center gap-4 mb-4">
             <AvatarUpload
               currentUrl={profile?.avatar_url ?? null}
               initials={(profile?.first_name?.[0] ?? '?').toUpperCase()}
             />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-gray-900 truncate">
+              <p className="text-xs font-semibold text-foreground truncate">
                 {[profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '—'}
               </p>
-              <p className="text-xs text-gray-400 truncate mt-0.5">{user.email}</p>
+              <p className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</p>
             </div>
             <span className={cn(badgeShape, 'gap-1 shrink-0',
               profile?.role === 'super_admin' ? 'bg-red-100 text-red-700 border border-red-200' :
               profile?.role === 'team_admin'  ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-              'bg-gray-100 text-gray-600 border border-gray-200'
+              'bg-muted text-muted-foreground border border-border'
             )}>
               {profile?.role === 'super_admin' && <ShieldCheck size={10} />}
               {profile?.role === 'super_admin' ? 'Super Admin' : profile?.role === 'team_admin' ? 'Team Admin' : 'User'}
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 border-t border-gray-200 pt-4">
+          <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
             {[
               { label: 'Leads', value: leadsCount ?? 0 },
               { label: 'Calls', value: callsCount ?? 0 },
               { label: 'Sales', value: salesCount ?? 0 },
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
-                <p className="text-xs text-gray-400 mt-1">{s.label}</p>
+                <p className="text-xl font-semibold text-foreground leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-xs text-gray-400 border-t border-gray-200 pt-4 mt-4">
+          <p className="text-xs text-muted-foreground border-t border-border pt-4 mt-4">
             Member since {formatDate(profile?.created_at ?? '')}
           </p>
         </div>

@@ -186,7 +186,6 @@ export function NewOrderDialog({
   return (
     <>
       <Button
-        className="bg-gray-900 text-white text-xs font-medium px-4 py-2 rounded-md hover:bg-gray-800 transition-colors border-0"
         onClick={() => setOpen(true)}
       >
         Place Order
@@ -233,9 +232,9 @@ export function NewOrderDialog({
             <div className="space-y-2">
               <Label>Lead Type</Label>
               {!selectedVendor ? (
-                <p className="text-xs text-gray-400 py-1">Select a vendor first</p>
+                <p className="text-xs text-muted-foreground py-1">Select a vendor first</p>
               ) : vendorLeadTypes.length === 0 ? (
-                <p className="text-xs text-gray-400 py-1">No lead types configured for this vendor</p>
+                <p className="text-xs text-muted-foreground py-1">No lead types configured for this vendor</p>
               ) : (
                 <div className="flex gap-2 flex-wrap">
                   {vendorLeadTypes.map(lt => {
@@ -248,13 +247,13 @@ export function NewOrderDialog({
                         onClick={() => toggleLeadType(lt)}
                         className={`flex flex-col items-center text-xs px-2.5 py-1.5 rounded transition-colors font-medium leading-tight ${
                           checked
-                            ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-foreground text-background'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                       >
                         <span>{lt}</span>
                         {cost != null && (
-                          <span className={`transition-colors text-xs mt-1 font-normal ${checked ? 'text-gray-300' : 'text-gray-500'}`}>
+                          <span className={`transition-colors text-xs mt-1 font-normal ${checked ? 'text-background/70' : 'text-muted-foreground'}`}>
                             ${cost.toLocaleString('en-US')}
                           </span>
                         )}
@@ -285,12 +284,12 @@ export function NewOrderDialog({
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-xs text-gray-400 hover:text-gray-900 transition-colors"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
               </div>
-              <div className="border border-gray-200 rounded-md p-2 max-h-40 overflow-y-auto">
+              <div className="border border-border rounded-md p-2 max-h-40 overflow-y-auto">
                 <div className="grid grid-cols-3 gap-1">
                   {US_STATES.map(({ abbr, name }) => {
                     const checked = selectedStates.has(abbr)
@@ -301,8 +300,8 @@ export function NewOrderDialog({
                         onClick={() => toggleState(abbr)}
                         className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-foreground text-background'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                       >
                         {name}
@@ -312,7 +311,7 @@ export function NewOrderDialog({
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}
@@ -331,8 +330,8 @@ export function NewOrderDialog({
                       onClick={() => toggleDay(d)}
                       className={`text-xs w-full py-1.5 rounded transition-colors font-medium ${
                         checked
-                          ? 'bg-gray-900 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-foreground text-background'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
                       }`}
                     >
                       {d}

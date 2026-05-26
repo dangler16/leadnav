@@ -11,15 +11,15 @@ import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 const leadStatusConfig: Record<LeadStatus, { label: string; className: string; dotClass: string }> = {
-  new:              { label: 'new',           className: 'bg-blue-100 text-blue-700 border-blue-200',       dotClass: 'bg-blue-500' },
-  not_contacted:    { label: 'not contacted', className: 'bg-gray-100 text-gray-600 border-gray-200',       dotClass: 'bg-gray-400' },
-  contacted:        { label: 'contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200',       dotClass: 'bg-cyan-500' },
-  appt_set:         { label: 'appt set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200', dotClass: 'bg-indigo-500' },
-  appt_no_show:     { label: 'no show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200', dotClass: 'bg-yellow-500' },
-  appt_no_sale:     { label: 'no sale',       className: 'bg-orange-100 text-orange-700 border-orange-200', dotClass: 'bg-orange-500' },
-  appt_rescheduled: { label: 'rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200', dotClass: 'bg-purple-500' },
-  sale:             { label: 'sale',          className: 'bg-green-100 text-green-700 border-green-200',    dotClass: 'bg-green-500' },
-  lost:             { label: 'lost',          className: 'bg-red-100 text-red-700 border-red-200',          dotClass: 'bg-red-500' },
+  new:              { label: 'new',           className: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',       dotClass: 'bg-blue-500' },
+  not_contacted:    { label: 'not contacted', className: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700',       dotClass: 'bg-gray-400 dark:bg-gray-500' },
+  contacted:        { label: 'contacted',     className: 'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800',       dotClass: 'bg-cyan-500' },
+  appt_set:         { label: 'appt set',      className: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800', dotClass: 'bg-indigo-500' },
+  appt_no_show:     { label: 'no show',       className: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', dotClass: 'bg-yellow-500' },
+  appt_no_sale:     { label: 'no sale',       className: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', dotClass: 'bg-orange-500' },
+  appt_rescheduled: { label: 'rescheduled',   className: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800', dotClass: 'bg-purple-500' },
+  sale:             { label: 'sale',          className: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', dotClass: 'bg-green-500' },
+  lost:             { label: 'lost',          className: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',             dotClass: 'bg-red-500' },
 }
 
 const STATE_NAMES: Record<string, string> = {
@@ -186,25 +186,25 @@ export default async function OrderDetailPage({
 
   const filteredLeads = filter === 'all' ? leads : leads.filter(l => l.status === filter)
 
-  const colHeader = 'text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5'
-  const detailRow = 'flex justify-between items-center px-4 py-3 border-b border-gray-200'
-  const dt = 'text-xs text-gray-500'
-  const dd = 'text-xs font-medium text-gray-900'
+  const colHeader = 'text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5'
+  const detailRow = 'flex justify-between items-center px-4 py-3 border-b border-border'
+  const dt = 'text-xs text-muted-foreground'
+  const dd = 'text-xs font-medium text-foreground'
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       {/* Header */}
-      <div className="px-8 pt-5 pb-4 shrink-0 border-b border-gray-100">
-        <Link href="/orders" className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors mb-2">
+      <div className="px-8 pt-5 pb-4 shrink-0 border-b border-border">
+        <Link href="/orders" className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2">
           <ChevronLeft size={13} /> Back to Orders
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 font-mono">
+            <h1 className="text-xl font-bold text-foreground font-mono">
               #{order.id.slice(0, 8).toUpperCase()}
             </h1>
-            <p className="text-xs text-gray-400 mt-1.5">Placed {formatDate(order.created_at)}</p>
+            <p className="text-xs text-muted-foreground mt-1.5">Placed {formatDate(order.created_at)}</p>
           </div>
         </div>
       </div>
@@ -214,9 +214,9 @@ export default async function OrderDetailPage({
         <div className="grid grid-cols-3 gap-4 h-full">
 
           {/* Order details sidebar */}
-          <div className="bg-white border border-gray-200 rounded-lg col-span-1 overflow-auto flex flex-col">
-            <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-900">Order Details</p>
+          <div className="bg-card border border-border rounded-lg col-span-1 overflow-auto flex flex-col">
+            <div className="px-4 py-3 border-b border-border shrink-0 flex items-center justify-between">
+              <p className="text-xs font-semibold text-foreground">Order Details</p>
               {isEditable && (
                 <EditOrderDialog
                   order={order}
@@ -226,18 +226,18 @@ export default async function OrderDetailPage({
               )}
             </div>
 
-            <div className="grid grid-cols-3 border-b border-gray-100 shrink-0">
-              <div className="px-4 py-3 border-r border-gray-100">
-                <p className="text-xs text-gray-400 mb-1">Leads</p>
-                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{leads.length}</p>
+            <div className="grid grid-cols-3 border-b border-border shrink-0">
+              <div className="px-4 py-3 border-r border-border">
+                <p className="text-xs text-muted-foreground mb-1">Leads</p>
+                <p className="text-xl font-semibold text-foreground leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{leads.length}</p>
               </div>
-              <div className="px-4 py-3 border-r border-gray-100">
-                <p className="text-xs text-gray-400 mb-1">Cost</p>
-                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{costDisplay}</p>
+              <div className="px-4 py-3 border-r border-border">
+                <p className="text-xs text-muted-foreground mb-1">Cost</p>
+                <p className="text-xl font-semibold text-foreground leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>{costDisplay}</p>
               </div>
               <div className="px-4 py-3">
-                <p className="text-xs text-gray-400 mb-1">Spend</p>
-                <p className="text-xl font-semibold text-gray-900 leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${totalSpend.toLocaleString('en-US')}</p>
+                <p className="text-xs text-muted-foreground mb-1">Spend</p>
+                <p className="text-xl font-semibold text-foreground leading-none tabular-nums" style={{ fontFamily: 'var(--font-mono)' }}>${totalSpend.toLocaleString('en-US')}</p>
               </div>
             </div>
 
@@ -248,7 +248,7 @@ export default async function OrderDetailPage({
                   {isEditable ? (
                     <OrderStatusSelect orderId={order.id} initialStatus={order.status as 'active' | 'paused'} />
                   ) : (
-                    <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>completed</span>
+                    <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800')}>completed</span>
                   )}
                 </dd>
               </div>
@@ -272,17 +272,17 @@ export default async function OrderDetailPage({
                 <dt className={dt}>Daily Budget</dt>
                 <dd className={dd}>{order.daily_budget ? `$${order.daily_budget.toLocaleString('en-US')}` : '—'}</dd>
               </div>
-              <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100 gap-3">
+              <div className="flex justify-between items-center px-4 py-3 border-b border-border gap-3">
                 <dt className={`${dt} shrink-0`}>Lead Type</dt>
                 <dd className="flex gap-1.5 flex-wrap justify-end">
                   {order.lead_types.length > 0 ? order.lead_types.map(lt => (
-                    <span key={lt} className="text-xs font-medium px-2 py-1 rounded bg-gray-900 text-white">{lt}</span>
+                    <span key={lt} className="text-xs font-medium px-2 py-1 rounded bg-foreground text-background">{lt}</span>
                   )) : (
                     <span className={dd}>{order.lead_type ?? '—'}</span>
                   )}
                 </dd>
               </div>
-              <div className="px-4 py-3 border-b border-gray-100 space-y-2">
+              <div className="px-4 py-3 border-b border-border space-y-2">
                 <dt className={dt}>States</dt>
                 <dd>
                   {order.states.length === 0 ? (
@@ -290,13 +290,13 @@ export default async function OrderDetailPage({
                   ) : (
                     <div className="flex gap-1.5 flex-wrap">
                       {order.states.map(s => (
-                        <span key={s} className="text-xs font-medium px-2 py-1 rounded bg-gray-900 text-white">{STATE_NAMES[s] ?? s}</span>
+                        <span key={s} className="text-xs font-medium px-2 py-1 rounded bg-foreground text-background">{STATE_NAMES[s] ?? s}</span>
                       ))}
                     </div>
                   )}
                 </dd>
               </div>
-              <div className="px-4 py-3 border-b border-gray-100 space-y-2">
+              <div className="px-4 py-3 border-b border-border space-y-2">
                 <dt className={dt}>Availability</dt>
                 <dd className="flex gap-1">
                   {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => {
@@ -304,7 +304,7 @@ export default async function OrderDetailPage({
                     return (
                       <span
                         key={d}
-                        className={`text-xs font-medium flex-1 text-center py-1.5 rounded ${active ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-400'}`}
+                        className={`text-xs font-medium flex-1 text-center py-1.5 rounded ${active ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
                       >
                         {d}
                       </span>
@@ -317,17 +317,17 @@ export default async function OrderDetailPage({
                 <dt className={dt}>Agents</dt>
                 <dd>
                   {agents.length === 0 ? (
-                    <span className="text-xs text-gray-300">None assigned</span>
+                    <span className="text-xs text-muted-foreground/50">None assigned</span>
                   ) : (
                     <div className="flex flex-col gap-1.5">
                       {agents.map(a => {
                         const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
                         return (
                           <div key={a.user_id} className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-[10px] font-bold flex-shrink-0">
+                            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-[10px] font-bold flex-shrink-0">
                               {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
                             </div>
-                            <span className="text-xs text-gray-700">{name}</span>
+                            <span className="text-xs text-foreground">{name}</span>
                           </div>
                         )
                       })}
@@ -339,17 +339,17 @@ export default async function OrderDetailPage({
           </div>
 
           {/* Leads table */}
-          <div className="col-span-2 flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 shrink-0">
-              <p className="text-xs font-semibold text-gray-900">Leads ({leads.length})</p>
+          <div className="col-span-2 flex flex-col bg-card border border-border rounded-lg overflow-hidden">
+            <div className="px-4 py-3 border-b border-border shrink-0">
+              <p className="text-xs font-semibold text-foreground">Leads ({leads.length})</p>
             </div>
-            <div className="px-3 py-2.5 border-b border-gray-100 shrink-0">
+            <div className="px-3 py-2.5 border-b border-border shrink-0">
               <OrderLeadsFilterTabs orderId={id} filter={filter} counts={counts} />
             </div>
             <div className="flex-1 min-h-0 overflow-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-100 sticky top-0 bg-white z-10">
+                  <tr className="border-b border-border sticky top-0 bg-card z-10">
                     <th className={colHeader}>Lead</th>
                     <th className={colHeader}>Status</th>
                     <th className={colHeader}>Phone</th>
@@ -360,15 +360,15 @@ export default async function OrderDetailPage({
                 <tbody>
                   {filteredLeads.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-xs text-gray-400">No leads associated with this order yet.</td>
+                      <td colSpan={5} className="py-12 text-center text-xs text-muted-foreground">No leads associated with this order yet.</td>
                     </tr>
                   )}
                   {filteredLeads.map(lead => {
                     const cfg = leadStatusConfig[lead.status]
                     return (
-                      <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <tr key={lead.id} className="border-b border-border hover:bg-muted transition-colors">
                         <td className="px-3 py-2.5">
-                          <Link href={`/leads/${lead.id}`} className="text-xs text-gray-900 hover:text-gray-500 transition-colors">
+                          <Link href={`/leads/${lead.id}`} className="text-xs text-foreground hover:text-muted-foreground transition-colors">
                             {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                           </Link>
                         </td>
@@ -378,9 +378,9 @@ export default async function OrderDetailPage({
                             {cfg.label}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 text-xs text-gray-400">{formatPhone(lead.phone)}</td>
-                        <td className="px-3 py-2.5 text-xs text-gray-400">{lead.state ?? '—'}</td>
-                        <td className="px-3 py-2.5 text-xs text-gray-400 whitespace-nowrap">{formatDateTime(lead.created_at)}</td>
+                        <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatPhone(lead.phone)}</td>
+                        <td className="px-3 py-2.5 text-xs text-muted-foreground">{lead.state ?? '—'}</td>
+                        <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{formatDateTime(lead.created_at)}</td>
                       </tr>
                     )
                   })}

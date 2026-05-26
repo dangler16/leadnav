@@ -102,10 +102,10 @@ export default async function UsersPage({
   const callerAdminTeamIds = allAssignments.filter(a => a.user_id === user.id).map(a => a.team_id)
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-xl font-bold text-gray-900">Users</h1>
+        <h1 className="text-xl font-bold text-foreground">Users</h1>
         <InviteUserDialog
           teams={teams}
           callerRole={myProfile.role as UserRole}
@@ -113,14 +113,14 @@ export default async function UsersPage({
         />
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-border rounded-lg overflow-hidden">
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-border">
                 <th className="text-left px-3 py-2.5"><SortableHeader column="name"   label="Name"   currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="email"  label="Email"  currentSort={sort} currentDir={sortDir} /></th>
-                <th className="text-left text-xs font-medium uppercase tracking-wide text-gray-500 px-3 py-2.5">Team</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5">Team</th>
                 {isSuperAdmin && <th className="text-left px-3 py-2.5"><SortableHeader column="role" label="Role" currentSort={sort} currentDir={sortDir} /></th>}
                 <th className="text-left px-3 py-2.5"><SortableHeader column="joined" label="Joined" currentSort={sort} currentDir={sortDir} /></th>
                 <th className="px-3 py-2.5" />
@@ -129,7 +129,7 @@ export default async function UsersPage({
             <tbody>
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={isSuperAdmin ? 6 : 5} className="py-12 text-center text-xs text-gray-400">No users found.</td>
+                  <td colSpan={isSuperAdmin ? 6 : 5} className="py-12 text-center text-xs text-muted-foreground">No users found.</td>
                 </tr>
               )}
               {sorted.map(p => {
@@ -142,37 +142,37 @@ export default async function UsersPage({
                       ? <UserTeamSelect userId={p.id} initialTeamId={membership?.team_id ?? null} teams={teams} />
                       : membership
                         ? <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>{teamsById[membership.team_id]?.name ?? '—'}</span>
-                        : <span className="text-xs text-gray-400">—</span>)
+                        : <span className="text-xs text-muted-foreground">—</span>)
                   : p.role === 'team_admin'
                     ? adminTeams.length > 0
                       ? <div className="flex flex-wrap gap-1">{adminTeams.map(t => <span key={t.id} className={cn(badgeShape, 'bg-purple-100 text-purple-700 border border-purple-200')}>{t.name}</span>)}</div>
-                      : <span className="text-xs text-gray-400">—</span>
-                    : <span className="text-xs text-gray-400">All</span>
+                      : <span className="text-xs text-muted-foreground">—</span>
+                    : <span className="text-xs text-muted-foreground">All</span>
 
                 return (
-                  <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <tr key={p.id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-muted overflow-hidden flex items-center justify-center text-muted-foreground text-xs font-bold shrink-0">
                           {p.avatar_url ? (
                             <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
                             (p.first_name?.[0] ?? '?').toUpperCase()
                           )}
                         </div>
-                        <Link href={`/users/${p.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                        <Link href={`/users/${p.id}`} className="text-xs font-medium text-foreground hover:text-muted-foreground transition-colors">
                           {[p.first_name, p.last_name].filter(Boolean).join(' ') || '—'}
                         </Link>
                       </div>
                     </td>
-                    <td className="px-3 py-2.5 text-xs text-gray-400">{emailById[p.id] ?? '—'}</td>
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground">{emailById[p.id] ?? '—'}</td>
                     <td className="px-3 py-2.5">{teamDisplay}</td>
                     {isSuperAdmin && (
                       <td className="px-3 py-2.5">
                         <UserRoleSelect userId={p.id} initialRole={p.role as UserRole} />
                       </td>
                     )}
-                    <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(p.created_at)}</td>
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(p.created_at)}</td>
                     <td className="px-3 py-2.5 text-right">
                       {isSuperAdmin && (
                         <EditUserDialog

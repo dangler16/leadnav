@@ -184,27 +184,27 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5 h-full flex flex-col">
-      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
-        <User className="w-4 h-4 text-gray-500" />
-        <p className="text-xs font-semibold text-gray-900">Contact Info</p>
+    <div className="bg-card border border-border rounded-lg p-5 h-full flex flex-col">
+      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border shrink-0">
+        <User className="w-4 h-4 text-muted-foreground" />
+        <p className="text-xs font-semibold text-foreground">Contact Info</p>
       </div>
 
       <div className="space-y-4 flex-1">
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1.5">First Name</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">First Name</p>
             <Input {...fieldProps('firstname')} />
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Last Name</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Last Name</p>
             <Input {...fieldProps('lastname')} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Phone</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Phone</p>
             <Input
               ref={phoneRef}
               value={formatPhoneDisplay(vals.phone)}
@@ -214,14 +214,14 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
             />
           </div>
           <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Email</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Email</p>
             <Input {...fieldProps('email', { type: 'email' })} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 mb-1.5">State</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">State</p>
             <SelectDropdown
               options={US_STATES}
               value={vals.state}
@@ -230,29 +230,29 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
             />
           </div>
           <div className="flex-1">
-            <p className="text-xs font-medium text-gray-500 mb-1.5">ZIP Code</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">ZIP Code</p>
             <Input {...fieldProps('zip', { placeholder: 'Zip' })} />
           </div>
         </div>
 
         {vendorName && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-0.5">Vendor</p>
-            <p className="text-xs text-gray-900 font-medium">{vendorName}</p>
+            <p className="text-xs font-medium text-muted-foreground mb-0.5">Vendor</p>
+            <p className="text-xs text-foreground font-medium">{vendorName}</p>
           </div>
         )}
 
         {isAdmin && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">Assigned To</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">Assigned To</p>
             <ReassignLead leadId={lead.id} currentAgentId={lead.assigned_to} agents={agents} />
           </div>
         )}
       </div>
 
-      <div className="shrink-0 flex items-center justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+      <div className="shrink-0 flex items-center justify-end gap-2 pt-4 mt-4 border-t border-border">
         {saved && (
-          <span className="flex items-center gap-1 text-xs font-medium text-gray-500 mr-auto">
+          <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground mr-auto">
             <Check size={11} strokeWidth={2.5} /> Saved
           </span>
         )}

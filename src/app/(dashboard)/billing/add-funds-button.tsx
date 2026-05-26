@@ -72,7 +72,6 @@ export function AddFundsButton() {
   return (
     <>
       <Button
-        className="flex items-center px-3 py-1.5 rounded bg-gray-900 text-white text-xs font-medium whitespace-nowrap hover:bg-gray-800 transition-colors leading-none"
         onClick={() => setOpen(true)}
       >
         Add Funds
@@ -104,8 +103,8 @@ export function AddFundsButton() {
                   onClick={() => setDigits(String(amt))}
                   className={`flex-1 text-xs py-1.5 rounded transition-colors font-medium ${
                     amountDollars === amt
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-accent dark:text-gray-900 dark:hover:bg-accent/80'
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
                   ${amt}

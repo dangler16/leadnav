@@ -1,14 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Lead, LeadStatus, CallOutcome } from '@/lib/types'
+import { Lead, CallOutcome } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { logCall as logCallAction } from './actions'
 
 const outcomeOptions: { value: CallOutcome; label: string }[] = [
   { value: 'no_answer', label: 'No Answer' },
@@ -21,26 +20,12 @@ const outcomeOptions: { value: CallOutcome; label: string }[] = [
   { value: 'sale', label: 'Sale' },
 ]
 
-const outcomeToStatus: Partial<Record<CallOutcome, LeadStatus>> = {
-  no_answer: 'not_contacted',
-  voicemail: 'not_contacted',
-  callback_requested: 'contacted',
-  appointment_set: 'appt_set',
-  contacted: 'contacted',
-  not_interested: 'lost',
-  wrong_number: 'lost',
-  sale: 'sale',
-}
-
 type Props = {
   lead: Lead
   userId: string
 }
 
-export function LeadActions({ lead, userId }: Props) {
-  const router = useRouter()
-  const supabase = createClient()
-
+export function LeadActions({ lead, userId: _userId }: Props) {
   const [open, setOpen] = useState(false)
   const [outcome, setOutcome] = useState<CallOutcome>('no_answer')
   const [notes, setNotes] = useState('')
@@ -49,25 +34,11 @@ export function LeadActions({ lead, userId }: Props) {
     e.preventDefault()
     const loggedOutcome = outcome
     const loggedNotes = notes
-    const newStatus = outcomeToStatus[loggedOutcome]
 
     setNotes('')
     setOutcome('no_answer')
     setOpen(false)
-    await Promise.all([
-      supabase.from('call_logs').insert({
-        lead_id: lead.id,
-        agent_id: userId,
-        outcome: loggedOutcome,
-        notes: loggedNotes || null,
-        called_at: new Date().toISOString(),
-      }),
-      newStatus
-        ? supabase.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', lead.id)
-        : Promise.resolve(),
-    ])
-
-    router.refresh()
+    await logCallAction(lead.id, loggedOutcome, loggedNotes || null)
   }
 
   return (
@@ -75,7 +46,7 @@ export function LeadActions({ lead, userId }: Props) {
       <Button
         onClick={() => setOpen(true)}
         size="sm"
-        className="bg-gray-900 text-white hover:bg-gray-800 border-0"
+        className="border-0"
       >
         Log Call
       </Button>

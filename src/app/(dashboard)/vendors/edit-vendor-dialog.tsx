@@ -192,7 +192,7 @@ export function EditVendorDialog({
       {!isControlled && (
         <button
           onClick={() => setOpen(true)}
-          className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
           <Pencil size={14} />
         </button>
@@ -254,12 +254,12 @@ export function EditVendorDialog({
                 <button
                   type="button"
                   onClick={toggleAllStates}
-                  className="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                  className="text-xs text-muted-foreground hover:text-red-600 transition-colors"
                 >
                   {allSelected ? 'Deselect all' : 'Select all'}
                 </button>
               </div>
-              <div className="border border-gray-200 rounded-md p-2 max-h-40 overflow-y-auto">
+              <div className="border border-border rounded-md p-2 max-h-40 overflow-y-auto">
                 <div className="grid grid-cols-3 gap-1">
                   {US_STATES.map(({ abbr, name }) => {
                     const checked = selectedStates.has(abbr)
@@ -270,8 +270,8 @@ export function EditVendorDialog({
                         onClick={() => toggleState(abbr)}
                         className={`text-xs px-2 py-1.5 rounded-sm transition-colors text-left leading-none ${
                           checked
-                            ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-foreground text-background'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                       >
                         {name}
@@ -281,7 +281,7 @@ export function EditVendorDialog({
                 </div>
               </div>
               {selectedStates.size > 0 && (
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {US_STATES.filter(s => selectedStates.has(s.abbr)).map(s => s.name).join(', ')}
                 </p>
               )}

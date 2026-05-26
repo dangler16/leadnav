@@ -94,18 +94,18 @@ export default async function TeamsPage({
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
-        <h1 className="text-xl font-bold text-gray-900">Teams</h1>
+        <h1 className="text-xl font-bold text-foreground">Teams</h1>
         <NewTeamDialog allUsers={allProfiles} />
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-gray-200 rounded-lg overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-border rounded-lg overflow-hidden">
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-border">
                 <th className="text-left px-3 py-2.5"><SortableHeader column="name"    label="Team"    currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="admin"   label="Admin"   currentSort={sort} currentDir={sortDir} /></th>
                 <th className="text-left px-3 py-2.5"><SortableHeader column="members" label="Members" currentSort={sort} currentDir={sortDir} /></th>
@@ -115,7 +115,7 @@ export default async function TeamsPage({
             <tbody>
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-12 text-center text-xs text-gray-400">No teams yet. Create one to get started.</td>
+                  <td colSpan={4} className="py-12 text-center text-xs text-muted-foreground">No teams yet. Create one to get started.</td>
                 </tr>
               )}
               {sorted.map(team => {
@@ -123,40 +123,40 @@ export default async function TeamsPage({
                 const admins = getAdminsForTeam(team.id)
 
                 return (
-                  <tr key={team.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <tr key={team.id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2.5">
                         {team.logo_url ? (
-                          <img src={team.logo_url} alt={team.name} className="w-7 h-7 rounded object-contain border border-gray-200 shrink-0" />
+                          <img src={team.logo_url} alt={team.name} className="w-7 h-7 rounded object-contain border border-border shrink-0" />
                         ) : (
-                          <div className="w-7 h-7 rounded bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-bold shrink-0">
+                          <div className="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs font-bold shrink-0">
                             {team.name[0].toUpperCase()}
                           </div>
                         )}
-                        <span className="text-xs font-medium text-gray-900">{team.name}</span>
+                        <span className="text-xs font-medium text-foreground">{team.name}</span>
                       </div>
                     </td>
-                    <td className="px-3 py-2.5 text-xs text-gray-400">
+                    <td className="px-3 py-2.5 text-xs text-muted-foreground">
                       {admins.length > 0
                         ? admins.map(a => [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ')).join(', ')
-                        : <span className="text-gray-300">—</span>}
+                        : <span className="text-border">—</span>}
                     </td>
                     <td className="px-3 py-2.5">
                       {members.length === 0 ? (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       ) : (
                         <div className="flex items-center gap-1">
                           {members.slice(0, 6).map(m => (
                             <div
                               key={m.user_id}
                               title={[m.profile.first_name, m.profile.last_name].filter(Boolean).join(' ')}
-                              className="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-xs font-bold"
+                              className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold"
                             >
                               {(m.profile.first_name?.[0] ?? '?').toUpperCase()}
                             </div>
                           ))}
                           {members.length > 6 && (
-                            <span className="text-xs text-gray-400 ml-1">+{members.length - 6}</span>
+                            <span className="text-xs text-muted-foreground ml-1">+{members.length - 6}</span>
                           )}
                         </div>
                       )}

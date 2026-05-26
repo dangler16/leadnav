@@ -21,9 +21,9 @@ function formatPhone(phone: string | null) {
 }
 
 const roleConfig: Record<UserRole, { label: string; className: string }> = {
-  super_admin: { label: 'Super Admin', className: 'bg-red-100 text-red-700 border border-red-200' },
-  team_admin:  { label: 'Team Admin',  className: 'bg-purple-100 text-purple-700 border border-purple-200' },
-  user:        { label: 'User',        className: 'bg-gray-100 text-gray-600 border border-gray-200' },
+  super_admin: { label: 'Super Admin', className: 'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' },
+  team_admin:  { label: 'Team Admin',  className: 'bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' },
+  user:        { label: 'User',        className: 'bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700' },
 }
 
 export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -61,18 +61,18 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   const roleStyle = roleConfig[role]
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || '—'
 
-  const colHeader = 'text-left text-xs font-semibold uppercase tracking-[0.08em] text-gray-400 px-3 py-2.5'
+  const colHeader = 'text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground px-3 py-2.5'
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       {/* Header */}
-      <div className="px-8 pt-5 pb-4 shrink-0 border-b border-gray-100">
-        <Link href="/users" className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-gray-700 transition-colors mb-3">
+      <div className="px-8 pt-5 pb-4 shrink-0 border-b border-border">
+        <Link href="/users" className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-3">
           <ChevronLeft size={13} /> Back to Users
         </Link>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-600 text-[14px] font-bold shrink-0">
+          <div className="w-10 h-10 rounded-full bg-muted overflow-hidden flex items-center justify-center text-muted-foreground text-[14px] font-bold shrink-0">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -80,11 +80,11 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             )}
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 leading-none ">{fullName}</h1>
+            <h1 className="text-xl font-semibold text-foreground leading-none ">{fullName}</h1>
             <div className="flex items-center gap-2 mt-1.5">
-              {email && <span className="text-xs text-gray-400">{email}</span>}
+              {email && <span className="text-xs text-muted-foreground">{email}</span>}
               <span className={cn(badgeShape, roleStyle.className)}>{roleStyle.label}</span>
-              {userTeam && <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>{userTeam.name}</span>}
+              {userTeam && <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800')}>{userTeam.name}</span>}
             </div>
           </div>
         </div>
@@ -94,15 +94,15 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       <div className="flex-1 min-h-0 overflow-y-auto px-8 py-5">
 
       {/* Leads table */}
-      <div className="flex flex-col border border-gray-200 rounded overflow-hidden mb-4">
-        <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-xs font-semibold text-gray-900 ">Leads</h2>
-          <span className="text-xs text-gray-400">{leads.length}</span>
+      <div className="flex flex-col border border-border rounded overflow-hidden mb-4">
+        <div className="px-3 py-2.5 border-b border-border flex items-center justify-between">
+          <h2 className="text-xs font-semibold text-foreground ">Leads</h2>
+          <span className="text-xs text-muted-foreground">{leads.length}</span>
         </div>
         <div className="overflow-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-border">
                 <th className={colHeader}>Name</th>
                 <th className={colHeader}>Status</th>
                 <th className={colHeader}>Vendor</th>
@@ -114,23 +114,23 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             <tbody>
               {leads.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-xs text-gray-400">No leads assigned.</td>
+                  <td colSpan={6} className="py-8 text-center text-xs text-muted-foreground">No leads assigned.</td>
                 </tr>
               )}
               {leads.map(lead => (
-                <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <tr key={lead.id} className="border-b border-border hover:bg-muted transition-colors">
                   <td className="px-3 py-2.5">
-                    <Link href={`/leads/${lead.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                    <Link href={`/leads/${lead.id}`} className="text-xs font-medium text-foreground hover:text-muted-foreground transition-colors">
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </Link>
                   </td>
                   <td className="px-3 py-2.5">
                     <LeadStatusBadge status={lead.status} variant="raw" />
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400">{lead.vendors?.name ?? '—'}</td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatPhone(lead.phone)}</td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400">{lead.state ?? '—'}</td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(lead.created_at)}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">{lead.vendors?.name ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatPhone(lead.phone)}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">{lead.state ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(lead.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -139,15 +139,15 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       {/* Disputes table */}
-      <div className="flex flex-col border border-gray-200 rounded overflow-hidden">
-        <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-xs font-semibold text-gray-900 ">Disputes</h2>
-          <span className="text-xs text-gray-400">{disputes.length}</span>
+      <div className="flex flex-col border border-border rounded overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-border flex items-center justify-between">
+          <h2 className="text-xs font-semibold text-foreground ">Disputes</h2>
+          <span className="text-xs text-muted-foreground">{disputes.length}</span>
         </div>
         <div className="overflow-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-border">
                 <th className={colHeader}>Lead</th>
                 <th className={colHeader}>Reason</th>
                 <th className={colHeader}>Status</th>
@@ -158,22 +158,22 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             <tbody>
               {disputes.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-xs text-gray-400">No disputes filed.</td>
+                  <td colSpan={5} className="py-8 text-center text-xs text-muted-foreground">No disputes filed.</td>
                 </tr>
               )}
               {disputes.map(dispute => (
-                <tr key={dispute.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <tr key={dispute.id} className="border-b border-border hover:bg-muted transition-colors">
                   <td className="px-3 py-2.5">
                     {dispute.leads ? (
-                      <Link href={`/leads/${dispute.leads.id}`} className="text-xs text-gray-900 hover:text-gray-500 transition-colors">
+                      <Link href={`/leads/${dispute.leads.id}`} className="text-xs text-foreground hover:text-muted-foreground transition-colors">
                         {[dispute.leads.firstname, dispute.leads.lastname].filter(Boolean).join(' ') || '—'}
                       </Link>
-                    ) : <span className="text-xs text-gray-400">—</span>}
+                    ) : <span className="text-xs text-muted-foreground">—</span>}
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDisputeReason(dispute.reason)}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDisputeReason(dispute.reason)}</td>
                   <td className="px-3 py-2.5"><DisputeStatusBadge status={dispute.status} /></td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400 max-w-[200px] truncate">{dispute.notes ?? '—'}</td>
-                  <td className="px-3 py-2.5 text-xs text-gray-400">{formatDate(dispute.created_at)}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground max-w-[200px] truncate">{dispute.notes ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(dispute.created_at)}</td>
                 </tr>
               ))}
             </tbody>

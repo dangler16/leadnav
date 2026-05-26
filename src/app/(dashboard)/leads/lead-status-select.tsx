@@ -90,7 +90,7 @@ export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; in
         ref={triggerRef}
         onClick={handleToggle}
         disabled={saving}
-        className={cn(badgeShape, 'justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50 transition-colors', current.className, open && 'ring-1 ring-gray-300')}
+        className={cn(badgeShape, 'justify-between gap-1.5 cursor-pointer border outline-none disabled:opacity-50 transition-colors', current.className, open && 'ring-1 ring-border')}
       >
         <span className="flex items-center gap-1.5">
           <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', current.dotClass)} />
@@ -104,18 +104,18 @@ export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; in
 
       {rendered && (
         <div
-          className={cn('z-50 bg-white border border-gray-200 rounded shadow-sm overflow-hidden dropdown-panel', openUpward && 'opens-up', open && 'open')}
+          className={cn('z-50 bg-card border border-border rounded shadow-sm overflow-hidden dropdown-panel', openUpward && 'opens-up', open && 'open')}
           style={dropdownStyle}
         >
           {(Object.entries(statusConfig) as [LeadStatus, typeof statusConfig[LeadStatus]][]).map(([value, cfg]) => (
             <button
               key={value}
               onClick={() => handleSelect(value)}
-              className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-gray-50 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-1.5 p-2 text-xs text-left hover:bg-muted transition-colors cursor-pointer"
             >
               <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dotClass)} />
-              <span className="flex-1 text-gray-900">{cfg.label}</span>
-              {value === status && <Check size={12} className="text-gray-900 shrink-0" />}
+              <span className="flex-1 text-foreground">{cfg.label}</span>
+              {value === status && <Check size={12} className="text-foreground shrink-0" />}
             </button>
           ))}
         </div>

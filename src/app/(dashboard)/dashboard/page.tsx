@@ -46,15 +46,15 @@ function StatCard({ label, value, href }: StatCardProps) {
   return (
     <Link
       href={href}
-      className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg p-5 flex flex-col gap-2 overflow-hidden hover:bg-gray-50 transition-colors group"
+      className="flex-1 min-w-0 bg-card border border-border rounded-lg p-5 flex flex-col gap-2 overflow-hidden hover:bg-muted transition-colors group"
     >
       <p
-        className="text-2xl font-semibold leading-none tabular-nums tracking-tight text-gray-900"
+        className="text-2xl font-semibold leading-none tabular-nums tracking-tight text-foreground"
         style={{ fontFamily: 'var(--font-mono)' }}
       >
         {value}
       </p>
-      <p className="text-xs text-gray-400 leading-none lowercase mt-auto">{label}</p>
+      <p className="text-xs text-muted-foreground leading-none lowercase mt-auto">{label}</p>
     </Link>
   )
 }
@@ -132,16 +132,16 @@ export default async function DashboardPage() {
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     .slice(0, 10)
 
-  const colHeader = 'text-xs font-medium uppercase tracking-wide text-gray-500'
+  const colHeader = 'text-xs font-medium uppercase tracking-wide text-muted-foreground'
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
 
       {/* Header */}
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2 leading-none">{formatDayHeader()}</p>
-          <h1 className="text-xl font-bold text-gray-900 leading-none">Dashboard</h1>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2 leading-none">{formatDayHeader()}</p>
+          <h1 className="text-xl font-bold text-foreground leading-none">Dashboard</h1>
         </div>
         <NewOrderDialog vendors={vendors} userId={user.id} />
       </div>
@@ -164,13 +164,13 @@ export default async function DashboardPage() {
           {/* Recent Leads */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-3 shrink-0">
-              <h2 className="text-xs font-semibold text-gray-900 tracking-tight">Recent Leads</h2>
-              <Link href="/leads" className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors">
+              <h2 className="text-xs font-semibold text-foreground tracking-tight">Recent Leads</h2>
+              <Link href="/leads" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                 View all <ArrowRight size={10} />
               </Link>
             </div>
 
-            <div className={`${leadsGrid} pb-2 border-b border-gray-100 shrink-0`}>
+            <div className={`${leadsGrid} pb-2 border-b border-border shrink-0`}>
               <span className={colHeader}>Order</span>
               <span className={colHeader}>Name</span>
               <span className={colHeader}>Status</span>
@@ -181,26 +181,26 @@ export default async function DashboardPage() {
             <div className="flex-1 min-h-0 overflow-y-auto">
               {leads.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 gap-3">
-                  <SquareUser size={22} className="text-gray-200" strokeWidth={1.5} />
-                  <p className="text-xs text-gray-400">No leads yet</p>
-                  <Link href="/orders" className="text-xs font-medium text-gray-700 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">
+                  <SquareUser size={22} className="text-border" strokeWidth={1.5} />
+                  <p className="text-xs text-muted-foreground">No leads yet</p>
+                  <Link href="/orders" className="text-xs font-medium text-foreground border border-border px-3 py-1.5 rounded hover:bg-muted transition-colors">
                     Place an order
                   </Link>
                 </div>
               ) : (
                 leads.map((lead) => (
-                  <div key={lead.id} className={`${leadsGrid} items-center border-b border-gray-100 hover:bg-gray-50 transition-colors group relative`}>
+                  <div key={lead.id} className={`${leadsGrid} items-center border-b border-border hover:bg-muted transition-colors group relative`}>
                     <Link href={`/leads/${lead.id}`} className="absolute inset-0" aria-label={`View ${lead.firstname ?? 'lead'}`} />
-                    <span className="font-mono text-xs text-gray-400 leading-none py-2.5 pl-0">
+                    <span className="font-mono text-xs text-muted-foreground leading-none py-2.5 pl-0">
                       {lead.order_id ? `#${lead.order_id.slice(0, 4).toUpperCase()}` : '—'}
                     </span>
-                    <span className="text-xs font-medium text-gray-900 truncate pr-2 leading-none py-2.5">
+                    <span className="text-xs font-medium text-foreground truncate pr-2 leading-none py-2.5">
                       {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || '—'}
                     </span>
                     <span className="py-2.5">
                       <LeadStatusBadge status={lead.status} variant="raw" />
                     </span>
-                    <span className="text-xs text-gray-400 truncate leading-none py-2.5">
+                    <span className="text-xs text-muted-foreground truncate leading-none py-2.5">
                       {formatDate(lead.created_at)}
                     </span>
                     <span className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity py-2.5 flex items-center">
@@ -213,18 +213,18 @@ export default async function DashboardPage() {
           </div>
 
           {/* Vertical divider */}
-          <div className="w-px bg-gray-100 self-stretch flex-shrink-0" />
+          <div className="w-px bg-border self-stretch flex-shrink-0" />
 
           {/* Open Disputes */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-3 shrink-0">
-              <h2 className="text-xs font-semibold text-gray-900 tracking-tight">Open Disputes</h2>
-              <Link href="/disputes" className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors">
+              <h2 className="text-xs font-semibold text-foreground tracking-tight">Open Disputes</h2>
+              <Link href="/disputes" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                 View all <ArrowRight size={10} />
               </Link>
             </div>
 
-            <div className={`${disputesGrid} pb-2 border-b border-gray-100 shrink-0`}>
+            <div className={`${disputesGrid} pb-2 border-b border-border shrink-0`}>
               <span className={colHeader}>Name</span>
               <span className={colHeader}>Reason</span>
               <span className={colHeader}>Status</span>
@@ -234,25 +234,25 @@ export default async function DashboardPage() {
             <div className="flex-1 min-h-0 overflow-y-auto">
               {disputes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 gap-3">
-                  <AlertCircle size={22} className="text-gray-200" strokeWidth={1.5} />
-                  <p className="text-xs text-gray-400">No open disputes</p>
-                  <Link href="/disputes" className="text-xs font-medium text-gray-700 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 transition-colors">
+                  <AlertCircle size={22} className="text-border" strokeWidth={1.5} />
+                  <p className="text-xs text-muted-foreground">No open disputes</p>
+                  <Link href="/disputes" className="text-xs font-medium text-foreground border border-border px-3 py-1.5 rounded hover:bg-muted transition-colors">
                     File a dispute
                   </Link>
                 </div>
               ) : (
                 disputes.map((d) => (
-                  <div key={d.id} className={`${disputesGrid} items-center py-2.5 border-b border-gray-100 hover:bg-gray-50 transition-colors`}>
-                    <span className="text-xs font-medium text-gray-900 truncate pr-2 leading-none">
+                  <div key={d.id} className={`${disputesGrid} items-center py-2.5 border-b border-border hover:bg-muted transition-colors`}>
+                    <span className="text-xs font-medium text-foreground truncate pr-2 leading-none">
                       {d.leads ? [d.leads.firstname, d.leads.lastname].filter(Boolean).join(' ') : '—'}
                     </span>
-                    <span className="text-xs text-gray-500 truncate pr-2 leading-none">
+                    <span className="text-xs text-muted-foreground truncate pr-2 leading-none">
                       {formatDisputeReason(d.reason)}
                     </span>
                     <span>
                       <DisputeStatusBadge status={d.status} />
                     </span>
-                    <span className="text-xs text-gray-400 truncate leading-none">
+                    <span className="text-xs text-muted-foreground truncate leading-none">
                       {formatDate(d.created_at)}
                     </span>
                   </div>
@@ -265,21 +265,21 @@ export default async function DashboardPage() {
 
         {/* Recent Activity */}
         {activity.length > 0 && (
-          <div className="shrink-0 border-t border-gray-200 mt-4 pt-4">
-            <h2 className="text-xs font-semibold text-gray-900 tracking-tight mb-2">Recent Activity</h2>
+          <div className="shrink-0 border-t border-border mt-4 pt-4">
+            <h2 className="text-xs font-semibold text-foreground tracking-tight mb-2">Recent Activity</h2>
             <div className="overflow-y-auto max-h-44 flex flex-col">
               {activity.map((item, i) => {
                 const Icon = item.kind === 'lead' ? SquareUser : item.kind === 'call' ? Phone : Package
                 return (
                   <div
                     key={`${item.kind}-${item.id}-${i}`}
-                    className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="flex items-center gap-3 py-2 border-b border-border last:border-0 hover:bg-muted cursor-pointer transition-colors"
                   >
-                    <div className="w-5 h-5 rounded flex items-center justify-center bg-gray-100 flex-shrink-0">
-                      <Icon size={11} strokeWidth={2} className="text-gray-400" />
+                    <div className="w-5 h-5 rounded flex items-center justify-center bg-muted flex-shrink-0">
+                      <Icon size={11} strokeWidth={2} className="text-muted-foreground" />
                     </div>
-                    <span className="flex-1 text-xs text-gray-600 truncate">{item.text}</span>
-                    <span className="text-xs text-gray-400 tabular-nums flex-shrink-0">{timeAgo(item.timestamp)}</span>
+                    <span className="flex-1 text-xs text-muted-foreground truncate">{item.text}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0">{timeAgo(item.timestamp)}</span>
                   </div>
                 )
               })}

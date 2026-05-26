@@ -22,6 +22,7 @@ export type FormattedLead = {
   id: string
   name: string | null
   status: LeadStatus
+  agent: { name: string; initial: string } | null
   vendor: string | null
   phone: string | null
   email: string | null
@@ -31,7 +32,7 @@ export type FormattedLead = {
   dateFull: string
 }
 
-const nullValue = <span className="text-gray-400 select-none">—</span>
+const nullValue = <span className="text-muted-foreground select-none">—</span>
 
 const UNSET = '__unset__'
 
@@ -88,7 +89,7 @@ export function LeadsTable({
     }
   }
 
-  const colCount = isAdmin ? 10 : 9
+  const colCount = isAdmin ? 11 : 9
   const agentOptions = [
     { value: '', label: 'Unassigned' },
     ...agents.map(a => ({ value: a.id, label: [a.first_name, a.last_name].filter(Boolean).join(' ') })),
@@ -100,13 +101,13 @@ export function LeadsTable({
       {/* Bulk action bar — admins only, transitions in when rows are selected */}
       {isAdmin && (
         <div
-          className={`grid bg-gray-900 shrink-0 transition-all duration-200 ease-in-out ${
+          className={`grid bg-foreground shrink-0 transition-all duration-200 ease-in-out ${
             selected.size > 0 ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
           }`}
         >
           <div className="overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-2">
-              <span className="text-xs font-medium text-white">
+              <span className="text-xs font-medium text-background">
                 {selected.size} lead{selected.size !== 1 ? 's' : ''} selected
               </span>
 
@@ -154,8 +155,8 @@ export function LeadsTable({
       {/* Scrollable table */}
       <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
-            <tr className="border-b border-gray-200">
+          <thead className="bg-muted border-b border-border sticky top-0 z-10">
+            <tr className="border-b border-border">
               {isAdmin && (
                 <th className="pl-2.5 w-5">
                   <input
@@ -163,12 +164,13 @@ export function LeadsTable({
                     checked={allSelected}
                     ref={el => { if (el) el.indeterminate = someSelected }}
                     onChange={toggleAll}
-                    className="w-3 h-3 rounded border-gray-300 accent-gray-900 cursor-pointer"
+                    className="w-3 h-3 rounded border-border accent-foreground cursor-pointer"
                   />
                 </th>
               )}
               <th className="text-left px-3 py-2.5"><SortableHeader column="name"   label="Lead"    currentSort={sort} currentDir={sortDir} /></th>
               <th className="text-left px-3 py-2.5"><SortableHeader column="status" label="Status"  currentSort={sort} currentDir={sortDir} /></th>
+              {isAdmin && <th className="text-left px-3 py-2.5 text-xs font-medium text-muted-foreground">Agent</th>}
               <th className="text-left px-3 py-2.5"><SortableHeader column="vendor" label="Vendor"  currentSort={sort} currentDir={sortDir} /></th>
               <th className="text-left px-3 py-2.5"><SortableHeader column="phone"  label="Phone"   currentSort={sort} currentDir={sortDir} /></th>
               <th className="text-left px-3 py-2.5"><SortableHeader column="email"  label="Email"   currentSort={sort} currentDir={sortDir} /></th>
@@ -183,8 +185,8 @@ export function LeadsTable({
               <tr>
                 <td colSpan={colCount} className="py-16 text-center">
                   <div className="flex flex-col items-center gap-2.5">
-                    <SquareUser size={24} className="text-gray-200" strokeWidth={1.5} />
-                    <p className="text-xs text-gray-400">No leads in this category</p>
+                    <SquareUser size={24} className="text-border" strokeWidth={1.5} />
+                    <p className="text-xs text-muted-foreground">No leads in this category</p>
                   </div>
                 </td>
               </tr>
@@ -194,7 +196,7 @@ export function LeadsTable({
                 return (
                   <tr
                     key={lead.id}
-                    className={`group border-b border-gray-100 transition-colors ${isSelected ? 'bg-gray-100/60' : 'hover:bg-gray-50'}`}
+                    className={`group border-b border-border transition-colors ${isSelected ? 'bg-muted/60' : 'hover:bg-muted'}`}
                   >
                     {isAdmin && (
                       <td className="pl-2.5 w-5">
@@ -202,40 +204,52 @@ export function LeadsTable({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleOne(lead.id)}
-                          className="w-3 h-3 rounded border-gray-300 accent-gray-900 cursor-pointer"
+                          className="w-3 h-3 rounded border-border accent-foreground cursor-pointer"
                         />
                       </td>
                     )}
                     <td className="px-3 pt-1 pb-2">
-                      <Link href={`/leads/${lead.id}`} className="text-xs font-medium text-gray-900 hover:text-gray-500 transition-colors">
+                      <Link href={`/leads/${lead.id}`} className="text-xs font-medium text-foreground hover:text-muted-foreground transition-colors">
                         {lead.name ?? nullValue}
                       </Link>
                     </td>
                     <td className="px-3 pt-1 pb-2">
                       <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
                     </td>
-                    <td className="px-3 py-1.5 text-xs text-gray-900 whitespace-nowrap">
+                    {isAdmin && (
+                      <td className="px-3 py-1.5">
+                        {lead.agent ? (
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-[10px] font-bold flex-shrink-0">
+                              {lead.agent.initial}
+                            </div>
+                            <span className="text-xs text-foreground whitespace-nowrap">{lead.agent.name}</span>
+                          </div>
+                        ) : nullValue}
+                      </td>
+                    )}
+                    <td className="px-3 py-1.5 text-xs text-foreground whitespace-nowrap">
                       {lead.vendor ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 font-mono text-xs text-gray-900 whitespace-nowrap">
+                    <td className="px-3 py-1.5 text-xs tabular-nums text-foreground whitespace-nowrap">
                       {lead.phone ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 text-xs text-gray-900 max-w-[200px] truncate">
+                    <td className="px-3 py-1.5 text-xs text-foreground max-w-[200px] truncate">
                       {lead.email ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 text-xs text-gray-900">
+                    <td className="px-3 py-1.5 text-xs text-foreground">
                       {lead.state ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 font-mono text-xs text-gray-900">
+                    <td className="px-3 py-1.5 text-xs tabular-nums text-foreground">
                       {lead.zip ?? nullValue}
                     </td>
-                    <td className="px-3 py-1.5 text-xs text-gray-400 whitespace-nowrap" title={lead.dateFull}>
+                    <td className="px-3 py-1.5 text-xs text-muted-foreground whitespace-nowrap" title={lead.dateFull}>
                       {lead.dateShort}
                     </td>
                     <td className="px-3 py-1.5 text-right">
                       <Link
                         href="/calls"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-900 border border-gray-200 bg-white rounded px-3 py-1.5 whitespace-nowrap opacity-0 group-hover:opacity-100 hover:bg-gray-50 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground border border-border bg-card rounded px-3 py-1.5 whitespace-nowrap opacity-0 group-hover:opacity-100 hover:bg-muted transition-colors"
                       >
                         <Phone size={11} strokeWidth={2} />
                         Call Lead

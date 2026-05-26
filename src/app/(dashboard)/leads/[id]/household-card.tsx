@@ -105,16 +105,16 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5 h-full flex flex-col">
-      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
-        <DollarSign className="w-4 h-4 text-gray-500" />
-        <p className="text-xs font-semibold text-gray-900">Household Details</p>
+    <div className="bg-card border border-border rounded-lg p-5 h-full flex flex-col">
+      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border shrink-0">
+        <DollarSign className="w-4 h-4 text-muted-foreground" />
+        <p className="text-xs font-semibold text-foreground">Household Details</p>
       </div>
 
       <div className="space-y-4 flex-1">
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Lead Type</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Lead Type</p>
             <SelectDropdown
               options={LEAD_TYPE_OPTIONS}
               value={vals.lead_type}
@@ -123,7 +123,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
             />
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Birthday</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Birthday</p>
             <Input
               value={vals.birthday}
               onChange={handleChange('birthday')}
@@ -135,7 +135,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
 
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Household Size</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Household Size</p>
             <Input
               value={vals.household}
               onChange={handleChange('household')}
@@ -143,7 +143,7 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
             />
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Annual Income</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Annual Income</p>
             <Input
               ref={incomeRef}
               value={formatCurrency(vals.income)}
@@ -155,9 +155,9 @@ export function HouseholdCard({ lead }: { lead: Lead }) {
         </div>
       </div>
 
-      <div className="shrink-0 flex items-center justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+      <div className="shrink-0 flex items-center justify-end gap-2 pt-4 mt-4 border-t border-border">
         {saved && (
-          <span className="flex items-center gap-1 text-xs font-medium text-gray-500 mr-auto">
+          <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground mr-auto">
             <Check size={11} strokeWidth={2.5} /> Saved
           </span>
         )}

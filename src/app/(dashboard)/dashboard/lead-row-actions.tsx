@@ -22,34 +22,34 @@ export function LeadRowActions({ leadId }: { leadId: string }) {
     <div ref={ref} className="relative flex items-center justify-center">
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (open) setOpen(false); else requestAnimationFrame(() => setOpen(true)) }}
-        className="p-1 rounded text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        className="p-1 rounded text-muted-foreground/50 hover:text-foreground hover:bg-muted transition-colors"
       >
         <MoreHorizontal size={13} strokeWidth={2} />
       </button>
 
-      <div className={cn('absolute right-0 top-full mt-1 w-32 bg-white border border-gray-200 rounded shadow-sm z-50 py-1 overflow-hidden dropdown-panel', open && 'open')}>
+      <div className={cn('absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded shadow-sm z-50 py-1 overflow-hidden dropdown-panel', open && 'open')}>
           <Link
             href={`/leads/${leadId}`}
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
           >
-            <Phone size={11} strokeWidth={2} className="text-gray-400" />
+            <Phone size={11} strokeWidth={2} className="text-muted-foreground" />
             Call
           </Link>
           <Link
             href={`/leads/${leadId}`}
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
           >
-            <Eye size={11} strokeWidth={2} className="text-gray-400" />
+            <Eye size={11} strokeWidth={2} className="text-muted-foreground" />
             View
           </Link>
           <Link
             href={`/leads/${leadId}`}
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
           >
-            <AlertCircle size={11} strokeWidth={2} className="text-gray-400" />
+            <AlertCircle size={11} strokeWidth={2} className="text-muted-foreground" />
             Dispute
           </Link>
         </div>

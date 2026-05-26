@@ -9,7 +9,7 @@ import { Notification } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 function TypeIcon({ type }: { type: string }) {
-  const cls = 'flex-shrink-0 text-gray-400'
+  const cls = 'flex-shrink-0 text-muted-foreground'
   if (type === 'new_lead')       return <SquareUser  size={12} strokeWidth={2} className={cls} />
   if (type === 'dispute_update') return <AlertCircle size={12} strokeWidth={2} className={cls} />
   if (type === 'order_update')   return <Package     size={12} strokeWidth={2} className={cls} />
@@ -138,7 +138,7 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
       >
         <Bell size={16} strokeWidth={2} />
         {unreadCount > 0 && (
-          <span className="absolute top-[3px] right-[3px] w-[5px] h-[5px] rounded-full bg-gray-400" />
+          <span className="absolute top-[3px] right-[3px] w-[5px] h-[5px] rounded-full bg-foreground/60" />
         )}
       </button>
 
@@ -146,14 +146,14 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
         <div
           ref={popupRef}
           style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className={cn('w-72 bg-white rounded border border-gray-200 shadow-sm overflow-hidden dropdown-panel origin-top-left', open && 'open')}
+          className={cn('w-72 bg-card rounded border border-border shadow-sm overflow-hidden dropdown-panel origin-top-left', open && 'open')}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-border">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-900">Notifications</span>
+              <span className="text-xs font-semibold text-foreground">Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full tabular-nums">
+                <span className="text-xs font-semibold bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full tabular-nums">
                   {unreadCount}
                 </span>
               )}
@@ -163,14 +163,14 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
                 <button
                   onClick={markAllRead}
                   title="Mark all read"
-                  className="p-1 text-gray-400 hover:text-gray-700 transition-colors rounded"
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded"
                 >
                   <CheckCheck size={13} />
                 </button>
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-700 transition-colors rounded"
+                className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded"
               >
                 <X size={13} />
               </button>
@@ -180,37 +180,37 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
           {/* List */}
           <div className="max-h-[320px] overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center py-8 text-xs text-gray-400">
+              <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
                 Loading…
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center py-8 gap-2">
-                <Bell size={18} className="text-gray-200" strokeWidth={1.5} />
-                <p className="text-xs text-gray-400">No notifications yet</p>
+                <Bell size={18} className="text-border" strokeWidth={1.5} />
+                <p className="text-xs text-muted-foreground">No notifications yet</p>
               </div>
             ) : (
               notifications.map(n => {
                 const inner = (
                   <div className={cn(
-                    'group flex items-start gap-2.5 px-3 py-2.5 border-b border-gray-50 hover:bg-gray-50 transition-colors',
-                    !n.read && 'bg-gray-50/80'
+                    'group flex items-start gap-2.5 px-3 py-2.5 border-b border-border/50 hover:bg-muted transition-colors',
+                    !n.read && 'bg-muted/60'
                   )}>
-                    <div className="mt-0.5 w-5 h-5 rounded flex items-center justify-center bg-gray-100 flex-shrink-0">
+                    <div className="mt-0.5 w-5 h-5 rounded flex items-center justify-center bg-muted flex-shrink-0">
                       <TypeIcon type={n.type} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-1.5">
                         <p className={cn(
                           'text-xs font-semibold leading-snug',
-                          n.read ? 'text-gray-400' : 'text-gray-900'
+                          n.read ? 'text-muted-foreground' : 'text-foreground'
                         )}>
                           {n.title}
                         </p>
                         <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
-                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />}
+                          {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-foreground/50" />}
                           <button
                             onClick={e => { e.preventDefault(); e.stopPropagation(); deleteNotification(n.id, !n.read) }}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-300 hover:text-red-400 transition-all rounded"
+                            className="opacity-0 group-hover:opacity-100 p-0.5 text-border hover:text-red-400 transition-all rounded"
                             title="Delete"
                           >
                             <Trash2 size={11} />
@@ -218,9 +218,9 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
                         </div>
                       </div>
                       {n.body && (
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">{n.body}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{n.body}</p>
                       )}
-                      <p className="text-[11px] text-gray-400 mt-1 tabular-nums">{timeAgo(n.created_at)}</p>
+                      <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">{timeAgo(n.created_at)}</p>
                     </div>
                   </div>
                 )
@@ -238,11 +238,11 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-100 px-3 py-2">
+          <div className="border-t border-border px-3 py-2">
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               View all notifications →
             </Link>

@@ -145,10 +145,10 @@ export function LogoCropUpload({
     <>
       {crop && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-xl p-6 flex flex-col items-center gap-4 shadow-xl">
-            <p className="text-sm font-medium text-gray-900">Drag to reposition</p>
+          <div className="bg-card rounded-xl p-6 flex flex-col items-center gap-4 shadow-xl">
+            <p className="text-sm font-medium text-foreground">Drag to reposition</p>
             <div
-              className="rounded-md overflow-hidden cursor-grab active:cursor-grabbing border-2 border-gray-200 select-none"
+              className="rounded-md overflow-hidden cursor-grab active:cursor-grabbing border-2 border-border select-none"
               style={{ width: CROP_SIZE, height: CROP_SIZE, position: 'relative' }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
@@ -168,7 +168,7 @@ export function LogoCropUpload({
               />
             </div>
             <div className="w-full flex items-center gap-2">
-              <span className="text-xs text-gray-500">Size</span>
+              <span className="text-xs text-muted-foreground">Size</span>
               <input
                 type="range"
                 min={crop.minScale}
@@ -183,14 +183,14 @@ export function LogoCropUpload({
               <button
                 type="button"
                 onClick={handleCancel}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
               >
                 <X size={13} /> Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-background bg-foreground rounded-lg hover:bg-foreground/90 transition-colors"
               >
                 <Check size={13} /> Apply
               </button>
@@ -203,12 +203,12 @@ export function LogoCropUpload({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="flex items-center justify-center w-16 h-16 rounded-md border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors overflow-hidden"
+          className="flex items-center justify-center w-16 h-16 rounded-md border-2 border-dashed border-border hover:border-border/60 transition-colors overflow-hidden"
         >
           {displayUrl ? (
             <img src={displayUrl} alt="Logo" className="w-full h-full object-contain" />
           ) : (
-            <ImagePlus size={20} className="text-gray-400" />
+            <ImagePlus size={20} className="text-muted-foreground" />
           )}
         </button>
         <input
@@ -221,7 +221,7 @@ export function LogoCropUpload({
         {displayUrl && (
           <button
             type="button"
-            className="text-xs text-gray-400 hover:text-gray-600"
+            className="text-xs text-muted-foreground hover:text-foreground"
             onClick={handleClear}
           >
             Remove

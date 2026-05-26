@@ -64,20 +64,20 @@ export function AssignAdminDialog({
 
           <div className="space-y-1 mt-2">
             {assignments.length === 0 && (
-              <p className="text-xs text-gray-400 py-2">No team admins assigned.</p>
+              <p className="text-xs text-muted-foreground py-2">No team admins assigned.</p>
             )}
             {assignments.map(a => {
               const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
               return (
-                <div key={a.user_id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                <div key={a.user_id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
                   <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-bold flex-shrink-0">
                     {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
                   </div>
-                  <p className="flex-1 text-xs font-medium text-gray-900 truncate">{name}</p>
+                  <p className="flex-1 text-xs font-medium text-foreground truncate">{name}</p>
                   <button
                     onClick={() => handleRemove(a.user_id)}
                     disabled={loading === `remove-${a.user_id}`}
-                    className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    className="p-1.5 rounded-md text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <UserMinus size={13} />
                   </button>
@@ -87,8 +87,8 @@ export function AssignAdminDialog({
           </div>
 
           {available.length > 0 && (
-            <div className="pt-2 border-t border-gray-100 space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Assign Team Admin</p>
+            <div className="pt-2 border-t border-border space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Assign Team Admin</p>
               <div className="flex gap-2">
                 <SelectDropdown
                   options={available.map(p => ({ value: p.id, label: [p.first_name, p.last_name].filter(Boolean).join(' ') || p.id }))}
@@ -105,7 +105,7 @@ export function AssignAdminDialog({
           )}
 
           {available.length === 0 && teamAdmins.length === 0 && (
-            <p className="text-xs text-gray-400 pt-2 border-t border-gray-100">
+            <p className="text-xs text-muted-foreground pt-2 border-t border-border">
               No team admins exist yet. Promote a user to Team Admin from the Users page first.
             </p>
           )}

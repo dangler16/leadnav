@@ -95,17 +95,17 @@ export function NotesCard({ lead, className }: { lead: Lead; className?: string 
   }
 
   return (
-    <div className={cn('bg-white border border-gray-200 rounded-lg p-5 flex flex-col', className)}>
-      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-gray-200 shrink-0">
-        <FileText className="w-4 h-4 text-gray-500" />
-        <p className="text-xs font-semibold text-gray-900">Notes</p>
+    <div className={cn('bg-card border border-border rounded-lg p-5 flex flex-col', className)}>
+      <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border shrink-0">
+        <FileText className="w-4 h-4 text-muted-foreground" />
+        <p className="text-xs font-semibold text-foreground">Notes</p>
       </div>
 
       {/* Existing notes */}
       <div className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-2">
         {notes.length > 0 ? (
           notes.map(note => (
-            <div key={note.id} className="group relative rounded-md border border-gray-100 bg-gray-50 px-3 py-2.5">
+            <div key={note.id} className="group relative rounded-md border border-border bg-muted px-3 py-2.5">
               {editingId === note.id ? (
                 <div className="space-y-2">
                   <Textarea
@@ -127,20 +127,20 @@ export function NotesCard({ lead, className }: { lead: Lead; className?: string 
                 </div>
               ) : (
                 <>
-                  <p className="text-xs text-gray-700 whitespace-pre-wrap">{note.text}</p>
+                  <p className="text-xs text-foreground whitespace-pre-wrap">{note.text}</p>
                   {note.created_at && (
-                    <p className="text-[10px] text-gray-400 mt-1">{formatDate(note.created_at)}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{formatDate(note.created_at)}</p>
                   )}
                   <div className="absolute top-2 right-2 hidden group-hover:flex gap-1">
                     <button
                       onClick={() => startEdit(note)}
-                      className="p-0.5 text-gray-400 hover:text-gray-700 transition-colors"
+                      className="p-0.5 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Pencil className="w-3 h-3" />
                     </button>
                     <button
                       onClick={() => handleDelete(note.id)}
-                      className="p-0.5 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-0.5 text-muted-foreground hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -150,12 +150,12 @@ export function NotesCard({ lead, className }: { lead: Lead; className?: string 
             </div>
           ))
         ) : (
-          <p className="text-xs text-gray-400 py-2">No notes yet.</p>
+          <p className="text-xs text-muted-foreground py-2">No notes yet.</p>
         )}
       </div>
 
       {/* Add note */}
-      <div className="shrink-0 space-y-2 pt-4 border-t border-gray-200">
+      <div className="shrink-0 space-y-2 pt-4 border-t border-border">
         <Textarea
           value={newNote}
           onChange={e => setNewNote(e.target.value)}
