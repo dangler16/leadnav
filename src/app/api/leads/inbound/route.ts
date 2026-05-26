@@ -2,15 +2,36 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { createHash } from 'crypto'
 import type { NextRequest } from 'next/server'
 
-async function nextAgentId(supabase: ReturnType<typeof createServiceClient>): Promise<string | null> {
-  const { data: activeOrders } = await supabase
+async function nextEligibleOrder(
+  supabase: ReturnType<typeof createServiceClient>,
+  vendorId: string,
+  stateAbbr: string,
+  leadType: string | null,
+): Promise<{ agentId: string; orderId: string } | null> {
+  let query = supabase
     .from('orders')
-    .select('account_id')
+    .select('id, account_id')
+    .eq('vendor_id', vendorId)
     .eq('status', 'active')
+    .contains('states', [stateAbbr])
+    .not('account_id', 'is', null)
 
-  const accountIds = [...new Set((activeOrders ?? []).map(o => o.account_id).filter(Boolean))]
-  if (accountIds.length === 0) return null
+  if (leadType) {
+    query = query.contains('lead_types', [leadType])
+  }
 
+  const { data: matchingOrders } = await query
+  if (!matchingOrders || matchingOrders.length === 0) return null
+
+  // Map each agent to their first matching order
+  const agentOrderMap = new Map<string, string>()
+  for (const order of matchingOrders) {
+    if (order.account_id && !agentOrderMap.has(order.account_id)) {
+      agentOrderMap.set(order.account_id, order.id)
+    }
+  }
+
+  const accountIds = [...agentOrderMap.keys()]
   const { data: agents } = await supabase
     .from('profiles')
     .select('id')
@@ -28,7 +49,9 @@ async function nextAgentId(supabase: ReturnType<typeof createServiceClient>): Pr
     .maybeSingle()
 
   const lastIndex = agents.findIndex(a => a.id === lastLead?.assigned_to)
-  return agents[(lastIndex + 1) % agents.length].id
+  const nextAgent = agents[(lastIndex + 1) % agents.length]
+
+  return { agentId: nextAgent.id, orderId: agentOrderMap.get(nextAgent.id)! }
 }
 
 export async function POST(request: NextRequest) {
@@ -74,7 +97,6 @@ export async function POST(request: NextRequest) {
     Object.entries(STATE_NAME_TO_ABBR).map(([name, abbr]) => [abbr, name.replace(/\b\w/g, c => c.toUpperCase())])
   )
   const rawState = body.state ? String(body.state).trim() : null
-  // Normalize to abbreviation for order matching; store the full name
   const stateAbbr = rawState
     ? (STATE_NAME_TO_ABBR[rawState.toLowerCase()] ?? rawState.toUpperCase())
     : null
@@ -83,26 +105,24 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Missing required field: state' }, { status: 400 })
   }
 
-  // Block if no active order exists for this vendor that covers the lead's state
-  const { data: activeOrder } = await supabase
-    .from('orders')
-    .select('id')
-    .eq('vendor_id', keyRecord.vendor_id)
-    .eq('status', 'active')
-    .contains('states', [stateAbbr])
-    .limit(1)
-    .maybeSingle()
-
-  if (!activeOrder) {
-    return Response.json({ error: 'No active orders for this vendor in this state' }, { status: 503 })
-  }
-
-  // Fetch vendor to get lead types and pricing
+  // Fetch vendor early — needed to determine lead type before order matching
   const { data: vendor } = await supabase
     .from('vendors')
     .select('lead_types, cost_per_lead, lead_type_costs')
     .eq('id', keyRecord.vendor_id)
     .single()
+
+  // Use lead_type from body if provided, otherwise fall back to vendor's first type
+  const leadType = body.lead_type
+    ? String(body.lead_type)
+    : (vendor?.lead_types?.[0] ?? null)
+
+  // Find the next eligible agent whose active order covers this vendor, state, and lead type
+  const assignment = await nextEligibleOrder(supabase, keyRecord.vendor_id, stateAbbr, leadType)
+
+  if (!assignment) {
+    return Response.json({ error: 'No active orders for this vendor in this state' }, { status: 503 })
+  }
 
   // Duplicate check: same name + same phone or email
   const firstname = body.firstname ? String(body.firstname) : null
@@ -129,15 +149,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const [assigned_to] = await Promise.all([nextAgentId(supabase)])
-
   const { data: lead, error } = await supabase
     .from('leads')
     .insert({
       vendor_id: keyRecord.vendor_id,
-      order_id: activeOrder.id,
-      assigned_to,
-      lead_type: vendor?.lead_types?.[0] ?? null,
+      order_id: assignment.orderId,
+      assigned_to: assignment.agentId,
+      lead_type: leadType,
       firstname,
       lastname,
       birthday: body.birthday ?? null,
@@ -163,31 +181,27 @@ export async function POST(request: NextRequest) {
   }
 
   // Deduct lead cost from assigned agent's wallet
-  if (assigned_to) {
-    const leadType = vendor?.lead_types?.[0] ?? null
-    const costPerLead: number | null =
-      (leadType && (vendor?.lead_type_costs as Record<string, number> | null)?.[leadType]) ??
-      (vendor?.cost_per_lead as number | null) ??
-      null
+  const costPerLead: number | null =
+    (leadType && (vendor?.lead_type_costs as Record<string, number> | null)?.[leadType]) ??
+    (vendor?.cost_per_lead as number | null) ??
+    null
 
-    if (costPerLead != null && costPerLead > 0) {
-      const costCents = Math.round(costPerLead * 100)
-      const { data: deducted } = await supabase.rpc('deduct_wallet', {
-        p_user_id: assigned_to,
-        p_amount_cents: costCents,
-        p_lead_id: lead.id,
-        p_description: `Lead delivered — ${leadType ?? 'unknown type'}`,
-      })
+  if (costPerLead != null && costPerLead > 0) {
+    const costCents = Math.round(costPerLead * 100)
+    const { data: deducted } = await supabase.rpc('deduct_wallet', {
+      p_user_id: assignment.agentId,
+      p_amount_cents: costCents,
+      p_lead_id: lead.id,
+      p_description: `Lead delivered — ${leadType ?? 'unknown type'}`,
+    })
 
-      // If deduction failed (insufficient balance), pause the agent's active orders
-      if (!deducted) {
-        console.warn('[inbound lead] insufficient wallet balance for agent', assigned_to)
-        await supabase
-          .from('orders')
-          .update({ status: 'paused' })
-          .eq('account_id', assigned_to)
-          .eq('status', 'active')
-      }
+    if (!deducted) {
+      console.warn('[inbound lead] insufficient wallet balance for agent', assignment.agentId)
+      await supabase
+        .from('orders')
+        .update({ status: 'paused' })
+        .eq('account_id', assignment.agentId)
+        .eq('status', 'active')
     }
   }
 
