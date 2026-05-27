@@ -70,7 +70,6 @@ type Props = {
   isAdmin: boolean
   agents: Profile[]
   assignedName: string | null
-  dialerPreference: string
 }
 
 type Fields = {
@@ -110,7 +109,7 @@ function initFields(lead: Lead): Fields {
   }
 }
 
-export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedName, dialerPreference }: Props) {
+export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedName }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const phoneRef = useRef<HTMLInputElement>(null)
@@ -217,7 +216,7 @@ export function ContactInfoCard({ lead, vendorName, isAdmin, agents, assignedNam
               />
               {vals.phone && (
                 <a
-                  href={buildDialerUrl(vals.phone, dialerPreference)}
+                  href={buildDialerUrl(vals.phone, 'default')}
                   className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded border border-border bg-card hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                   title="Dial"
                 >

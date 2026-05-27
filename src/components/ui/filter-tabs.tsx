@@ -39,7 +39,7 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
               key={tab.value}
               value={tab.value}
               className={cn(
-                'relative z-10 inline-flex items-center gap-1 justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
+                'group relative z-10 inline-flex items-center gap-1 justify-center rounded-sm px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
                 'data-[active]:text-background',
                 isEmpty
                   ? 'text-muted-foreground opacity-40'
@@ -47,7 +47,7 @@ export function FilterTabs<T extends string>({ tabs, counts, value, basePath, ex
               )}
             >
               {tab.label}
-              <span className={cn('font-mono tabular-nums', isEmpty ? 'text-muted-foreground' : 'text-muted-foreground')}>
+              <span className={cn('font-mono tabular-nums group-data-[active]:text-background', isEmpty ? 'text-muted-foreground' : 'text-muted-foreground')}>
                 {count}
               </span>
             </TabsPrimitive.Tab>

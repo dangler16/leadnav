@@ -83,7 +83,7 @@ export function NewOrderDialog({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedVendorId, setSelectedVendorId] = useState('')
-  const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(new Set())
+  const [selectedLeadType, setSelectedLeadType] = useState<string | null>(null)
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set())
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set())
   const [budgetDigits, setBudgetDigits] = useState('')
@@ -92,14 +92,6 @@ export function NewOrderDialog({
   const router = useRouter()
 
   const selectedVendor = vendors.find(v => v.id === selectedVendorId) ?? null
-
-  function toggleLeadType(lt: string) {
-    setSelectedLeadTypes(prev => {
-      const next = new Set(prev)
-      next.has(lt) ? next.delete(lt) : next.add(lt)
-      return next
-    })
-  }
 
   function toggleState(abbr: string) {
     setSelectedStates(prev => {
@@ -152,7 +144,7 @@ export function NewOrderDialog({
     try {
       await placeOrder(targetUserId, {
         vendorId: selectedVendorId || null,
-        leadTypes: Array.from(selectedLeadTypes),
+        leadType: selectedLeadType ?? '',
         dailyBudget: budgetDigits ? parseInt(budgetDigits) : null,
         states: Array.from(selectedStates),
         availability: Array.from(selectedDays),
@@ -167,7 +159,7 @@ export function NewOrderDialog({
 
   function reset() {
     setSelectedVendorId('')
-    setSelectedLeadTypes(new Set())
+    setSelectedLeadType(null)
     setSelectedStates(new Set())
     setSelectedDays(new Set())
     setBudgetDigits('')
@@ -181,7 +173,7 @@ export function NewOrderDialog({
 
   const allSelected = selectedStates.size === US_STATES.length
   const vendorLeadTypes = selectedVendor?.lead_types ?? []
-  const canSubmit = !!selectedVendorId && selectedLeadTypes.size > 0 && !!budgetDigits && selectedStates.size > 0 && selectedDays.size > 0
+  const canSubmit = !!selectedVendorId && !!selectedLeadType && !!budgetDigits && selectedStates.size > 0 && selectedDays.size > 0
 
   return (
     <>
@@ -222,7 +214,7 @@ export function NewOrderDialog({
               <SelectDropdown
                 options={vendors.map(v => ({ value: v.id, label: v.name }))}
                 value={selectedVendorId}
-                onChange={v => { setSelectedVendorId(v); setSelectedLeadTypes(new Set()) }}
+                onChange={v => { setSelectedVendorId(v); setSelectedLeadType(null) }}
                 name="vendor_id"
                 placeholder="Select vendor…"
               />
@@ -238,22 +230,22 @@ export function NewOrderDialog({
               ) : (
                 <div className="flex gap-2 flex-wrap">
                   {vendorLeadTypes.map(lt => {
-                    const checked = selectedLeadTypes.has(lt)
+                    const selected = selectedLeadType === lt
                     const cost = selectedVendor.lead_type_costs[lt] ?? selectedVendor.cost_per_lead
                     return (
                       <button
                         key={lt}
                         type="button"
-                        onClick={() => toggleLeadType(lt)}
+                        onClick={() => setSelectedLeadType(lt)}
                         className={`flex flex-col items-center text-xs px-2.5 py-1.5 rounded transition-colors font-medium leading-tight ${
-                          checked
+                          selected
                             ? 'bg-foreground text-background'
                             : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                       >
                         <span>{lt}</span>
                         {cost != null && (
-                          <span className={`transition-colors text-xs mt-1 font-normal ${checked ? 'text-background/70' : 'text-muted-foreground'}`}>
+                          <span className={`transition-colors text-xs mt-1 font-normal ${selected ? 'text-background/70' : 'text-muted-foreground'}`}>
                             ${cost.toLocaleString('en-US')}
                           </span>
                         )}

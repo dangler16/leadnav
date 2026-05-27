@@ -8,7 +8,7 @@ export async function placeOrder(
   targetUserId: string,
   orderData: {
     vendorId: string | null
-    leadTypes: string[]
+    leadType: string
     dailyBudget: number | null
     states: string[]
     availability: string[]
@@ -47,7 +47,7 @@ export async function placeOrder(
     account_id: targetUserId,
     placed_by: user.id,
     vendor_id: orderData.vendorId || null,
-    lead_types: orderData.leadTypes,
+    lead_types: [orderData.leadType],
     daily_budget: orderData.dailyBudget,
     states: orderData.states,
     availability: orderData.availability,
@@ -83,6 +83,26 @@ export async function removeOrderAgent(orderId: string, userId: string) {
   if (error) throw new Error('Failed to remove agent')
   revalidatePath('/orders')
   revalidatePath(`/orders/${orderId}`)
+}
+
+export async function archiveOrder(orderId: string, currentStatus: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+  const update: Record<string, unknown> = { archived: true }
+  if (currentStatus === 'active') update.status = 'completed'
+  const { error } = await supabase.from('orders').update(update).eq('id', orderId)
+  if (error) throw new Error('Failed to archive order')
+  revalidatePath('/orders')
+}
+
+export async function unarchiveOrder(orderId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+  const { error } = await supabase.from('orders').update({ archived: false }).eq('id', orderId)
+  if (error) throw new Error('Failed to unarchive order')
+  revalidatePath('/orders')
 }
 
 export async function transferOrder(orderId: string, newAccountId: string) {

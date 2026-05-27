@@ -1,12 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { Profile, Team } from '@/lib/types'
-import { Settings, Lock, ShieldCheck, CreditCard, Palette, Phone } from 'lucide-react'
+import { Settings, Lock, ShieldCheck, CreditCard, Palette } from 'lucide-react'
 import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { ResetPassword } from './reset-password'
 import { BillingModeToggle } from './billing-mode-toggle'
 import { DarkModeToggle } from './dark-mode-toggle'
-import { DialerSelect } from './dialer-select'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -89,15 +88,6 @@ export default async function SettingsPage() {
             <p className="text-xs font-semibold text-foreground">Appearance</p>
           </div>
           <DarkModeToggle initialDark={profile?.dark_mode ?? false} />
-        </div>
-
-        {/* Dialer */}
-        <div className="bg-card border border-border rounded-lg p-5">
-          <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border">
-            <Phone className="w-4 h-4 text-muted-foreground" />
-            <p className="text-xs font-semibold text-foreground">Dialer</p>
-          </div>
-          <DialerSelect initialPreference={profile?.dialer_preference ?? 'default'} />
         </div>
 
         {/* Security */}

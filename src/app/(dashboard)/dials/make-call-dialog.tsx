@@ -22,7 +22,7 @@ function formatPhone(raw: string) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
 }
 
-export function MakeCallDialog({ leads, dialerPreference }: { leads: LeadOption[]; dialerPreference: string }) {
+export function MakeCallDialog({ leads }: { leads: LeadOption[] }) {
   const [open, setOpen] = useState(false)
   const [selectedLeadId, setSelectedLeadId] = useState('')
   const [query, setQuery] = useState('')
@@ -53,7 +53,7 @@ export function MakeCallDialog({ leads, dialerPreference }: { leads: LeadOption[
 
   function handleCall() {
     if (!selected?.phone) return
-    window.location.href = buildDialerUrl(selected.phone, dialerPreference)
+    window.location.href = buildDialerUrl(selected.phone, 'default')
     handleOpenChange(false)
   }
 

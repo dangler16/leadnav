@@ -3,13 +3,14 @@
 import { FilterTabs } from '@/components/ui/filter-tabs'
 import type { Order } from '@/lib/types'
 
-type StatusFilter = 'all' | Order['status']
+export type StatusFilter = 'all' | Order['status'] | 'archived'
 
 const tabs: { value: StatusFilter; label: string }[] = [
   { value: 'all',       label: 'All' },
   { value: 'active',    label: 'Active' },
   { value: 'paused',    label: 'Paused' },
   { value: 'completed', label: 'Completed' },
+  { value: 'archived',  label: 'Archived' },
 ]
 
 interface OrdersFilterTabsProps {

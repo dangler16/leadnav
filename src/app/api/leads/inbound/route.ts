@@ -13,6 +13,7 @@ async function nextEligibleOrder(
     .select('id, account_id')
     .eq('vendor_id', vendorId)
     .eq('status', 'active')
+    .eq('archived', false)
     .contains('states', [stateAbbr])
     .not('account_id', 'is', null)
 

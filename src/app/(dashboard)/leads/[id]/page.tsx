@@ -41,7 +41,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     supabase.from('leads').select('*').eq('id', id).single(),
     supabase.from('call_logs').select('*').eq('lead_id', id).order('called_at', { ascending: false }),
     supabase.from('disputes').select('*').eq('lead_id', id).order('created_at', { ascending: false }),
-    supabase.from('profiles').select('role, dialer_preference').eq('id', user.id).single(),
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
   ])
 
   if (!leadData) notFound()
@@ -49,8 +49,6 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const calls = (callLogs ?? []) as CallLog[]
   const disputes = (leadDisputes ?? []) as Dispute[]
   const isAdmin = myProfile?.role === 'super_admin' || myProfile?.role === 'team_admin'
-  const dialerPreference = (myProfile as { dialer_preference?: string } | null)?.dialer_preference ?? 'default'
-
   const [vendorResult, agentsResult, assignedResult] = await Promise.all([
     lead.vendor_id
       ? supabase.from('vendors').select('name').eq('id', lead.vendor_id).single()
@@ -82,7 +80,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             {[lead.firstname, lead.lastname].filter(Boolean).join(' ') || 'Unknown Lead'}
           </h1>
           <LeadStatusSelect leadId={lead.id} initialStatus={lead.status} />
-          <LeadActions lead={lead} userId={user.id} dialerPreference={dialerPreference} />
+          <LeadActions lead={lead} userId={user.id} />
         </div>
       </div>
 
@@ -105,7 +103,6 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 isAdmin={isAdmin}
                 agents={agents}
                 assignedName={assignedName}
-                dialerPreference={dialerPreference}
               />
 
               <HouseholdCard lead={lead} />

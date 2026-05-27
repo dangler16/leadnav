@@ -74,6 +74,7 @@ export type Order = {
   states: string[]
   availability: string[]
   status: 'active' | 'paused' | 'completed'
+  archived: boolean
   created_at: string
 }
 

@@ -43,14 +43,12 @@ export function LeadsTable({
   sortDir,
   isAdmin,
   agents,
-  dialerPreference,
 }: {
   leads: FormattedLead[]
   sort: string | null
   sortDir: SortDir | null
   isAdmin: boolean
   agents: Profile[]
-  dialerPreference: string
 }) {
   const router = useRouter()
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -252,7 +250,7 @@ export function LeadsTable({
                     <td className="px-3 py-1.5 text-right">
                       {lead.phone ? (
                         <a
-                          href={buildDialerUrl(lead.phone, dialerPreference)}
+                          href={buildDialerUrl(lead.phone, 'default')}
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground border border-border bg-card rounded px-3 py-1.5 whitespace-nowrap opacity-0 group-hover:opacity-100 hover:bg-muted transition-colors"
                         >
                           <Phone size={11} strokeWidth={2} />

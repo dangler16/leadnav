@@ -6,15 +6,14 @@ import { NewOrderDialog } from './new-order-dialog'
 import { OrderStatusSelect } from './order-status-select'
 import { EditOrderDialog } from './[id]/edit-order-dialog'
 import { badgeShape } from '@/components/ui/badge'
-import { OrdersFilterTabs } from './orders-filter-tabs'
+import { OrdersFilterTabs, StatusFilter } from './orders-filter-tabs'
+import { ArchiveOrderButton } from './archive-order-button'
 import { SortableHeader, SortDir } from '@/components/sortable-header'
 import { cn } from '@/lib/utils'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
-
-type StatusFilter = 'all' | Order['status']
 
 function orderLeadTypes(order: Order): string[] {
   return order.lead_types.length > 0 ? order.lead_types : (order.lead_type ? [order.lead_type] : [])
@@ -119,15 +118,21 @@ export default async function OrdersPage({
   const vendorMap = Object.fromEntries(vendors.map(v => [v.id, v]))
   const ordersWithVendor = orders.map(o => ({ ...o, _vendor: o.vendor_id ? (vendorMap[o.vendor_id] ?? null) : null }))
 
+  const nonArchived = orders.filter(o => !o.archived)
   const counts: Record<StatusFilter, number> = {
-    all:       orders.length,
-    active:    orders.filter(o => o.status === 'active').length,
-    paused:    orders.filter(o => o.status === 'paused').length,
-    completed: orders.filter(o => o.status === 'completed').length,
+    all:       nonArchived.length,
+    active:    nonArchived.filter(o => o.status === 'active').length,
+    paused:    nonArchived.filter(o => o.status === 'paused').length,
+    completed: nonArchived.filter(o => o.status === 'completed').length,
+    archived:  orders.filter(o => o.archived).length,
   }
 
   const filtered = sortOrders(
-    filter === 'all' ? ordersWithVendor : ordersWithVendor.filter(o => o.status === filter),
+    filter === 'archived'
+      ? ordersWithVendor.filter(o => o.archived)
+      : filter === 'all'
+        ? ordersWithVendor.filter(o => !o.archived)
+        : ordersWithVendor.filter(o => !o.archived && o.status === filter),
     sort, sortDir,
   )
 
@@ -237,7 +242,10 @@ export default async function OrdersPage({
                     </td>
                     <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(order.created_at)}</td>
                     <td className="px-3 py-2.5">
-                      {isEditable && <EditOrderDialog order={order} orderableProfiles={orderableProfiles} />}
+                      <div className="flex items-center gap-1">
+                        {isEditable && !order.archived && <EditOrderDialog order={order} orderableProfiles={orderableProfiles} />}
+                        <ArchiveOrderButton orderId={order.id} archived={order.archived} status={order.status} />
+                      </div>
                     </td>
                   </tr>
                 )

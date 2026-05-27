@@ -33,10 +33,9 @@ const endedByOptions = [
 type Props = {
   lead: Lead
   userId: string
-  dialerPreference: string
 }
 
-export function LeadActions({ lead, userId, dialerPreference }: Props) {
+export function LeadActions({ lead, userId }: Props) {
   const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [outcome, setOutcome] = useState<CallOutcome>('no_answer')
@@ -49,7 +48,7 @@ export function LeadActions({ lead, userId, dialerPreference }: Props) {
 
   function handleDial() {
     if (lead.phone) {
-      window.location.href = buildDialerUrl(lead.phone, dialerPreference)
+      window.location.href = buildDialerUrl(lead.phone, 'default')
     }
     setOpen(true)
   }

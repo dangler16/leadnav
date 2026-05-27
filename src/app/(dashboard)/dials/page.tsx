@@ -84,9 +84,8 @@ export default async function DialsPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data: profileData } = await supabase.from('profiles').select('role, dialer_preference').eq('id', user.id).single()
+  const { data: profileData } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const role = (profileData?.role ?? 'user') as UserRole
-  const dialerPreference = (profileData as { dialer_preference?: string } | null)?.dialer_preference ?? 'default'
   const isAdmin = role === 'super_admin' || role === 'team_admin'
 
   let dials: DialWithLead[] = []
@@ -178,7 +177,7 @@ export default async function DialsPage({
 
       <div className="flex items-center justify-between px-8 pt-5 pb-4 shrink-0">
         <h1 className="text-xl font-bold text-foreground">Dials</h1>
-        <MakeCallDialog leads={leadsForCall} dialerPreference={dialerPreference} />
+        <MakeCallDialog leads={leadsForCall} />
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 mx-8 mb-5 border border-border rounded-lg overflow-hidden">
