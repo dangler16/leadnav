@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bell, CheckCheck, X, SquareUser, AlertCircle, Package, Trash2 } from 'lucide-react'
+import { Bell, CheckCheck, X, SquareUser, AlertCircle, Package, Trash2, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -210,7 +210,7 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
                           {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-foreground/50" />}
                           <button
                             onClick={e => { e.preventDefault(); e.stopPropagation(); deleteNotification(n.id, !n.read) }}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 text-border hover:text-red-400 transition-all rounded"
+                            className="opacity-0 group-hover:opacity-100 p-0.5 text-destructive/60 hover:text-destructive transition-all rounded"
                             title="Delete"
                           >
                             <Trash2 size={11} />
@@ -242,9 +242,8 @@ export function NotificationBell({ userId, initialCount }: { userId?: string; in
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              View all notifications →
+              className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+              View all notifications <ArrowRight size={10} />
             </Link>
           </div>
         </div>

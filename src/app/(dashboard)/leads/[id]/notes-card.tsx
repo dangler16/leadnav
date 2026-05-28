@@ -140,7 +140,7 @@ export function NotesCard({ lead, className }: { lead: Lead; className?: string 
                     </button>
                     <button
                       onClick={() => handleDelete(note.id)}
-                      className="p-0.5 text-muted-foreground hover:text-red-500 transition-colors"
+                      className="p-0.5 text-destructive/60 hover:text-destructive transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>

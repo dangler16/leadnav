@@ -105,7 +105,7 @@ export default async function VendorsPage({
                       <span className={cn(badgeShape, v.type === 'inbound'
                         ? 'bg-blue-100 text-blue-700 border border-blue-200'
                         : 'bg-muted text-muted-foreground border border-border')}>
-                        {v.type === 'inbound' ? 'Inbound' : 'Manual'}
+                        {v.type === 'inbound' ? 'inbound' : 'manual'}
                       </span>
                     </td>
                     <VendorRowCells vendor={v} vendorKeys={vendorKeys} />

@@ -83,7 +83,7 @@ export function NotificationList({ initialNotifications }: { initialNotification
               )}
               <button
                 onClick={e => { e.preventDefault(); e.stopPropagation(); deleteNotification(n.id) }}
-                className="opacity-0 group-hover:opacity-100 p-0.5 text-border hover:text-red-400 transition-all rounded"
+                className="opacity-0 group-hover:opacity-100 p-0.5 text-destructive/60 hover:text-destructive transition-all rounded"
                 title="Delete"
               >
                 <Trash2 size={13} />

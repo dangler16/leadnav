@@ -130,7 +130,7 @@ export async function inviteUser(fields: {
     })
   }
 
-  if (fields.role === 'team_admin' && fields.teamAdminTeamIds.length > 0) {
+  if ((fields.role === 'team_admin' || fields.role === 'super_admin') && fields.teamAdminTeamIds.length > 0) {
     await service.from('team_admin_assignments').insert(
       fields.teamAdminTeamIds.map(teamId => ({ team_id: teamId, user_id: newUserId }))
     )
@@ -163,6 +163,17 @@ export async function updateUserPermissions(
 
   const { error } = await service.from('team_members').update(permissions).eq('user_id', userId).eq('team_id', teamId)
   if (error) throw new Error('Failed to update permissions')
+
+  revalidatePath('/users')
+}
+
+export async function deleteUser(userId: string) {
+  const { profile: caller, service } = await getCallerProfile()
+  if (caller.role !== 'super_admin') throw new Error('Unauthorized')
+  if (caller.id === userId) throw new Error('You cannot delete your own account')
+
+  const { error } = await service.auth.admin.deleteUser(userId)
+  if (error) throw new Error('Failed to delete user')
 
   revalidatePath('/users')
 }

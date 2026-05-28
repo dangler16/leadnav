@@ -10,6 +10,7 @@ import { UserTeamSelect } from './user-team-select'
 import { badgeShape } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { SortableHeader, SortDir } from '@/components/sortable-header'
+import { DeleteUserButton } from './delete-user-button'
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -143,10 +144,10 @@ export default async function UsersPage({
                       : membership
                         ? <span className={cn(badgeShape, 'bg-blue-100 text-blue-700 border border-blue-200')}>{teamsById[membership.team_id]?.name ?? '—'}</span>
                         : <span className="text-xs text-muted-foreground">—</span>)
-                  : p.role === 'team_admin'
+                  : (p.role === 'team_admin' || p.role === 'super_admin')
                     ? adminTeams.length > 0
                       ? <div className="flex flex-wrap gap-1">{adminTeams.map(t => <span key={t.id} className={cn(badgeShape, 'bg-purple-100 text-purple-700 border border-purple-200')}>{t.name}</span>)}</div>
-                      : <span className="text-xs text-muted-foreground">—</span>
+                      : <span className="text-xs text-muted-foreground">{p.role === 'super_admin' ? 'All' : '—'}</span>
                     : <span className="text-xs text-muted-foreground">All</span>
 
                 return (
@@ -175,13 +176,19 @@ export default async function UsersPage({
                     <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatDate(p.created_at)}</td>
                     <td className="px-3 py-2.5 text-right">
                       {isSuperAdmin && (
-                        <EditUserDialog
-                          profile={p}
-                          email={emailById[p.id] ?? ''}
-                          teams={teams}
-                          memberTeamId={membership?.team_id ?? null}
-                          adminTeamIds={adminTeamIds}
-                        />
+                        <div className="flex items-center justify-end gap-1">
+                          <DeleteUserButton
+                            userId={p.id}
+                            userName={[p.first_name, p.last_name].filter(Boolean).join(' ') || 'this user'}
+                          />
+                          <EditUserDialog
+                            profile={p}
+                            email={emailById[p.id] ?? ''}
+                            teams={teams}
+                            memberTeamId={membership?.team_id ?? null}
+                            adminTeamIds={adminTeamIds}
+                          />
+                        </div>
                       )}
                     </td>
                   </tr>

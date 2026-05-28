@@ -2,6 +2,17 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { createHash } from 'crypto'
 import type { NextRequest } from 'next/server'
 
+function leadTypeFromBirthday(birthday: string | null): 'ACA' | 'Medicare' | null {
+  if (!birthday) return null
+  const dob = new Date(birthday)
+  if (isNaN(dob.getTime())) return null
+  const today = new Date()
+  let age = today.getFullYear() - dob.getFullYear()
+  const m = today.getMonth() - dob.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--
+  return age >= 65 ? 'Medicare' : 'ACA'
+}
+
 async function nextEligibleOrder(
   supabase: ReturnType<typeof createServiceClient>,
   vendorId: string,
@@ -113,10 +124,13 @@ export async function POST(request: NextRequest) {
     .eq('id', keyRecord.vendor_id)
     .single()
 
-  // Use lead_type from body if provided, otherwise fall back to vendor's first type
-  const leadType = body.lead_type
-    ? String(body.lead_type)
-    : (vendor?.lead_types?.[0] ?? null)
+  // Age determines lead type: 65+ → Medicare, under 65 → ACA.
+  // Falls back to body.lead_type, then vendor's first type when birthday is absent.
+  const rawBirthday = body.birthday ? String(body.birthday) : null
+  const leadType =
+    leadTypeFromBirthday(rawBirthday) ??
+    (body.lead_type ? String(body.lead_type) : null) ??
+    (vendor?.lead_types?.[0] ?? null)
 
   // Find the next eligible agent whose active order covers this vendor, state, and lead type
   const assignment = await nextEligibleOrder(supabase, keyRecord.vendor_id, stateAbbr, leadType)
@@ -159,7 +173,7 @@ export async function POST(request: NextRequest) {
       lead_type: leadType,
       firstname,
       lastname,
-      birthday: body.birthday ?? null,
+      birthday: rawBirthday,
       email,
       phone,
       state: stateFull,

@@ -104,10 +104,10 @@ export function VendorApiKeys({ vendor, initialKeys }: { vendor: Vendor; initial
                 </div>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="destructive"
                   disabled={revokingId === k.id}
                   onClick={() => handleRevoke(k.id)}
-                  className="text-xs text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0"
+                  className="shrink-0"
                 >
                   <Ban size={12} />
                   {revokingId === k.id ? 'Revoking…' : 'Revoke'}

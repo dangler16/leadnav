@@ -249,7 +249,7 @@ export function EditOrderDialog({
                             type="button"
                             onClick={() => handleRemoveAgent(a.user_id)}
                             disabled={agentLoading === `remove-${a.user_id}`}
-                            className="p-0.5 text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            className="p-0.5 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
                           >
                             <UserMinus size={13} />
                           </button>

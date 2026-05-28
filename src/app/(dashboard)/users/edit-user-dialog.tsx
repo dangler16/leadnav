@@ -50,7 +50,7 @@ export function EditUserDialog({
       })
       if (role === 'user') {
         await setUserTeam(profile.id, selectedTeamId || null)
-      } else if (role === 'team_admin') {
+      } else if (role === 'team_admin' || role === 'super_admin') {
         await setTeamAdminAssignments(profile.id, selectedAdminTeams)
       }
       setOpen(false)
@@ -118,7 +118,7 @@ export function EditUserDialog({
               </div>
             )}
 
-            {role === 'team_admin' && teams.length > 0 && (
+            {(role === 'team_admin' || role === 'super_admin') && teams.length > 0 && (
               <div className="space-y-1.5">
                 <Label>Manages Teams</Label>
                 <div className="space-y-1.5 max-h-36 overflow-y-auto border border-border/50 rounded-lg p-2">

@@ -123,12 +123,14 @@ export function ManageMembersDialog({
                                 <button
                                   onClick={() => handleTogglePermission(m, key)}
                                   disabled={!!loading}
-                                  className={`w-8 h-4 rounded-full transition-colors relative ${
+                                  role="switch"
+                                  aria-checked={!!m[key]}
+                                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors disabled:opacity-50 ${
                                     m[key] ? 'bg-red-500' : 'bg-muted'
                                   }`}
                                 >
-                                  <span className={`absolute top-0.5 left-0 w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
-                                    m[key] ? 'translate-x-4' : 'translate-x-0.5'
+                                  <span className={`pointer-events-none h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+                                    m[key] ? 'translate-x-4' : 'translate-x-0'
                                   }`} />
                                 </button>
                               </div>
@@ -138,7 +140,7 @@ export function ManageMembersDialog({
                             <button
                               onClick={() => handleRemove(m.user_id)}
                               disabled={loading === `remove-${m.user_id}`}
-                              className="p-1 rounded-md text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                              className="p-1 rounded-md text-destructive/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
                             >
                               <UserMinus size={13} />
                             </button>

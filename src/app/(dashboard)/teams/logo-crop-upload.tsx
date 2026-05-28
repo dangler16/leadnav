@@ -221,7 +221,7 @@ export function LogoCropUpload({
         {displayUrl && (
           <button
             type="button"
-            className="text-xs text-muted-foreground hover:text-foreground"
+            className="text-xs text-destructive/70 hover:text-destructive transition-colors"
             onClick={handleClear}
           >
             Remove

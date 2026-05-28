@@ -46,7 +46,7 @@ export function InviteUserDialog({
         lastName: fd.get('last_name') as string,
         role,
         teamId: role === 'user' ? (selectedTeamId || null) : null,
-        teamAdminTeamIds: role === 'team_admin' ? selectedAdminTeams : [],
+        teamAdminTeamIds: (role === 'team_admin' || role === 'super_admin') ? selectedAdminTeams : [],
       })
       setOpen(false)
       setRole('user')
@@ -113,7 +113,7 @@ export function InviteUserDialog({
               </div>
             )}
 
-            {role === 'team_admin' && isSuperAdmin && availableTeams.length > 0 && (
+            {(role === 'team_admin' || role === 'super_admin') && isSuperAdmin && availableTeams.length > 0 && (
               <div className="space-y-1.5">
                 <Label>Manages Teams</Label>
                 <div className="space-y-1.5 max-h-36 overflow-y-auto border border-border/50 rounded-lg p-2">

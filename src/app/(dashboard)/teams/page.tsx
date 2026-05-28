@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { Team, TeamMember, TeamAdminAssignment, Profile } from '@/lib/types'
 import { NewTeamDialog } from './new-team-dialog'
 import { EditTeamDialog } from './edit-team-dialog'
+import { DeleteTeamButton } from './delete-team-button'
 import { ManageMembersDialog } from './manage-members-dialog'
 import { AssignAdminDialog } from './assign-admin-dialog'
 import { SortableHeader, SortDir } from '@/components/sortable-header'
@@ -165,6 +166,7 @@ export default async function TeamsPage({
                       <div className="flex items-center justify-end gap-2">
                         <AssignAdminDialog team={team} assignments={admins} teamAdmins={teamAdmins} />
                         <ManageMembersDialog team={team} members={members} allProfiles={allProfiles} />
+                        <DeleteTeamButton teamId={team.id} teamName={team.name} />
                         <EditTeamDialog team={team} />
                       </div>
                     </td>

@@ -150,7 +150,7 @@ export function LeadActions({ lead, userId }: Props) {
                   <button
                     type="button"
                     onClick={() => setRecordingFile(null)}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-xs text-destructive/70 hover:text-destructive transition-colors"
                   >
                     Remove
                   </button>
