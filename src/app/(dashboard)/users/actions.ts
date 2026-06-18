@@ -108,7 +108,9 @@ export async function inviteUser(fields: {
     if (fields.teamId && !myTeamIds.has(fields.teamId)) throw new Error('Unauthorized')
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const { data: inviteData, error: inviteError } = await service.auth.admin.inviteUserByEmail(fields.email, {
+    redirectTo: `${siteUrl}/auth/confirm`,
     data: {
       first_name: fields.firstName,
       last_name: fields.lastName,
