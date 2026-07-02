@@ -97,7 +97,6 @@ export async function inviteUser(fields: {
 }) {
   const { profile: caller, service } = await requireSuperAdminOrTeamAdminService()
 
-  // Team admins can only invite regular users to their own teams
   if (caller.role === 'team_admin') {
     if (fields.role !== 'user') throw new Error('Team admins can only invite users')
     const { data: assignments } = await service
@@ -110,7 +109,7 @@ export async function inviteUser(fields: {
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const { data: inviteData, error: inviteError } = await service.auth.admin.inviteUserByEmail(fields.email, {
-    redirectTo: `${siteUrl}/auth/confirm`,
+    redirectTo: `${siteUrl}/confirm`,
     data: {
       first_name: fields.firstName,
       last_name: fields.lastName,
