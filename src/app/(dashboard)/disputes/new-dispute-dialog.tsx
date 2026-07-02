@@ -20,7 +20,7 @@ const reasonOptions: { value: DisputeReason; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-type LeadOption = Pick<Lead, 'id' | 'firstname' | 'lastname' | 'assigned_to'>
+type LeadOption = Pick<Lead, 'id' | 'firstname' | 'lastname'>
 
 function leadLabel(l: LeadOption) {
   return [l.firstname, l.lastname].filter(Boolean).join(' ') || l.id
@@ -107,9 +107,15 @@ export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userI
     setError(null)
     const fd = new FormData(e.currentTarget)
 
+    const { data: leadOwner } = await supabase
+      .from('leads')
+      .select('assigned_to')
+      .eq('id', selectedLead.id)
+      .single()
+
     const { error: insertError } = await supabase.from('disputes').insert({
       lead_id: selectedLead.id,
-      agent_id: selectedLead.assigned_to ?? userId,
+      agent_id: leadOwner?.assigned_to ?? userId,
       reason: fd.get('reason') as DisputeReason,
       notes: fd.get('notes') || null,
       status: 'open',
