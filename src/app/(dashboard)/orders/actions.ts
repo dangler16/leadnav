@@ -37,7 +37,7 @@ async function managedTeamIds(service: ServiceClient, callerId: string): Promise
     .from('team_admin_assignments')
     .select('team_id')
     .eq('user_id', callerId)
-  return (data ?? []).map(assignment => assignment.team_id)
+  return (data ?? []).map((assignment: { team_id: string }) => assignment.team_id)
 }
 
 async function canManageUser(
@@ -103,7 +103,7 @@ export async function placeOrder(
 
   if (!orderData.vendorId) throw new Error('Vendor is required')
   if (!orderData.leadType.trim()) throw new Error('Lead type is required')
-  if (!Number.isFinite(orderData.dailyBudget) || (orderData.dailyBudget ?? 0) <= 0) {
+  if (orderData.dailyBudget == null || !Number.isFinite(orderData.dailyBudget) || orderData.dailyBudget <= 0) {
     throw new Error('Daily budget must be greater than zero')
   }
   if (orderData.states.length === 0 || orderData.states.some(state => !VALID_STATES.has(state))) {
