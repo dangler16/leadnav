@@ -19,6 +19,8 @@ const outcomeToStatus: Partial<Record<CallOutcome, LeadStatus>> = {
 const MAX_RECORDING_BYTES = 25 * 1024 * 1024
 const ALLOWED_RECORDING_EXTENSIONS = new Set(['mp3', 'wav', 'm4a', 'ogg', 'webm'])
 
+type ServiceClient = ReturnType<typeof createServiceClient>
+
 async function requireUser() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -26,26 +28,61 @@ async function requireUser() {
   return user
 }
 
+async function requireLeadAccess(service: ServiceClient, userId: string, leadId: string) {
+  const { data: lead } = await service
+    .from('leads')
+    .select('assigned_to')
+    .eq('id', leadId)
+    .single()
+
+  if (!lead) throw new Error('Lead not found')
+  if (lead.assigned_to === userId) return
+
+  const { data: profile } = await service
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single()
+
+  if (profile?.role === 'super_admin') return
+  if (profile?.role !== 'team_admin' || !lead.assigned_to) throw new Error('Unauthorized')
+
+  const { data: assignments } = await service
+    .from('team_admin_assignments')
+    .select('team_id')
+    .eq('user_id', userId)
+
+  const teamIds = (assignments ?? []).map(assignment => assignment.team_id)
+  if (teamIds.length === 0) throw new Error('Unauthorized')
+
+  const { data: membership } = await service
+    .from('team_members')
+    .select('user_id')
+    .eq('user_id', lead.assigned_to)
+    .in('team_id', teamIds)
+    .maybeSingle()
+
+  if (!membership) throw new Error('Unauthorized')
+}
+
 export async function createCallRecordingUpload(
+  leadId: string,
   fileName: string,
   contentType: string,
   fileSize: number,
 ): Promise<{ path: string; uploadKey: string; publicUrl: string }> {
   const user = await requireUser()
-  const extension = (fileName.split('.').pop() ?? '').toLowerCase()
+  const service = createServiceClient()
+  await requireLeadAccess(service, user.id, leadId)
 
-  if (!Number.isFinite(fileSize) || fileSize <= 0) {
-    throw new Error('A recording file is required')
-  }
-  if (fileSize > MAX_RECORDING_BYTES) {
-    throw new Error('Recording must be 25 MB or smaller')
-  }
+  const extension = (fileName.split('.').pop() ?? '').toLowerCase()
+  if (!Number.isFinite(fileSize) || fileSize <= 0) throw new Error('A recording file is required')
+  if (fileSize > MAX_RECORDING_BYTES) throw new Error('Recording must be 25 MB or smaller')
   if (!contentType.startsWith('audio/') || !ALLOWED_RECORDING_EXTENSIONS.has(extension)) {
     throw new Error('Recording must be MP3, WAV, M4A, OGG, or WebM audio')
   }
 
   const path = `${user.id}/${crypto.randomUUID()}.${extension}`
-  const service = createServiceClient()
   const { data, error } = await service.storage
     .from('call-recordings')
     .createSignedUploadUrl(path)
@@ -69,26 +106,9 @@ export async function logCall(
 ) {
   const user = await requireUser()
   const service = createServiceClient()
+  await requireLeadAccess(service, user.id, leadId)
+
   const newStatus = outcomeToStatus[outcome]
-
-  const { data: lead } = await service
-    .from('leads')
-    .select('assigned_to')
-    .eq('id', leadId)
-    .single()
-
-  if (!lead || lead.assigned_to !== user.id) {
-    const { data: profile } = await service
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || (profile.role !== 'super_admin' && profile.role !== 'team_admin')) {
-      throw new Error('Unauthorized')
-    }
-  }
-
   const [callResult, leadResult] = await Promise.all([
     service.from('call_logs').insert({
       lead_id: leadId,
