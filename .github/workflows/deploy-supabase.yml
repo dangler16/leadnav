@@ -1,0 +1,100 @@
+name: Deploy Supabase Schema
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type DEPLOY to apply pending migrations to the production Supabase project
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.inputs.confirm == 'DEPLOY'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_ADMIN_EMAIL: ${{ secrets.SUPABASE_ADMIN_EMAIL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        shell: bash
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "Missing SUPABASE_ACCESS_TOKEN"; exit 1; }
+          test -n "$SUPABASE_DB_PASSWORD" || { echo "Missing SUPABASE_DB_PASSWORD"; exit 1; }
+          test -n "$SUPABASE_PROJECT_ID" || { echo "Missing SUPABASE_PROJECT_ID"; exit 1; }
+          test -n "$NEXT_PUBLIC_SUPABASE_URL" || { echo "Missing NEXT_PUBLIC_SUPABASE_URL"; exit 1; }
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Missing SUPABASE_SERVICE_ROLE_KEY"; exit 1; }
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: 2.84.2
+          github-token: ${{ github.token }}
+
+      - name: Link production project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+
+      - name: Show migration status before deployment
+        run: supabase migration list
+
+      - name: Preview pending migrations
+        run: supabase db push --dry-run
+
+      - name: Apply pending migrations
+        run: supabase db push
+
+      - name: Promote designated administrator
+        shell: bash
+        run: |
+          if [ -n "$SUPABASE_ADMIN_EMAIL" ]; then
+            npm run supabase:bootstrap-admin
+          else
+            echo "SUPABASE_ADMIN_EMAIL is not set; an existing super administrator must already be present."
+          fi
+
+      - name: Verify LeadNav Supabase resources
+        run: npm run supabase:verify
+
+      - name: Lint deployed database
+        run: supabase db lint --linked --level error --fail-on error
+
+      - name: Show migration status after deployment
+        run: supabase migration list
+
+      - name: Write deployment summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Supabase production deployment"
+            echo ""
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Project ref: $SUPABASE_PROJECT_ID"
+            echo "- Workflow result: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"
