@@ -15,4 +15,7 @@ as $$
   group by wt.order_id;
 $$;
 
+revoke execute on function public.get_order_spend_today(uuid[]) from public;
+grant execute on function public.get_order_spend_today(uuid[]) to service_role;
+
 commit;
