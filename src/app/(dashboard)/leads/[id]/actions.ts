@@ -30,7 +30,7 @@ export async function createCallRecordingUpload(
   fileName: string,
   contentType: string,
   fileSize: number,
-): Promise<{ path: string; token: string; publicUrl: string }> {
+): Promise<{ path: string; uploadKey: string; publicUrl: string }> {
   const user = await requireUser()
   const extension = (fileName.split('.').pop() ?? '').toLowerCase()
 
@@ -54,7 +54,7 @@ export async function createCallRecordingUpload(
 
   return {
     path: data.path ?? path,
-    token: data.token,
+    uploadKey: data.token,
     publicUrl: service.storage.from('call-recordings').getPublicUrl(path).data.publicUrl,
   }
 }
