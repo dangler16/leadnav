@@ -216,6 +216,7 @@ create or replace function public.deduct_wallet(
   p_user_id uuid,
   p_amount_cents integer,
   p_lead_id uuid default null,
+  p_order_id uuid default null,
   p_description text default null
 )
 returns boolean
@@ -249,12 +250,14 @@ begin
     type,
     amount_cents,
     lead_id,
+    order_id,
     description
   ) values (
     p_user_id,
     'charge',
     p_amount_cents,
     p_lead_id,
+    p_order_id,
     p_description
   );
 
@@ -262,10 +265,14 @@ begin
 end;
 $$;
 
+revoke all on function public.current_user_role() from public;
+revoke all on function public.is_super_admin() from public;
+revoke all on function public.is_team_admin_for(uuid) from public;
+revoke all on function public.can_access_user(uuid) from public;
+revoke all on function public.can_access_team(uuid) from public;
+revoke all on function public.can_access_lead(uuid) from public;
 revoke all on function public.credit_wallet(uuid, integer, text, text) from public;
-revoke all on function public.deduct_wallet(uuid, integer, uuid, text) from public;
-grant execute on function public.credit_wallet(uuid, integer, text, text) to service_role;
-grant execute on function public.deduct_wallet(uuid, integer, uuid, text) to service_role;
+revoke all on function public.deduct_wallet(uuid, integer, uuid, uuid, text) from public;
 
 grant execute on function public.current_user_role() to authenticated;
 grant execute on function public.is_super_admin() to authenticated;
@@ -273,5 +280,7 @@ grant execute on function public.is_team_admin_for(uuid) to authenticated;
 grant execute on function public.can_access_user(uuid) to authenticated;
 grant execute on function public.can_access_team(uuid) to authenticated;
 grant execute on function public.can_access_lead(uuid) to authenticated;
+grant execute on function public.credit_wallet(uuid, integer, text, text) to service_role;
+grant execute on function public.deduct_wallet(uuid, integer, uuid, uuid, text) to service_role;
 
 commit;
