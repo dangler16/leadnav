@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 
 export default function ConfirmPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   const [status, setStatus] = useState<'verifying' | 'set-password' | 'error'>('verifying')
   const [error, setError] = useState('')
@@ -66,7 +66,7 @@ export default function ConfirmPage() {
 
     void initializeSession()
     return () => { active = false }
-  }, [supabase.auth])
+  }, [supabase])
 
   async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault()
