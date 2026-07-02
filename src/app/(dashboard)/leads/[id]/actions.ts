@@ -52,7 +52,7 @@ async function requireLeadAccess(service: ServiceClient, userId: string, leadId:
     .select('team_id')
     .eq('user_id', userId)
 
-  const teamIds = (assignments ?? []).map(assignment => assignment.team_id)
+  const teamIds = (assignments ?? []).map((assignment: { team_id: string }) => assignment.team_id)
   if (teamIds.length === 0) throw new Error('Unauthorized')
 
   const { data: membership } = await service
@@ -70,7 +70,7 @@ export async function createCallRecordingUpload(
   fileName: string,
   contentType: string,
   fileSize: number,
-): Promise<{ path: string; uploadKey: string; publicUrl: string }> {
+): Promise<{ path: string; uploadKey: string }> {
   const user = await requireUser()
   const service = createServiceClient()
   await requireLeadAccess(service, user.id, leadId)
@@ -92,7 +92,6 @@ export async function createCallRecordingUpload(
   return {
     path: data.path ?? path,
     uploadKey: data.token,
-    publicUrl: service.storage.from('call-recordings').getPublicUrl(path).data.publicUrl,
   }
 }
 
@@ -102,7 +101,7 @@ export async function logCall(
   notes: string | null,
   durationSeconds?: number | null,
   endedBy?: string | null,
-  recordingUrl?: string | null,
+  recordingPath?: string | null,
 ) {
   const user = await requireUser()
   const service = createServiceClient()
@@ -117,7 +116,7 @@ export async function logCall(
       notes: notes || null,
       duration_seconds: durationSeconds ?? null,
       ended_by: endedBy ?? null,
-      recording_url: recordingUrl ?? null,
+      recording_url: recordingPath ?? null,
       called_at: new Date().toISOString(),
     }),
     newStatus
