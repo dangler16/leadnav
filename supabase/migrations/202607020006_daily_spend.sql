@@ -20,7 +20,20 @@ as $$
   group by wt.order_id;
 $$;
 
+create or replace function public.get_order_spend_today(p_order_ids uuid[])
+returns table (order_id uuid, spent_cents bigint)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select *
+  from public.get_order_spend_today(p_order_ids, 'America/Denver');
+$$;
+
 revoke execute on function public.get_order_spend_today(uuid[], text) from public;
+revoke execute on function public.get_order_spend_today(uuid[]) from public;
 grant execute on function public.get_order_spend_today(uuid[], text) to service_role;
+grant execute on function public.get_order_spend_today(uuid[]) to service_role;
 
 commit;
