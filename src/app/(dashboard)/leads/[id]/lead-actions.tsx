@@ -64,7 +64,7 @@ export function LeadActions({ lead }: Props) {
   }
 
   async function uploadRecording(file: File): Promise<string> {
-    const signedUpload = await createCallRecordingUpload(file.name, file.type, file.size)
+    const signedUpload = await createCallRecordingUpload(lead.id, file.name, file.type, file.size)
     const { error: uploadError } = await supabase.storage
       .from('call-recordings')
       .uploadToSignedUrl(signedUpload.path, signedUpload.uploadKey, file, {
