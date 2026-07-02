@@ -90,31 +90,30 @@ export default async function OrderDetailPage({
   const isTeamAdmin = role === 'team_admin'
   const isAdmin = isSuperAdmin || isTeamAdmin
 
+  const { data: orderData } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (!orderData) notFound()
+
   const service = createServiceClient()
-
-  // Fetch the order — admins can see any order, users only their own
-  const orderQuery = isAdmin
-    ? service.from('orders').select('*').eq('id', id).single()
-    : supabase.from('orders').select('*').eq('id', id).eq('account_id', user.id).single()
-
-  const [{ data: orderData }, { data: leadsData }, { data: agentsData }] = await Promise.all([
-    orderQuery,
+  const [{ data: leadsData }, { data: agentsData }] = await Promise.all([
     service.from('leads').select('*').eq('order_id', id).order('created_at', { ascending: false }),
     service.from('order_agents').select('*').eq('order_id', id),
   ])
 
-  if (!orderData) notFound()
   const order = orderData as Order
   const leads = (leadsData ?? []) as Lead[]
   const rawAgents = (agentsData ?? []) as OrderAgent[]
 
-  // Fetch profiles for agents, account owner, placed_by, and for the orderable pool
   let agentProfiles: Profile[] = []
   let orderableProfiles: Profile[] = []
   let memberIds: string[] = []
 
-  const extraProfileIds = [order.account_id, order.placed_by].filter((id): id is string => !!id)
-  const agentUserIds = rawAgents.map(a => a.user_id)
+  const extraProfileIds = [order.account_id, order.placed_by].filter((profileId): profileId is string => Boolean(profileId))
+  const agentUserIds = rawAgents.map(agent => agent.user_id)
   const allProfileIds = [...new Set([...agentUserIds, ...extraProfileIds])]
   if (allProfileIds.length > 0) {
     const { data } = await service.from('profiles').select('*').in('id', allProfileIds)
@@ -127,10 +126,10 @@ export default async function OrderDetailPage({
   } else if (isTeamAdmin) {
     const { data: assignments } = await supabase
       .from('team_admin_assignments').select('team_id').eq('user_id', user.id)
-    const teamIds = (assignments ?? []).map((a: { team_id: string }) => a.team_id)
+    const teamIds = (assignments ?? []).map((assignment: { team_id: string }) => assignment.team_id)
     if (teamIds.length > 0) {
       const { data: membersData } = await service.from('team_members').select('user_id').in('team_id', teamIds)
-      memberIds = (membersData ?? []).map((m: { user_id: string }) => m.user_id)
+      memberIds = (membersData ?? []).map((member: { user_id: string }) => member.user_id)
       if (memberIds.length > 0) {
         const { data } = await service.from('profiles').select('*').in('id', memberIds).order('first_name')
         orderableProfiles = (data ?? []) as Profile[]
@@ -138,10 +137,10 @@ export default async function OrderDetailPage({
     }
   }
 
-  const profileById = Object.fromEntries(agentProfiles.map(p => [p.id, p]))
-  const agents: AgentWithProfile[] = rawAgents.map(a => ({
-    ...a,
-    profile: profileById[a.user_id] ?? { id: a.user_id, first_name: '?', last_name: '', role: 'user' as const, wallet_balance_cents: 0, stripe_customer_id: null, created_at: '' },
+  const profileById = Object.fromEntries(agentProfiles.map(profile => [profile.id, profile]))
+  const agents: AgentWithProfile[] = rawAgents.map(agent => ({
+    ...agent,
+    profile: profileById[agent.user_id] ?? { id: agent.user_id, first_name: '?', last_name: '', role: 'user' as const, wallet_balance_cents: 0, stripe_customer_id: null, created_at: '' },
   }))
 
   const accountProfile = order.account_id ? profileById[order.account_id] : null
@@ -168,7 +167,7 @@ export default async function OrderDetailPage({
   }
 
   const orderLeadTypes = order.lead_types.length > 0 ? order.lead_types : (order.lead_type ? [order.lead_type] : [])
-  const orderCosts = orderLeadTypes.map(lt => leadEffectiveCost(lt)).filter(c => c > 0)
+  const orderCosts = orderLeadTypes.map(leadType => leadEffectiveCost(leadType)).filter(cost => cost > 0)
   const minCost = orderCosts.length ? Math.min(...orderCosts) : 0
   const maxCost = orderCosts.length ? Math.max(...orderCosts) : 0
   const costDisplay = orderCosts.length === 0
@@ -179,12 +178,12 @@ export default async function OrderDetailPage({
 
   const totalSpend = leads.reduce((sum, lead) => sum + leadEffectiveCost(lead.lead_type), 0)
 
-  const counts = leadTabs.reduce((acc, tab) => {
-    acc[tab.value] = tab.value === 'all' ? leads.length : leads.filter(l => l.status === tab.value).length
-    return acc
+  const counts = leadTabs.reduce((accumulator, tab) => {
+    accumulator[tab.value] = tab.value === 'all' ? leads.length : leads.filter(lead => lead.status === tab.value).length
+    return accumulator
   }, {} as Record<LeadStatusFilter, number>)
 
-  const filteredLeads = filter === 'all' ? leads : leads.filter(l => l.status === filter)
+  const filteredLeads = filter === 'all' ? leads : leads.filter(lead => lead.status === filter)
 
   const colHeader = 'text-left text-xs font-medium uppercase tracking-wide text-muted-foreground px-3 py-2.5'
   const detailRow = 'flex justify-between items-center px-4 py-3 border-b border-border'
@@ -193,8 +192,6 @@ export default async function OrderDetailPage({
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-
-      {/* Header */}
       <div className="px-8 pt-5 pb-4 shrink-0 border-b border-border">
         <Link href="/orders" className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2">
           <ChevronLeft size={13} /> Back to Orders
@@ -209,11 +206,8 @@ export default async function OrderDetailPage({
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-h-0 overflow-hidden px-8 py-5">
         <div className="grid grid-cols-3 gap-4 h-full">
-
-          {/* Order details sidebar */}
           <div className="bg-card border border-border rounded-lg col-span-1 overflow-auto flex flex-col">
             <div className="px-4 py-3 border-b border-border shrink-0 flex items-center justify-between">
               <p className="text-xs font-semibold text-foreground">Order Details</p>
@@ -275,8 +269,8 @@ export default async function OrderDetailPage({
               <div className="flex justify-between items-center px-4 py-3 border-b border-border gap-3">
                 <dt className={`${dt} shrink-0`}>Lead Type</dt>
                 <dd className="flex gap-1.5 flex-wrap justify-end">
-                  {order.lead_types.length > 0 ? order.lead_types.map(lt => (
-                    <span key={lt} className="text-xs font-medium px-2 py-1 rounded bg-foreground text-background">{lt}</span>
+                  {order.lead_types.length > 0 ? order.lead_types.map(leadType => (
+                    <span key={leadType} className="text-xs font-medium px-2 py-1 rounded bg-foreground text-background">{leadType}</span>
                   )) : (
                     <span className={dd}>{order.lead_type ?? '—'}</span>
                   )}
@@ -289,8 +283,8 @@ export default async function OrderDetailPage({
                     <span className={dd}>—</span>
                   ) : (
                     <div className="flex gap-1.5 flex-wrap">
-                      {order.states.map(s => (
-                        <span key={s} className="text-xs font-medium px-2 py-1 rounded bg-foreground text-background">{STATE_NAMES[s] ?? s}</span>
+                      {order.states.map(state => (
+                        <span key={state} className="text-xs font-medium px-2 py-1 rounded bg-foreground text-background">{STATE_NAMES[state] ?? state}</span>
                       ))}
                     </div>
                   )}
@@ -299,20 +293,19 @@ export default async function OrderDetailPage({
               <div className="px-4 py-3 border-b border-border space-y-2">
                 <dt className={dt}>Availability</dt>
                 <dd className="flex gap-1">
-                  {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => {
-                    const active = order.availability.includes(d)
+                  {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day => {
+                    const active = order.availability.includes(day)
                     return (
                       <span
-                        key={d}
+                        key={day}
                         className={`text-xs font-medium flex-1 text-center py-1.5 rounded ${active ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'}`}
                       >
-                        {d}
+                        {day}
                       </span>
                     )
                   })}
                 </dd>
               </div>
-              {/* Agents */}
               <div className="px-4 py-3 space-y-2">
                 <dt className={dt}>Agents</dt>
                 <dd>
@@ -320,12 +313,12 @@ export default async function OrderDetailPage({
                     <span className="text-xs text-muted-foreground/50">None assigned</span>
                   ) : (
                     <div className="flex flex-col gap-1.5">
-                      {agents.map(a => {
-                        const name = [a.profile.first_name, a.profile.last_name].filter(Boolean).join(' ') || '—'
+                      {agents.map(agent => {
+                        const name = [agent.profile.first_name, agent.profile.last_name].filter(Boolean).join(' ') || '—'
                         return (
-                          <div key={a.user_id} className="flex items-center gap-2">
+                          <div key={agent.user_id} className="flex items-center gap-2">
                             <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-[10px] font-bold flex-shrink-0">
-                              {(a.profile.first_name?.[0] ?? '?').toUpperCase()}
+                              {(agent.profile.first_name?.[0] ?? '?').toUpperCase()}
                             </div>
                             <span className="text-xs text-foreground">{name}</span>
                           </div>
@@ -338,7 +331,6 @@ export default async function OrderDetailPage({
             </dl>
           </div>
 
-          {/* Leads table */}
           <div className="col-span-2 flex flex-col bg-card border border-border rounded-lg overflow-hidden">
             <div className="px-4 py-3 border-b border-border shrink-0">
               <p className="text-xs font-semibold text-foreground">Leads ({leads.length})</p>
@@ -364,7 +356,7 @@ export default async function OrderDetailPage({
                     </tr>
                   )}
                   {filteredLeads.map(lead => {
-                    const cfg = leadStatusConfig[lead.status]
+                    const config = leadStatusConfig[lead.status]
                     return (
                       <tr key={lead.id} className="border-b border-border hover:bg-muted transition-colors">
                         <td className="px-3 py-2.5">
@@ -373,9 +365,9 @@ export default async function OrderDetailPage({
                           </Link>
                         </td>
                         <td className="px-3 py-2.5">
-                          <span className={cn(badgeShape, 'gap-1.5 border', cfg.className)}>
-                            <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dotClass)} />
-                            {cfg.label}
+                          <span className={cn(badgeShape, 'gap-1.5 border', config.className)}>
+                            <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', config.dotClass)} />
+                            {config.label}
                           </span>
                         </td>
                         <td className="px-3 py-2.5 text-xs text-muted-foreground">{formatPhone(lead.phone)}</td>

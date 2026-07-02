@@ -97,32 +97,42 @@ export async function inviteUser(fields: {
 }) {
   const { profile: caller, service } = await requireSuperAdminOrTeamAdminService()
 
-  // Team admins can only invite regular users to their own teams
   if (caller.role === 'team_admin') {
     if (fields.role !== 'user') throw new Error('Team admins can only invite users')
     const { data: assignments } = await service
       .from('team_admin_assignments')
       .select('team_id')
       .eq('user_id', caller.id)
-    const myTeamIds = new Set((assignments ?? []).map((a: { team_id: string }) => a.team_id))
+    const myTeamIds = new Set((assignments ?? []).map((assignment: { team_id: string }) => assignment.team_id))
     if (fields.teamId && !myTeamIds.has(fields.teamId)) throw new Error('Unauthorized')
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const { data: inviteData, error: inviteError } = await service.auth.admin.inviteUserByEmail(fields.email, {
-    redirectTo: `${siteUrl}/auth/confirm`,
+    redirectTo: `${siteUrl}/confirm`,
     data: {
       first_name: fields.firstName,
       last_name: fields.lastName,
-      role: fields.role,
     },
   })
+
   if (inviteError || !inviteData?.user) throw new Error('Failed to send invite')
 
   const newUserId = inviteData.user.id
+  const { error: profileError } = await service.from('profiles').upsert({
+    id: newUserId,
+    first_name: fields.firstName,
+    last_name: fields.lastName,
+    role: fields.role,
+  })
+
+  if (profileError) {
+    await service.auth.admin.deleteUser(newUserId)
+    throw new Error('Failed to provision invited user')
+  }
 
   if (fields.role === 'user' && fields.teamId) {
-    await service.from('team_members').insert({
+    const { error } = await service.from('team_members').insert({
       team_id: fields.teamId,
       user_id: newUserId,
       can_order: false,
@@ -130,12 +140,14 @@ export async function inviteUser(fields: {
       can_make_calls: false,
       can_file_disputes: false,
     })
+    if (error) throw new Error('User was invited, but team membership could not be created')
   }
 
   if ((fields.role === 'team_admin' || fields.role === 'super_admin') && fields.teamAdminTeamIds.length > 0) {
-    await service.from('team_admin_assignments').insert(
+    const { error } = await service.from('team_admin_assignments').insert(
       fields.teamAdminTeamIds.map(teamId => ({ team_id: teamId, user_id: newUserId }))
     )
+    if (error) throw new Error('User was invited, but team assignments could not be created')
   }
 
   revalidatePath('/users')
@@ -159,7 +171,7 @@ export async function updateUserPermissions(
       .from('team_admin_assignments')
       .select('team_id')
       .eq('user_id', caller.id)
-    const myTeamIds = new Set((assignments ?? []).map((a: { team_id: string }) => a.team_id))
+    const myTeamIds = new Set((assignments ?? []).map((assignment: { team_id: string }) => assignment.team_id))
     if (!myTeamIds.has(teamId)) throw new Error('Unauthorized')
   }
 
@@ -188,7 +200,7 @@ export async function removeUserFromTeam(userId: string, teamId: string) {
       .from('team_admin_assignments')
       .select('team_id')
       .eq('user_id', caller.id)
-    const myTeamIds = new Set((assignments ?? []).map((a: { team_id: string }) => a.team_id))
+    const myTeamIds = new Set((assignments ?? []).map((assignment: { team_id: string }) => assignment.team_id))
     if (!myTeamIds.has(teamId)) throw new Error('Unauthorized')
   }
 

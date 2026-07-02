@@ -18,7 +18,9 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
       SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
       STRIPE_SECRET_KEY: sk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
       NEXT_PUBLIC_APP_URL: http://localhost:3000
+      APP_TIME_ZONE: America/Denver
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +29,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install dependencies
         shell: bash
