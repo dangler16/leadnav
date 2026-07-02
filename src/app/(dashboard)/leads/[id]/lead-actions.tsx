@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Lead, CallOutcome } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/ui/select-dropdown'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { logCall as logCallAction, uploadCallRecording } from './actions'
+import { createCallRecordingUpload, logCall as logCallAction } from './actions'
+import { createClient } from '@/lib/supabase/client'
 import { Upload } from 'lucide-react'
 import { CallTimer } from '@/app/(dashboard)/dials/call-timer'
 import { buildDialerUrl } from '@/lib/dialer'
@@ -35,6 +36,7 @@ type Props = {
 }
 
 export function LeadActions({ lead }: Props) {
+  const supabase = useMemo(() => createClient(), [])
   const [open, setOpen] = useState(false)
   const [outcome, setOutcome] = useState<CallOutcome>('no_answer')
   const [notes, setNotes] = useState('')
@@ -47,9 +49,7 @@ export function LeadActions({ lead }: Props) {
   const handleDurationChange = useCallback((seconds: number) => setDuration(seconds), [])
 
   function handleDial() {
-    if (lead.phone) {
-      window.location.href = buildDialerUrl(lead.phone, 'default')
-    }
+    if (lead.phone) window.location.href = buildDialerUrl(lead.phone, 'default')
     setError(null)
     setOpen(true)
   }
@@ -63,20 +63,25 @@ export function LeadActions({ lead }: Props) {
     setError(null)
   }
 
+  async function uploadRecording(file: File): Promise<string> {
+    const signedUpload = await createCallRecordingUpload(file.name, file.type, file.size)
+    const { error: uploadError } = await supabase.storage
+      .from('call-recordings')
+      .uploadToSignedUrl(signedUpload.path, signedUpload.uploadKey, file, {
+        contentType: file.type,
+      })
+
+    if (uploadError) throw new Error('Failed to upload recording')
+    return signedUpload.publicUrl
+  }
+
   async function handleLogDial(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setSaving(true)
     setError(null)
 
     try {
-      let recordingUrl: string | null = null
-
-      if (recordingFile) {
-        const uploadData = new FormData()
-        uploadData.set('file', recordingFile)
-        recordingUrl = await uploadCallRecording(uploadData)
-      }
-
+      const recordingUrl = recordingFile ? await uploadRecording(recordingFile) : null
       await logCallAction(
         lead.id,
         outcome,
@@ -85,7 +90,6 @@ export function LeadActions({ lead }: Props) {
         endedBy || null,
         recordingUrl,
       )
-
       resetForm()
       setOpen(false)
     } catch (err) {
@@ -95,11 +99,23 @@ export function LeadActions({ lead }: Props) {
     }
   }
 
+  function handleRecordingSelection(file: File | null) {
+    setError(null)
+    if (!file) {
+      setRecordingFile(null)
+      return
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      setRecordingFile(null)
+      setError('Recording must be 25 MB or smaller.')
+      return
+    }
+    setRecordingFile(file)
+  }
+
   return (
     <>
-      <Button onClick={handleDial} size="sm" className="border-0">
-        Dial
-      </Button>
+      <Button onClick={handleDial} size="sm" className="border-0">Dial</Button>
 
       <Dialog
         open={open}
@@ -131,11 +147,7 @@ export function LeadActions({ lead }: Props) {
 
             <div className="space-y-1.5">
               <Label>Who ended the call?</Label>
-              <SelectDropdown
-                options={endedByOptions}
-                value={endedBy}
-                onChange={setEndedBy}
-              />
+              <SelectDropdown options={endedByOptions} value={endedBy} onChange={setEndedBy} />
             </div>
 
             <div className="space-y-1.5">
@@ -158,7 +170,7 @@ export function LeadActions({ lead }: Props) {
                     type="file"
                     accept="audio/mpeg,audio/wav,audio/x-m4a,audio/mp4,audio/ogg,audio/webm,.mp3,.wav,.m4a,.ogg,.webm"
                     className="hidden"
-                    onChange={e => setRecordingFile(e.target.files?.[0] ?? null)}
+                    onChange={e => handleRecordingSelection(e.target.files?.[0] ?? null)}
                     disabled={saving}
                   />
                   <span className="inline-flex items-center gap-1.5 text-xs border border-border bg-card hover:bg-muted rounded px-3 py-1.5 transition-colors">
