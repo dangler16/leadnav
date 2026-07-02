@@ -11,12 +11,12 @@ LeadNav is a lead ordering, distribution, billing, and agent operations platform
 - Round-robin lead assignment based on vendor, state, lead type, availability, wallet balance, and daily budget
 - Lead status management and agent reassignment
 - Orders, order-agent assignments, archiving, and transfers
-- Dial tracking, call outcomes, notes, recordings, and lead-status updates
+- Dial tracking, call outcomes, notes, private recordings, and lead-status updates
 - Lead disputes and administrator review
 - Wallet funding and Stripe Checkout
 - Notifications, reporting, profile settings, dark mode, and PDF exports
 - Supabase migrations with row-level security and storage setup
-- GitHub Actions lint and production-build validation
+- GitHub Actions lint, production-build validation, and guarded Supabase deployment
 
 ## Technology
 
@@ -66,15 +66,23 @@ supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 
-The migrations in `supabase/migrations` create the application tables, indexes, profile provisioning, wallet functions, role-aware row-level-security policies, and storage buckets.
+The migrations in `supabase/migrations` create the application tables, indexes, profile provisioning, wallet functions, role-aware row-level-security policies, private call-recording storage, and supporting storage buckets.
 
-For an existing LeadNav database, review the migration diff in a staging project before applying it to production.
+For an existing LeadNav database, review the migration dry run before applying pending migrations.
 
 ### 4. Create the first administrator
 
-Create the first user in Supabase Authentication. The profile trigger initially assigns every new account the safe `user` role.
+Create or invite the first user in Supabase Authentication. The profile trigger initially assigns every new account the safe `user` role.
 
-Promote the first trusted administrator through the Supabase SQL editor:
+Promote that existing Auth user with the included utility:
+
+```bash
+SUPABASE_ADMIN_EMAIL=admin@example.com npm run supabase:bootstrap-admin
+```
+
+The command also requires `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
+
+Alternatively, promote the user through the Supabase SQL editor:
 
 ```sql
 update public.profiles
@@ -130,14 +138,44 @@ Open `http://localhost:3000`.
 
 ## Production validation
 
-Run both checks before deployment:
+Run these checks before deployment:
 
 ```bash
 npm run lint
 npm run build
+npm run supabase:verify
 ```
 
-The same checks run through `.github/workflows/ci.yml` on pushes and pull requests targeting `main`.
+`supabase:verify` requires `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. It verifies the required tables, storage buckets, daily-spend RPC, private recording bucket, and at least one super administrator.
+
+The application lint and build checks run through `.github/workflows/ci.yml` on pushes and pull requests targeting `main`.
+
+## Guarded Supabase deployment
+
+The repository includes `.github/workflows/deploy-supabase.yml`. It performs a dry run, applies pending migrations, optionally promotes the designated administrator, verifies the deployed resources, lints the linked database, and prints the final migration status.
+
+Create a GitHub environment named `production` and add these repository or environment secrets:
+
+```text
+SUPABASE_ACCESS_TOKEN
+SUPABASE_DB_PASSWORD
+SUPABASE_PROJECT_ID
+NEXT_PUBLIC_SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_ADMIN_EMAIL
+```
+
+`SUPABASE_ADMIN_EMAIL` is optional when a super administrator already exists. The other five values are required.
+
+To deploy:
+
+1. Open the repository's **Actions** tab.
+2. Select **Deploy Supabase Schema**.
+3. Choose **Run workflow**.
+4. Enter `DEPLOY` in the confirmation field.
+5. Review the migration dry run and final verification output.
+
+Use protection rules on the `production` environment when an approval should be required before applying migrations.
 
 ## Inbound lead webhook
 
@@ -195,6 +233,8 @@ Primary tables:
 
 The browser uses the Supabase anonymous key and is constrained by Row Level Security. Privileged mutations and external webhooks use the server-only service-role client.
 
+Call recordings are stored in a private bucket. Playback goes through an authenticated API route that checks database access and issues a five-minute signed storage URL.
+
 ## Deployment
 
 LeadNav can be deployed to Vercel or another Node.js platform that supports Next.js server routes.
@@ -202,10 +242,11 @@ LeadNav can be deployed to Vercel or another Node.js platform that supports Next
 For Vercel:
 
 1. Import this repository.
-2. add every value from `.env.example` to the project environment variables.
+2. Add every value from `.env.example` to the project environment variables.
 3. Deploy the `main` branch.
 4. Update `NEXT_PUBLIC_APP_URL`, Supabase Auth URLs, and the Stripe webhook URL to the production domain.
-5. Run a test vendor webhook and a Stripe test-mode wallet top-up before enabling production traffic.
+5. Confirm `https://YOUR_DOMAIN/api/health` returns HTTP `200` with `status: ok`.
+6. Run a test vendor webhook and a Stripe test-mode wallet top-up before enabling production traffic.
 
 ## Security notes
 
@@ -214,4 +255,4 @@ For Vercel:
 - Use HTTPS in production.
 - Restrict Supabase Auth signups for internal deployments.
 - Test migrations and Stripe webhooks in staging before production changes.
-- Call recordings are uploaded through an authenticated server action and are limited to supported audio formats and 25 MB.
+- Call recordings use short-lived signed upload and playback URLs and are limited to supported audio formats and 25 MB.
