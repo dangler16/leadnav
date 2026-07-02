@@ -72,7 +72,7 @@ export function LeadActions({ lead }: Props) {
       })
 
     if (uploadError) throw new Error('Failed to upload recording')
-    return signedUpload.publicUrl
+    return signedUpload.path
   }
 
   async function handleLogDial(e: React.FormEvent<HTMLFormElement>) {
@@ -81,14 +81,14 @@ export function LeadActions({ lead }: Props) {
     setError(null)
 
     try {
-      const recordingUrl = recordingFile ? await uploadRecording(recordingFile) : null
+      const recordingPath = recordingFile ? await uploadRecording(recordingFile) : null
       await logCallAction(
         lead.id,
         outcome,
         notes || null,
         duration > 0 ? duration : null,
         endedBy || null,
-        recordingUrl,
+        recordingPath,
       )
       resetForm()
       setOpen(false)
