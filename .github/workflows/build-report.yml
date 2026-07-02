@@ -1,0 +1,85 @@
+name: Generate LeadNav Build Report
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/build-report.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+      STRIPE_SECRET_KEY: sk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate build report
+        shell: bash
+        run: |
+          mkdir -p ci
+          REPORT=ci/build-report.txt
+          : > "$REPORT"
+          echo "LeadNav build report" >> "$REPORT"
+          echo "Generated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$REPORT"
+          echo "Node: $(node --version)" >> "$REPORT"
+          echo "NPM: $(npm --version)" >> "$REPORT"
+          echo >> "$REPORT"
+          echo "Referenced environment variables:" >> "$REPORT"
+          grep -Rho "process\.env\.[A-Z0-9_]*" src 2>/dev/null | sort -u >> "$REPORT" || true
+          echo >> "$REPORT"
+
+          set +e
+          echo "===== INSTALL =====" >> "$REPORT"
+          if [ -f package-lock.json ]; then
+            npm ci >> "$REPORT" 2>&1
+          else
+            npm install >> "$REPORT" 2>&1
+          fi
+          INSTALL_EXIT=$?
+          echo "INSTALL_EXIT=$INSTALL_EXIT" >> "$REPORT"
+          echo >> "$REPORT"
+
+          if [ "$INSTALL_EXIT" -eq 0 ]; then
+            echo "===== LINT =====" >> "$REPORT"
+            npm run lint >> "$REPORT" 2>&1
+            LINT_EXIT=$?
+            echo "LINT_EXIT=$LINT_EXIT" >> "$REPORT"
+            echo >> "$REPORT"
+
+            echo "===== BUILD =====" >> "$REPORT"
+            npm run build >> "$REPORT" 2>&1
+            BUILD_EXIT=$?
+            echo "BUILD_EXIT=$BUILD_EXIT" >> "$REPORT"
+          else
+            echo "LINT_EXIT=SKIPPED" >> "$REPORT"
+            echo "BUILD_EXIT=SKIPPED" >> "$REPORT"
+          fi
+          set -e
+
+      - name: Commit report
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ci/build-report.txt
+          git commit -m "ci: record LeadNav build report" || exit 0
+          git push origin main
