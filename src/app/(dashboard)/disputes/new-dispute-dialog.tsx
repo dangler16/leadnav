@@ -40,7 +40,6 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
     function handleClick(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
-        // If nothing valid selected, reset query
         if (!value) setQuery('')
       }
     }
@@ -93,6 +92,7 @@ function LeadSearch({ leads, value, onChange }: { leads: LeadOption[]; value: st
 export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userId: string }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [selectedLeadId, setSelectedLeadId] = useState('')
   const [reason, setReason] = useState<DisputeReason>('bad_phone')
   const router = useRouter()
@@ -100,54 +100,68 @@ export function NewDisputeDialog({ leads, userId }: { leads: LeadOption[]; userI
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!selectedLeadId) return
+
     setLoading(true)
+    setError(null)
     const fd = new FormData(e.currentTarget)
-    await supabase.from('disputes').insert({
-      lead_id: fd.get('lead_id') as string,
+
+    const { error: insertError } = await supabase.from('disputes').insert({
+      lead_id: selectedLeadId,
       agent_id: userId,
       reason: fd.get('reason') as DisputeReason,
       notes: fd.get('notes') || null,
-      status: 'pending',
+      status: 'open',
     })
+
     setLoading(false)
+
+    if (insertError) {
+      setError('The dispute could not be filed. Please try again.')
+      return
+    }
+
     setOpen(false)
+    setSelectedLeadId('')
+    setReason('bad_phone')
     router.refresh()
   }
 
   return (
     <>
       <Button onClick={() => setOpen(true)}>File Dispute</Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>File a Dispute</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="space-y-1.5">
-            <Label>Lead</Label>
-            <input type="hidden" name="lead_id" value={selectedLeadId} />
-            <LeadSearch leads={leads} value={selectedLeadId} onChange={setSelectedLeadId} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Reason</Label>
-            <SelectDropdown
-              options={reasonOptions.map(r => ({ value: r.value, label: r.label }))}
-              value={reason}
-              onChange={v => setReason(v as DisputeReason)}
-              name="reason"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" placeholder="Describe the issue…" rows={3} className="text-xs resize-none" />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading || !selectedLeadId}>{loading ? 'Filing…' : 'File Dispute'}</Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <Dialog open={open} onOpenChange={value => { setOpen(value); if (!value) setError(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>File a Dispute</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label>Lead</Label>
+              <input type="hidden" name="lead_id" value={selectedLeadId} />
+              <LeadSearch leads={leads} value={selectedLeadId} onChange={setSelectedLeadId} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Reason</Label>
+              <SelectDropdown
+                options={reasonOptions.map(r => ({ value: r.value, label: r.label }))}
+                value={reason}
+                onChange={v => setReason(v as DisputeReason)}
+                name="reason"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea id="notes" name="notes" placeholder="Describe the issue…" rows={3} className="text-xs resize-none" />
+            </div>
+            {error && <p className="text-xs text-red-600">{error}</p>}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={loading || !selectedLeadId}>{loading ? 'Filing…' : 'File Dispute'}</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
