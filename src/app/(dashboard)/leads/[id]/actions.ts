@@ -26,33 +26,37 @@ async function requireUser() {
   return user
 }
 
-export async function uploadCallRecording(formData: FormData): Promise<string> {
+export async function createCallRecordingUpload(
+  fileName: string,
+  contentType: string,
+  fileSize: number,
+): Promise<{ path: string; token: string; publicUrl: string }> {
   const user = await requireUser()
-  const file = formData.get('file')
+  const extension = (fileName.split('.').pop() ?? '').toLowerCase()
 
-  if (!(file instanceof File) || file.size === 0) {
+  if (!Number.isFinite(fileSize) || fileSize <= 0) {
     throw new Error('A recording file is required')
   }
-
-  if (file.size > MAX_RECORDING_BYTES) {
+  if (fileSize > MAX_RECORDING_BYTES) {
     throw new Error('Recording must be 25 MB or smaller')
   }
-
-  const extension = (file.name.split('.').pop() ?? '').toLowerCase()
-  const isAudioMime = file.type.startsWith('audio/')
-  if (!isAudioMime || !ALLOWED_RECORDING_EXTENSIONS.has(extension)) {
+  if (!contentType.startsWith('audio/') || !ALLOWED_RECORDING_EXTENSIONS.has(extension)) {
     throw new Error('Recording must be MP3, WAV, M4A, OGG, or WebM audio')
   }
 
   const path = `${user.id}/${crypto.randomUUID()}.${extension}`
   const service = createServiceClient()
-  const { error } = await service.storage
+  const { data, error } = await service.storage
     .from('call-recordings')
-    .upload(path, file, { contentType: file.type, upsert: false })
+    .createSignedUploadUrl(path)
 
-  if (error) throw new Error('Failed to upload recording')
+  if (error || !data?.token) throw new Error('Failed to authorize recording upload')
 
-  return service.storage.from('call-recordings').getPublicUrl(path).data.publicUrl
+  return {
+    path: data.path ?? path,
+    token: data.token,
+    publicUrl: service.storage.from('call-recordings').getPublicUrl(path).data.publicUrl,
+  }
 }
 
 export async function logCall(
