@@ -177,7 +177,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                       <td className="px-3 py-2.5">
                         {call.recording_url ? (
                           <a
-                            href={call.recording_url}
+                            href={`/api/call-recordings/${call.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs text-foreground hover:text-muted-foreground transition-colors"
