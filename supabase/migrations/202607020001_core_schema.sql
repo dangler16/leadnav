@@ -160,6 +160,7 @@ create table if not exists public.wallet_transactions (
   amount_cents bigint not null check (amount_cents > 0),
   stripe_payment_intent_id text,
   lead_id uuid references public.leads(id) on delete set null,
+  order_id uuid references public.orders(id) on delete set null,
   description text,
   created_at timestamptz not null default now()
 );
@@ -175,6 +176,7 @@ create index if not exists call_logs_lead_called_idx on public.call_logs (lead_i
 create index if not exists disputes_agent_status_idx on public.disputes (agent_id, status);
 create index if not exists notifications_user_unread_idx on public.notifications (user_id, read, created_at desc);
 create index if not exists wallet_transactions_user_created_idx on public.wallet_transactions (user_id, created_at desc);
+create index if not exists wallet_transactions_order_created_idx on public.wallet_transactions (order_id, created_at desc) where type = 'charge';
 create index if not exists vendor_api_keys_hash_idx on public.vendor_api_keys (key_hash) where is_active = true;
 create index if not exists orders_states_gin_idx on public.orders using gin (states);
 create index if not exists orders_lead_types_gin_idx on public.orders using gin (lead_types);
