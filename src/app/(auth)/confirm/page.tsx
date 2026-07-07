@@ -1,16 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export default function ConfirmPage() {
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   const [status, setStatus] = useState<'verifying' | 'set-password' | 'error'>('verifying')
   const [error, setError] = useState('')
@@ -19,41 +18,80 @@ export default function ConfirmPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    const tokenHash = searchParams.get('token_hash')
-    const type = searchParams.get('type') as 'invite' | 'recovery' | null
+    let active = true
 
-    if (!tokenHash || !type) {
-      setError('Invalid or missing invite link.')
-      setStatus('error')
-      return
+    async function initializeSession() {
+      const params = new URLSearchParams(window.location.search)
+      const tokenHash = params.get('token_hash')
+      const type = params.get('type')
+      const code = params.get('code')
+
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        if (!active) return
+        if (exchangeError) {
+          setError(exchangeError.message)
+          setStatus('error')
+          return
+        }
+        setStatus('set-password')
+        return
+      }
+
+      if (tokenHash && (type === 'invite' || type === 'recovery')) {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type,
+        })
+        if (!active) return
+        if (verifyError) {
+          setError(verifyError.message)
+          setStatus('error')
+          return
+        }
+        setStatus('set-password')
+        return
+      }
+
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (!active) return
+
+      if (session) {
+        setStatus('set-password')
+      } else {
+        setError(sessionError?.message ?? 'Invalid, expired, or missing invite link.')
+        setStatus('error')
+      }
     }
 
-    supabase.auth.verifyOtp({ token_hash: tokenHash, type }).then(({ error }) => {
-      if (error) {
-        setError(error.message)
-        setStatus('error')
-      } else {
-        setStatus('set-password')
-      }
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    void initializeSession()
+    return () => { active = false }
+  }, [supabase])
 
   async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
     if (password !== confirm) {
       setError('Passwords do not match.')
       return
     }
+
     setSaving(true)
-    setError('')
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) {
-      setError(error.message)
+    const { error: updateError } = await supabase.auth.updateUser({ password })
+
+    if (updateError) {
+      setError(updateError.message)
       setSaving(false)
-    } else {
-      router.push('/dashboard')
+      return
     }
+
+    router.replace('/dashboard')
+    router.refresh()
   }
 
   return (
@@ -70,7 +108,10 @@ export default function ConfirmPage() {
           {status === 'error' && (
             <>
               <h1 className="text-lg font-semibold text-foreground mb-2">Link invalid</h1>
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-red-600 mb-4">{error}</p>
+              <Button type="button" variant="outline" className="w-full" onClick={() => router.replace('/login')}>
+                Return to sign in
+              </Button>
             </>
           )}
 
@@ -88,6 +129,7 @@ export default function ConfirmPage() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
+                    minLength={8}
                     autoComplete="new-password"
                   />
                 </div>
@@ -101,6 +143,7 @@ export default function ConfirmPage() {
                     value={confirm}
                     onChange={e => setConfirm(e.target.value)}
                     required
+                    minLength={8}
                     autoComplete="new-password"
                   />
                 </div>

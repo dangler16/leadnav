@@ -1,0 +1,447 @@
+LeadNav build report
+Generated: 2026-07-02T16:08:43Z
+Node: v20.20.2
+NPM: 10.8.2
+
+Referenced environment variables:
+process.env.NEXT_PUBLIC_APP_URL
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+process.env.NEXT_PUBLIC_SUPABASE_URL
+process.env.STRIPE_SECRET_KEY
+process.env.STRIPE_WEBHOOK_SECRET
+process.env.SUPABASE_SERVICE_ROLE_KEY
+
+===== INSTALL =====
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 665 packages, and audited 666 packages in 19s
+
+233 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (1 low, 6 moderate, 2 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+INSTALL_EXIT=0
+
+===== LINT =====
+
+> leadnav@0.1.0 lint
+> eslint
+
+
+/home/runner/work/leadnav/leadnav/src/app/(auth)/confirm/page.tsx
+  26:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(auth)/confirm/page.tsx:26:7
+  24 |
+  25 |     if (!tokenHash || !type) {
+> 26 |       setError('Invalid or missing invite link.')
+     |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |       setStatus('error')
+  28 |       return
+  29 |     }  react-hooks/set-state-in-effect
+  63:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(auth)/login/page.tsx
+  36:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/dashboard/page.tsx
+  3:33  warning  'CallLog' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/dials/call-timer.tsx
+  15:3  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/dials/call-timer.tsx:15:3
+  13 |   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  14 |   const callbackRef = useRef(onDurationChange)
+> 15 |   callbackRef.current = onDurationChange
+     |   ^^^^^^^^^^^^^^^^^^^ Cannot update ref during render
+  16 |
+  17 |   useEffect(() => {
+  18 |     if (running) {  react-hooks/refs
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/dials/make-call-dialog.tsx
+  56:5  error  Error: This value cannot be modified
+
+Modifying a variable defined outside a component or hook is not allowed. Consider using an effect.
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/dials/make-call-dialog.tsx:56:5
+  54 |   function handleCall() {
+  55 |     if (!selected?.phone) return
+> 56 |     window.location.href = buildDialerUrl(selected.phone, 'default')
+     |     ^^^^^^^^^^^^^^^ value cannot be modified
+  57 |     handleOpenChange(false)
+  58 |   }
+  59 |  react-hooks/immutability
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/disputes/dispute-status-select.tsx
+  29:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/disputes/dispute-status-select.tsx:29:21
+  27 |   const router = useRouter()
+  28 |
+> 29 |   useEffect(() => { setStatus(initialStatus) }, [initialStatus])
+     |                     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   useEffect(() => { if (open) setRendered(true) }, [open])
+  31 |
+  32 |   useEffect(() => {                                  react-hooks/set-state-in-effect
+  30:31  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/disputes/dispute-status-select.tsx:30:31
+  28 |
+  29 |   useEffect(() => { setStatus(initialStatus) }, [initialStatus])
+> 30 |   useEffect(() => { if (open) setRendered(true) }, [open])
+     |                               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  31 |
+  32 |   useEffect(() => {
+  33 |     function handleClickOutside(e: MouseEvent) {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/leads/[id]/contact-info-card.tsx
+  112:70  warning  'assignedName' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/leads/lead-status-select.tsx
+  36:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/leads/lead-status-select.tsx:36:5
+  34 |
+  35 |   useEffect(() => {
+> 36 |     setStatus(initialStatus)
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |   }, [initialStatus])
+  38 |
+  39 |   useEffect(() => {         react-hooks/set-state-in-effect
+  40:15  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/leads/lead-status-select.tsx:40:15
+  38 |
+  39 |   useEffect(() => {
+> 40 |     if (open) setRendered(true)
+     |               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |   }, [open])
+  42 |
+  43 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/orders/[id]/edit-order-dialog.tsx
+  107:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  115:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/orders/actions.ts
+  61:35  warning  'orderId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/orders/new-order-dialog.tsx
+   99:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  107:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/orders/order-status-select.tsx
+  35:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/orders/order-status-select.tsx:35:21
+  33 |   const supabase = createClient()
+  34 |
+> 35 |   useEffect(() => { setStatus(initialStatus) }, [initialStatus])
+     |                     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  36 |   useEffect(() => { if (open) setRendered(true) }, [open])
+  37 |
+  38 |   useEffect(() => {                             react-hooks/set-state-in-effect
+  36:31  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/orders/order-status-select.tsx:36:31
+  34 |
+  35 |   useEffect(() => { setStatus(initialStatus) }, [initialStatus])
+> 36 |   useEffect(() => { if (open) setRendered(true) }, [open])
+     |                               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |
+  38 |   useEffect(() => {
+  39 |     function handleClickOutside(e: MouseEvent) {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/profile/avatar-upload.tsx
+  146:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  182:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/reports/generate-report-dialog.tsx
+  60:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/reports/reports-scope-selector.tsx
+  25:15  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/reports/reports-scope-selector.tsx:25:15
+  23 |
+  24 |   useEffect(() => {
+> 25 |     if (open) setRendered(true)
+     |               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  26 |   }, [open])
+  27 |
+  28 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/settings/dark-mode-toggle.tsx
+  7:34  warning  'initialDark' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/teams/logo-crop-upload.tsx
+  158:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  209:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/teams/page.tsx
+  131:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/[id]/page.tsx
+   5:44  warning  'formatLeadStatusLabel' is defined but never used                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  77:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/page.tsx
+  159:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/user-role-select.tsx
+  33:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/user-role-select.tsx:33:21
+  31 |   const router = useRouter()
+  32 |
+> 33 |   useEffect(() => { setRole(initialRole) }, [initialRole])
+     |                     ^^^^^^^ Avoid calling setState() directly within an effect
+  34 |   useEffect(() => { if (open) setRendered(true) }, [open])
+  35 |
+  36 |   useEffect(() => {                                    react-hooks/set-state-in-effect
+  34:31  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/user-role-select.tsx:34:31
+  32 |
+  33 |   useEffect(() => { setRole(initialRole) }, [initialRole])
+> 34 |   useEffect(() => { if (open) setRendered(true) }, [open])
+     |                               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |
+  36 |   useEffect(() => {
+  37 |     function handleClickOutside(e: MouseEvent) {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/user-team-select.tsx
+  32:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/user-team-select.tsx:32:21
+  30 |   const router = useRouter()
+  31 |
+> 32 |   useEffect(() => { setTeamId(initialTeamId ?? '') }, [initialTeamId])
+     |                     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |   useEffect(() => { if (open) setRendered(true) }, [open])
+  34 |
+  35 |   useEffect(() => {                                  react-hooks/set-state-in-effect
+  33:31  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/users/user-team-select.tsx:33:31
+  31 |
+  32 |   useEffect(() => { setTeamId(initialTeamId ?? '') }, [initialTeamId])
+> 33 |   useEffect(() => { if (open) setRendered(true) }, [open])
+     |                               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  34 |
+  35 |   useEffect(() => {
+  36 |     function handleClickOutside(e: MouseEvent) {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/edit-vendor-dialog.tsx
+   81:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  111:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/new-vendor-dialog.tsx
+  59:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  89:7  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/page.tsx
+  92:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/vendor-api-keys.tsx
+  13:10  warning  'Key' is defined but never used   @typescript-eslint/no-unused-vars
+  13:15  warning  'Plus' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/vendor-status-select.tsx
+  27:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/vendor-status-select.tsx:27:21
+  25 |   const supabase = createClient()
+  26 |
+> 27 |   useEffect(() => { setIsActive(initialIsActive) }, [initialIsActive])
+     |                     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  28 |   useEffect(() => { if (open) setRendered(true) }, [open])
+  29 |
+  30 |   useEffect(() => {                           react-hooks/set-state-in-effect
+  28:31  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/app/(dashboard)/vendors/vendor-status-select.tsx:28:31
+  26 |
+  27 |   useEffect(() => { setIsActive(initialIsActive) }, [initialIsActive])
+> 28 |   useEffect(() => { if (open) setRendered(true) }, [open])
+     |                               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |
+  30 |   useEffect(() => {
+  31 |     function handleClickOutside(e: MouseEvent) {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/components/notification-bell.tsx
+  41:31  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/runner/work/leadnav/leadnav/src/components/notification-bell.tsx:41:31
+  39 |   const supabase = createClient()
+  40 |
+> 41 |   useEffect(() => { if (open) setRendered(true) }, [open])
+     |                               ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  42 |
+  43 |   // Real-time subscription for incoming notifications
+  44 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+/home/runner/work/leadnav/leadnav/src/components/sidebar.tsx
+  73:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 44 problems (17 errors, 27 warnings)
+
+LINT_EXIT=1
+
+===== BUILD =====
+
+> leadnav@0.1.0 build
+> next build
+
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+▲ Next.js 16.2.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.5s
+  Running TypeScript ...
+  Finished TypeScript in 9.0s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/22) ...
+  Generating static pages using 3 workers (5/22) 
+  Generating static pages using 3 workers (10/22) 
+  Generating static pages using 3 workers (16/22) 
+✓ Generating static pages using 3 workers (22/22) in 366ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /api/leads/inbound
+├ ƒ /api/stripe/checkout
+├ ƒ /api/stripe/webhook
+├ ƒ /billing
+├ ƒ /confirm
+├ ƒ /dashboard
+├ ƒ /dials
+├ ƒ /disputes
+├ ƒ /leads
+├ ƒ /leads/[id]
+├ ƒ /login
+├ ƒ /notifications
+├ ƒ /orders
+├ ƒ /orders/[id]
+├ ƒ /profile
+├ ƒ /reports
+├ ƒ /settings
+├ ƒ /teams
+├ ƒ /users
+├ ƒ /users/[id]
+└ ƒ /vendors
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+BUILD_EXIT=0
